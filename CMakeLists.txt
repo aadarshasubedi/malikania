@@ -36,7 +36,6 @@ configure_file(
 )
 
 add_subdirectory(extern)
-add_subdirectory(docs)
 add_subdirectory(cmake)
 
 message("Documentation:")
