@@ -69,33 +69,14 @@ endif ()
 find_package(Pandoc)
 
 if (Pandoc_FOUND)
-	add_custom_target(
-		books
-		ALL
-		COMMENT "Generated books"
-	)
-
-	if (WITH_DOCS_CONVENTIONS)
-		setg(WITH_DOCS_CONVENTIONS_MSG "Yes")
+	if (WITH_DOCS_BOOKS)
+		setg(WITH_DOCS_BOOKS_MSG "Yes")
 	else ()
-		setg(WITH_DOCS_CONVENTIONS_MSG "No (disabled by user)")
-	endif ()
-
-	if (WITH_DOCS_SPECS)
-		setg(WITH_DOCS_SPECS_MSG "Yes")
-	else ()
-		setg(WITH_DOCS_SPECS_MSG "No (disabled by user)")
+		setg(WITH_DOCS_BOOKS_MSG "No (disabled by user)")
 	endif ()
 else ()
-	setg(WITH_DOCS_CONVENTIONS_MSG "No (pandoc not found)")
-	setg(WITH_DOCS_CONVENTIONS Off)
-	setg(WITH_DOCS_SPECS_MSG "No (pandoc not found)")
-	setg(WITH_DOCS_SPECS Off)
+	setg(WITH_DOCS_BOOKS_MSG "No (pandoc not found)")
+	setg(WITH_DOCS_BOOKS Off)
 endif ()
 
-if (WITH_DOCS_CONVENTIONS)
-	add_subdirectory(books/conventions)
-endif ()
-if (WITH_DOCS_SPECS)
-	add_subdirectory(books/specifications)
-endif ()
+add_subdirectory(books)

@@ -46,20 +46,18 @@ option(WITH_SQLITE "Enable SQLite" On)
 #    WITH_DOCS			- Disable or enable all docs, if set to Off, disable all documentation.
 #    WITH_DOCS_UML		- Enable UML diagram generation.
 #    WITH_DOCS_DOXYGEN		- Enable doxygen
-#    WITH_DOCS_CONVENTIONS	- Enable coding conventions
-#    WITH_DOCS_SPECS		- Enable build of malikania specifications
+#    WITH_DOCS_BOOKS		- Enable build of books
 # ---------------------------------------------------------
 
 option(WITH_DOCS "Build all documentation" On)
 option(WITH_DOCS_UML "Enable UML diagrams generation" On)
 option(WITH_DOCS_DOXYGEN "Enable doxygen generation" On)
-option(WITH_DOCS_CONVENTIONS "Enable coding conventions" On)
-option(WITH_DOCS_SPECS "Enable specifications generation" On)
+option(WITH_DOCS_BOOKS "Enable build of books" On)
 
 if (NOT WITH_DOCS)
 	set(WITH_DOCS_UML Off)
 	set(WITH_DOCS_DOXYGEN Off)
-	set(WITH_DOCS_SPECS Off)
+	set(WITH_DOCS_BOOKS Off)
 endif ()
 
 # ---------------------------------------------------------

@@ -250,7 +250,7 @@ endfunction()
 
 function(malikania_generate_book name output sources)
 	pandoc(
-		book-${name}
+		TARGET book-${name}
 		SOURCES ${sources}
 		OUTPUT ${docs_BINARY_DIR}/books/${output}
 		FROM markdown
