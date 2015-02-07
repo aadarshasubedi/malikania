@@ -1,7 +1,10 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
+# Copyright (c) 2013, 2014, 2015
+#   David Demelier <markand@malikania.fr>
+#   Renaud Jenny <renox0@malikania.fr>
+#   Alexis Dörr <nanahara@malikania.fr>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
