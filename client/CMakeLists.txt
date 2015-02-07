@@ -24,3 +24,5 @@ set(
 )
 
 add_executable(client ${FILES})
+target_include_directories(client PRIVATE ${SDL2_INCLUDE_DIR})
+target_link_libraries(client ${SDL2_LIBRARY})
