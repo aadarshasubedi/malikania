@@ -16,32 +16,11 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 2.8.12)
-
-project(malikania)
+project(client)
 
 set(
-	CMAKE_MODULE_PATH
-	"${malikania_SOURCE_DIR}/cmake"
-	"${malikania_SOURCE_DIR}/cmake/internal"
-	"${malikania_SOURCE_DIR}/cmake/packages"
+	FILES
+	main.cpp
 )
 
-include(MalikaniaConfig)
-include(Options)
-
-configure_file(
-	${malikania_SOURCE_DIR}/cmake/internal/Config.h.in
-	${malikania_BINARY_DIR}/Config.h
-)
-
-add_subdirectory(extern)
-add_subdirectory(cmake)
-add_subdirectory(libclient)
-add_subdirectory(client)
-
-message("Documentation:")
-message("  UML diagrams:    ${WITH_DOCS_UML_MSG}")
-message("  Doxygen:         ${WITH_DOCS_DOXYGEN_MSG}")
-message("  Specifications:  ${WITH_DOCS_SPECS_MSG}")
-message("  Coding style:    ${WITH_DOCS_CONVENTIONS_MSG}")
+add_executable(client ${FILES})
