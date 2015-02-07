@@ -25,4 +25,6 @@ add_custom_target(
 		"UML diagram generation"
 )
 
+add_dependencies(docs uml)
+
 add_subdirectory(database)

@@ -35,6 +35,7 @@ configure_file(
 	${malikania_BINARY_DIR}/Config.h
 )
 
+add_subdirectory(docs)
 add_subdirectory(extern)
 add_subdirectory(cmake)
 add_subdirectory(libclient)

@@ -18,6 +18,12 @@
 
 project(docs)
 
+add_custom_target(
+	docs
+	ALL
+	COMMENT "Generating documentation"
+)
+
 # ---------------------------------------------------------
 # UML generation with plantuml
 # ---------------------------------------------------------

@@ -225,30 +225,24 @@ function(malikania_generate_uml)
 
 	foreach (f ${UML_SOURCES})
 		get_filename_component(filename ${f} NAME_WE)
-		list(
-			APPEND commands
-			COMMAND ${Java_JAVA_EXECUTABLE} -jar ${PLANTUML_JAR} ${f} -o ${docs_BINARY_DIR}/uml
-		)
 
-		list(
-			APPEND outputs
-			${docs_BINARY_DIR}/uml/${filename}.png
-		)
+		list(APPEND outputs ${docs_BINARY_DIR}/uml/${filename}.png)
 
-		list(APPEND sources ${f})
+		add_custom_command(
+			OUTPUT ${docs_BINARY_DIR}/uml/${filename}.png
+			DEPENDS ${f}
+			COMMAND
+				${CMAKE_COMMAND} -E make_directory ${docs_BINARY_DIR}/uml
+			COMMAND
+				${Java_JAVA_EXECUTABLE} -jar ${PLANTUML_JAR} ${f} -o ${docs_BINARY_DIR}/uml
+			VERBATIM
+		)
 	endforeach ()
 
-	add_custom_command(
-		OUTPUT ${outputs}
-		DEPENDS ${sources}
-		${commands}
-		VERBATIM
-	)
-
 	add_custom_target(
-		TARGET uml-${UML_NAME}
-		SOURCES ${sources}
+		uml-${UML_NAME}
 		DEPENDS ${outputs}
+		SOURCES ${UML_SOURCES}
 	)
 
 	add_dependencies(uml uml-${UML_NAME})
