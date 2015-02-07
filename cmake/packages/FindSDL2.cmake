@@ -7,7 +7,7 @@
 # SDL2_LIBRARIES, where to find library
 # SDL2_FOUND, if it is found
 
-find_path(SDL2_INCLUDE_DIR NAMES SDL.h SDL2/SDL.h)
+find_path(SDL2_INCLUDE_DIR NAMES SDL.h PATH_SUFFIXES SDL2)
 find_library(SDL2_LIBRARY NAMES libSDL2 SDL2)
 
 include(FindPackageHandleStandardArgs)

@@ -16,7 +16,23 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <SDL.h>
+
 int main(void)
 {
-	return 0;
+    SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
+    SDL_Window* window = SDL_CreateWindow("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+
+    if (window == NULL) {
+        // In the event that the window could not be made...
+        printf("Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    SDL_Delay(3000);
+    SDL_DestroyWindow(window);
+
+    SDL_Quit();
+
+    return 0;
 }
