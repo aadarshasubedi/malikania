@@ -89,4 +89,6 @@ elseif (NOT PDFLATEX_COMPILER)
 	setg(WITH_DOCS_BOOKS Off)
 endif ()
 
-add_subdirectory(books)
+if (WITH_DOCS_BOOKS)
+	add_subdirectory(books)
+endif ()
