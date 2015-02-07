@@ -25,27 +25,6 @@ add_custom_target(
 )
 
 # ---------------------------------------------------------
-# UML generation with plantuml
-# ---------------------------------------------------------
-
-find_package(Java COMPONENTS Runtime)
-
-if (Java_JAVA_EXECUTABLE)
-	if (WITH_DOCS_UML)
-		setg(WITH_DOCS_UML_MSG "Yes")
-	else ()
-		setg(WITH_DOCS_UML_MSG "No (disabled by user)")
-	endif ()
-else ()
-	setg(WITH_DOCS_UML_MSG "No (Java not found)")
-	setg(WITH_DOCS_UML Off)
-endif ()
-
-if (WITH_DOCS_UML)
-	add_subdirectory(UML)
-endif ()
-
-# ---------------------------------------------------------
 # Doxygen generation
 # ---------------------------------------------------------
 
@@ -63,19 +42,47 @@ else ()
 endif ()
 
 # ---------------------------------------------------------
+# UML generation with plantuml
+# ---------------------------------------------------------
+
+find_package(Java COMPONENTS Runtime)
+
+if (Java_JAVA_EXECUTABLE AND DOXYGEN_DOT_EXECUTABLE)
+	if (WITH_DOCS_UML)
+		setg(WITH_DOCS_UML_MSG "Yes")
+	else ()
+		setg(WITH_DOCS_UML_MSG "No (disabled by user)")
+	endif ()
+elseif (NOT Java_JAVA_EXECUTABLE)
+	setg(WITH_DOCS_UML_MSG "No (Java not found)")
+	setg(WITH_DOCS_UML Off)
+elseif (NOT DOXYGEN_DOT_EXECUTABLE)
+	setg(WITH_DOCS_UML_MSG "No (dot not found)")
+	setg(WITH_DOCS_UML Off)
+endif ()
+
+if (WITH_DOCS_UML)
+	add_subdirectory(UML)
+endif ()
+
+# ---------------------------------------------------------
 # Books, specifications, docs generation
 # ---------------------------------------------------------
 
 find_package(Pandoc)
+find_package(LATEX)
 
-if (Pandoc_FOUND)
+if (Pandoc_FOUND AND PDFLATEX_COMPILER)
 	if (WITH_DOCS_BOOKS)
 		setg(WITH_DOCS_BOOKS_MSG "Yes")
 	else ()
 		setg(WITH_DOCS_BOOKS_MSG "No (disabled by user)")
 	endif ()
-else ()
+elseif (NOT Pandoc_FOUND)
 	setg(WITH_DOCS_BOOKS_MSG "No (pandoc not found)")
+	setg(WITH_DOCS_BOOKS Off)
+elseif (NOT PDFLATEX_COMPILER)
+	setg(WITH_DOCS_BOOKS_MSG "No (pdflatex not found)")
 	setg(WITH_DOCS_BOOKS Off)
 endif ()
 
