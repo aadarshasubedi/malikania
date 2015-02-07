@@ -17,22 +17,41 @@
  */
 
 #include <SDL.h>
+#include <iostream>
 
 int main(void)
 {
-    SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
-    SDL_Window* window = SDL_CreateWindow("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+	bool quit = false;
+	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
+	SDL_Window* window = SDL_CreateWindow("Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
 
-    if (window == NULL) {
-        // In the event that the window could not be made...
-        printf("Could not create window: %s\n", SDL_GetError());
-        return 1;
-    }
+	if (window == NULL) {
+		// In the event that the window could not be made...
+		printf("Could not create window: %s\n", SDL_GetError());
+		return 1;
+	}
 
-    SDL_Delay(3000);
-    SDL_DestroyWindow(window);
+	SDL_Event event;
+	while (!quit) {
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+				case SDL_KEYUP:
+					if (event.key.keysym.sym == SDLK_ESCAPE) {
+						quit = true;
+					}
+					break;
+				case SDL_QUIT:
+					quit = true;
+					break;
+				default:
+					break;
+			}
+		}
+	}
 
-    SDL_Quit();
+	SDL_DestroyWindow(window);
 
-    return 0;
+	SDL_Quit();
+
+	return 0;
 }
