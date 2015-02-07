@@ -1,0 +1,18 @@
+### IDENTIFY
+
+Identify a player.
+
+#### Direction
+
+Client → Server (Secure).
+
+#### Synopsis
+
+````
+IDENTIFY login password
+````
+
+#### Arguments
+
+* login, the login name
+* password, the base64 encoded password

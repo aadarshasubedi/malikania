@@ -1,0 +1,13 @@
+## Usage
+
+A bundle archive is just an archive that contains all the game data.
+
+It is close to what a cardrige is to a game console, the game is simply loaded
+in the Malikania Engine and the engine knows how to run it.
+
+This offers the following benefits:
+
+* Easy to download, provide,
+* Compression,
+* Associate the file type to the engine in the operating system.
+

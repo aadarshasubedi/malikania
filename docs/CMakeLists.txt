@@ -1,0 +1,95 @@
+#
+# CMakeLists.txt -- CMake build system for malikania
+#
+# Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+
+project(docs)
+
+# ---------------------------------------------------------
+# UML generation with plantuml
+# ---------------------------------------------------------
+
+find_package(Java COMPONENTS Runtime)
+
+if (Java_JAVA_EXECUTABLE)
+	if (WITH_DOCS_UML)
+		setg(WITH_DOCS_UML_MSG "Yes")
+	else ()
+		setg(WITH_DOCS_UML_MSG "No (disabled by user)")
+	endif ()
+else ()
+	setg(WITH_DOCS_UML_MSG "No (Java not found)")
+	setg(WITH_DOCS_UML Off)
+endif ()
+
+if (WITH_DOCS_UML)
+	add_subdirectory(UML)
+endif ()
+
+# ---------------------------------------------------------
+# Doxygen generation
+# ---------------------------------------------------------
+
+find_package(Doxygen)
+
+if (DOXYGEN_FOUND)
+	if (WITH_DOCS_DOXYGEN)
+		setg(WITH_DOCS_DOXYGEN_MSG "Yes")
+	else ()
+		setg(WITH_DOCS_DOXYGEN_MSG "No (disabled by user)")
+	endif ()
+else ()
+	setg(WITH_DOCS_DOXYGEN_MSG "No (doxygen not found)")
+	setg(WITH_DOCS_DOXYGEN Off)
+endif ()
+
+# ---------------------------------------------------------
+# Books, specifications, docs generation
+# ---------------------------------------------------------
+
+find_package(Pandoc)
+
+if (Pandoc_FOUND)
+	add_custom_target(
+		books
+		ALL
+		COMMENT "Generated books"
+	)
+
+	if (WITH_DOCS_CONVENTIONS)
+		setg(WITH_DOCS_CONVENTIONS_MSG "Yes")
+	else ()
+		setg(WITH_DOCS_CONVENTIONS_MSG "No (disabled by user)")
+	endif ()
+
+	if (WITH_DOCS_SPECS)
+		setg(WITH_DOCS_SPECS_MSG "Yes")
+	else ()
+		setg(WITH_DOCS_SPECS_MSG "No (disabled by user)")
+	endif ()
+else ()
+	setg(WITH_DOCS_CONVENTIONS_MSG "No (pandoc not found)")
+	setg(WITH_DOCS_CONVENTIONS Off)
+	setg(WITH_DOCS_SPECS_MSG "No (pandoc not found)")
+	setg(WITH_DOCS_SPECS Off)
+endif ()
+
+if (WITH_DOCS_CONVENTIONS)
+	add_subdirectory(books/conventions)
+endif ()
+if (WITH_DOCS_SPECS)
+	add_subdirectory(books/specifications)
+endif ()

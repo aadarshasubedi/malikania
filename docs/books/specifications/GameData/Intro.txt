@@ -1,0 +1,7 @@
+# Game data definition
+
+This section details how game objects are defined.
+
+Major data is written in Javascript, other parts may be generated automatically
+from XML files.
+

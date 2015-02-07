@@ -1,0 +1,57 @@
+## Sprites
+
+The sprites are definitions of graphical libraries.
+
+An image can store multiple frames of a sprite and then the game can select one of this frame. It is useful to store the different images sprites of characters, object for example.
+
+### XML description
+
+A single XML file is used to describe all sprites.
+
+````xml
+<sprites>
+	<sprite name="Jack" image="jack.png" cell="16, 16" size="100, 100"
+		space="0, 0" margin="0, 0" />
+</sprites>
+````
+
+For each sprite needed, a tag `sprite` is added with the following attributes.
+
+* *name*: the sprite name that will be used to retrieve in the registry
+* *image*: the relative path to the image
+* *cell*: each cell size
+* *size*: Optional, the full size of the image, if not set determined at compilation
+* *space*: Optional, space between cells
+* *margin*: Optional, space before the first cell horizontally and vertically
+
+### Margin and padding
+
+Padding and margin are allowed before and between cells.
+
+![Optional padding, margin and space](GameData/images/format.png)\
+
+
+On that image, you can see:
+
+* a margin of 8x8 pixels (in blue)
+* a padding of 4x4 pixels between cells (in red)
+* the cell size of 32x32 pixels (in green)
+
+### Generated file
+
+The generated file is a file with `.mso` extension. The file is in binary format in little endian. Its content is defined as follow:
+
+| Segment | Bytes | Description |
+|---------|-------|-------------|
+| signature | 12 bytes | Content: malikania-so (signature) |
+| version | 2 bytes | The animation object version |
+| name length | 4 bytes *(length)* | The length of the sprite string name |
+| name | *(length)* bytes | The sprite name |
+| cell width | 2 bytes | The cell width |
+| cell height | 2 bytes | The cell height |
+| margin width | 1 byte | The mardin width |
+| margin height | 1 byte | The margin height |
+| padding width | 1 byte | The padding width |
+| padding height | 1 byte | The padding height |
+| size | 4 bytes *(size)* | The image size |
+| data | *(size)* bytes | The image data |

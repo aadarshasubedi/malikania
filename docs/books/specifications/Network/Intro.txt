@@ -1,0 +1,11 @@
+# Network
+
+Networking in Malikania Engine.
+
+## Syntax
+
+The networking in Malikania Engine is a simple UTF-8 text protocol. Each message
+must ends with `\r\n`.
+
+## Commands
+

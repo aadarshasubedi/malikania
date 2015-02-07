@@ -1,0 +1,9 @@
+﻿---
+title: Malikania Engine
+author:
+  - David Demelier <markand@malikania.fr>
+  - Renaud Jenny <renox0@malikania.fr>
+  - Alexis Dörr <nanahara@malikania.fr>
+date: February 1, 2015
+abstract: Official Malikania Engine specifications
+---

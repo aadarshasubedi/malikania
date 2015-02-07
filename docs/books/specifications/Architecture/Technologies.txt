@@ -1,0 +1,23 @@
+## Technologies
+
+The Malikania Engine is written in C++11.
+
+### Runtime libraries
+
+The following libraries are *required* as the base Malikania Engine core:
+
+* C++11,
+* [OpenSSL](http://www.openssl.org), for the secure part of network protocol,
+* [libcurl](http://curl.haxx.se/libcurl) (Optional), for downloading updates
+
+#### On desktop
+
+* [SDL 2.0](http://libsdl.org), for the client part only
+
+### Development libraries and tools
+
+The following libraries are *required* when building and developing a game:
+
+* [libexpat](http://expat.sourceforge.net), for reading some source files
+* [CMake](http://www.cmake.org), for building the toolchain
+* [Pandoc](http://http://johnmacfarlane.net/pandoc), used for generating documentation
