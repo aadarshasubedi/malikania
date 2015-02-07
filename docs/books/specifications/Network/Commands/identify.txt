@@ -4,7 +4,7 @@ Identify a player.
 
 #### Direction
 
-Client → Server (Secure).
+Client -> Server (Secure).
 
 #### Synopsis
 
