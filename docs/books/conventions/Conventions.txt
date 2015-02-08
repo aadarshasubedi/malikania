@@ -4,7 +4,7 @@ author:
   - David Demelier <markand@malikania.fr>
   - Renaud Jenny <renox0@malikania.fr>
   - Alexis Dörr <nanahara@malikania.fr>
-date: February 1, 2015
+date: February 8, 2015
 abstract: Official coding conventions for Malikania related developments.
 ---
 
@@ -32,7 +32,7 @@ Each file (except examples) must have the license header like this:
 /*
  * filename.ext -- short description here
  *
- * Copyright (c) 2013, 2014 FirstName LastName
+ * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above

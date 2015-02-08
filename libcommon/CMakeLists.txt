@@ -16,15 +16,5 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(UML)
+project(libcommon)
 
-add_custom_target(
-	uml
-	ALL
-	COMMENT
-		"UML diagram generation"
-)
-
-add_dependencies(docs uml)
-
-add_subdirectory(database)

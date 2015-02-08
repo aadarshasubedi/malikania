@@ -1,10 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015
-#   David Demelier <markand@malikania.fr>
-#   Renaud Jenny <renox0@malikania.fr>
-#   Alexis Dörr <nanahara@malikania.fr>
+# Copyright (c) 2013, 2014, 2015 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -41,6 +38,7 @@ configure_file(
 add_subdirectory(extern)
 add_subdirectory(docs)
 add_subdirectory(cmake)
+add_subdirectory(libcommon)
 add_subdirectory(libclient)
 add_subdirectory(client)
 
