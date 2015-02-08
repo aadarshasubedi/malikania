@@ -18,12 +18,7 @@
 
 project(UML)
 
-add_custom_target(
-	uml
-	ALL
-	COMMENT
-		"UML diagram generation"
-)
+add_custom_target(uml COMMENT "UML diagram generation")
 
 add_dependencies(docs uml)
 

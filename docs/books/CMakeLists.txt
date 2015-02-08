@@ -18,11 +18,7 @@
 
 project(books)
 
-add_custom_target(
-	books
-	ALL
-	COMMENT "Generated books"
-)
+add_custom_target(books COMMENT "Generated books")
 
 add_dependencies(docs books)
 

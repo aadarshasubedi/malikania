@@ -10,11 +10,11 @@ abstract: Official coding conventions for Malikania related developments.
 
 Please read this page with care, we are **very** strict about coding guidelines. Code which does not honour this is rejected.
 
-Style
-=====
+# C++
 
-General rules
--------------
+## Style
+
+### General rules
 
 - Never write two consecutives blank lines,
 - Always use 8 tabs indent (no spaces),
@@ -23,8 +23,7 @@ General rules
 - Don’t use raw pointers,
 - A function should do one thing but well [KISS](http://en.wikipedia.org/wiki/KISS_principle)
 
-Header in the source file
--------------------------
+### Header in the source file
 
 Each file (except examples) must have the license header like this:
 
@@ -50,8 +49,7 @@ Each file (except examples) must have the license header like this:
 
 **Note**: For other file than C++, be sure to adapt the comment tokens, see the `CMakeLists.txt` for examples.
 
-Statement separation
---------------------
+### Statement separation
 
 Always separate blocks by contexts.
 
@@ -75,8 +73,7 @@ void Object::destroy()
 }
 ````
 
-Long lines
-----------
+### Long lines
 
 We usually like to keep code in less that 100 characters, we admit up to
 120 characters but that should be rare. If possible use local variables
@@ -110,8 +107,7 @@ if (onecondition && twocondition &&
 }
 ````
 
-Braces
-------
+### Braces
 
 Braces comes on the same line they are needed.
 
@@ -158,8 +154,7 @@ void f()
 }
 ````
 
-Symbols placement and qualifiers
---------------------------------
+### Symbols placement and qualifiers
 
 The symbols `&` and `*` must be place just next to the variable name. The qualifiers must always be placed **before** the type.
 
@@ -175,8 +170,7 @@ Correct:
 const Entity &entity = find();
 ````
 
-Naming
-------
+### Naming
 
 All functions, variables, class names are always camelCase. Only
 namespaces must be all lowercase, short and concise.
@@ -198,11 +192,9 @@ void myFunction()
 }
 ````
 
-Programming
-===========
+## Programming
 
-Make elegant code
------------------
+### Make elegant code
 
 This is useless:
 
@@ -220,8 +212,7 @@ Just try to be as concise as possible:
 return m_valid;
 ````
 
-Useless else
-------------
+### Useless else
 
 When you use `continue`, `break` or `return` you **don't** need else.
 
@@ -243,8 +234,7 @@ if (notValid) {
 statement();
 ````
 
-Note about continue
--------------------
+### Note about continue
 
 The `continue` keyword is very welcome, but don't make heavy usage of it if the
 loop is simple.
@@ -274,8 +264,7 @@ for (auto &f : values) {
 }
 ````
 
-Comments
---------
+### Comments
 
 Avoid useless comments in source files. Comment complex things or why it
 is done like this. However any public method / function in the .h
@@ -310,8 +299,7 @@ public:
 };
 ````
 
-Getters / setters
------------------
+### Getters / setters
 
 This concept applies the most to Java programmers. If possible, setters must be
 avoided, it is not a good programming practices. However, getters are
@@ -352,8 +340,7 @@ Window w(params);
 
 If you need a bunch of parameters, don't hesitate to use small packages classes with public members (with no m\_ prefixe).
 
-Header guards
--------------
+### Header guards
 
 - Header guards must be named `MALIKANIA_FILENAME_H`
 - The `#endif` must have a comment
@@ -367,11 +354,9 @@ Example if the file is `Foo.h`:
 #endif // !MALIKANIA_FOO_H
 ````
 
-Constructs
-==========
+## Constructs
 
-Arguments passing
------------------
+### Arguments passing
 
 The following rules of thumb must be used when passing arguments:
 
@@ -430,8 +415,7 @@ void addEffect(std::unique_ptr<Effect> effect)
 addEffect(std::make_unique<Fire>());
 ````
 
-Exceptions
-----------
+### Exceptions
 
 Exceptions must be used instead of returns code to indicate errors. However be sure that:
 
@@ -439,19 +423,18 @@ Exceptions must be used instead of returns code to indicate errors. However be s
 2. Try to limit exceptions at loading, on user input
 3. You always catch by const reference
 
-Class declaration
------------------
+### Class declaration
 
 A class must have the following order:
 
-1.  Public, private types (with using, not typedef),
-2.  Private fields,
-3.  Protected fields,
-4.  Private functions
-5.  Protected functions
-6.  Public functions
-7.  Virtual and overrided functions
-8.  Operators
+1. Public, private types (with using, not typedef),
+2. Private fields,
+3. Protected fields,
+4. Private functions
+5. Protected functions
+6. Public functions
+7. Virtual and overrided functions
+8. Operators
 
 ````cpp
 class Foo {
@@ -471,8 +454,7 @@ public:
 
 **Note**: always add a space after a scope block (public, private, protected).
 
-Commented code
---------------
+### Commented code
 
 Commented code must be surrounded by `#if 0` and `#endif`. It easier to manipulate and allows nested comments. Avoid commenting too much code, if the code is useless, just delete it.
 
@@ -483,8 +465,7 @@ Commented code must be surrounded by `#if 0` and `#endif`. It easier to manipula
 #endif
 ````
 
-Comment labels
---------------
+### Comment labels
 
 Lot of IDEs support some labels in comments such as:
 
@@ -494,8 +475,7 @@ Lot of IDEs support some labels in comments such as:
 
 Please note that using them indicates that you're probably doing something wrong.
 
-Includes order
---------------
+### Includes order
 
 The includes should always come in the following order.
 
@@ -517,18 +497,74 @@ The includes should always come in the following order.
 
 **Note**: always use C++ headers for C equivalent, stdio.h -\> cstdio, etc.
 
-RTTI
-----
+### RTTI
 
 - Usage of dynamic_cast is strictly forbidden
 - Same for anything requiring RTTI (typeid)
 
-Singleton
----------
+### Singleton
 
 Do not use singletons.
 
-C language
-----------
+### C language
 
 Don't use anything from C such as `#define`, `memcpy`, `fopen` or even `malloc`.
+
+# CMake
+
+## Style
+
+CMake files guidelines are quite close to the C++ one.
+
+- Use only tabs
+- Put spaces before keywords (if, foreach)
+
+## Argument indent
+
+When there is a function which takes named arguments, indent all of them if the
+function is too long.
+
+You must also indent if there are more than one argument to parameters.
+
+````cmake
+long_command(
+	NAME foo
+	TARGET foo
+	ARGS
+		-j6
+		-c'a'
+	SOURCES
+		a.txt
+		b.txt
+)
+````
+
+# Markdown
+
+Markdown is used for the documentation process.
+
+## Bullet lists
+
+Markdown offers different bullet list symbols, you must only use `-`.
+
+## Headers
+
+Do not use underlined headers (`====` and `----`), only use `#`.
+
+Bad:
+
+````markdown
+Level 1
+=======
+
+Level 2
+-------
+````
+
+Correct:
+
+````markdown
+# Level 1
+
+## Level 2
+````
