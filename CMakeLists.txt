@@ -35,6 +35,8 @@ configure_file(
 	${malikania_BINARY_DIR}/Config.h
 )
 
+include_directories(${CMAKE_BINARY_DIR})
+
 add_subdirectory(extern)
 add_subdirectory(docs)
 add_subdirectory(cmake)

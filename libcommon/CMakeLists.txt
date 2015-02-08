@@ -18,3 +18,22 @@
 
 project(libcommon)
 
+set(
+	HEADERS
+	${libcommon_SOURCE_DIR}/include/malikania/Socket.h
+	${libcommon_SOURCE_DIR}/include/malikania/SocketAddress.h
+	${libcommon_SOURCE_DIR}/include/malikania/SocketListener.h
+	${libcommon_SOURCE_DIR}/include/malikania/SocketSsl.h
+)
+
+set(
+	SOURCES
+	${libcommon_SOURCE_DIR}/src/malikania/Socket.cpp
+	${libcommon_SOURCE_DIR}/src/malikania/SocketAddress.cpp
+	${libcommon_SOURCE_DIR}/src/malikania/SocketListener.cpp
+	${libcommon_SOURCE_DIR}/src/malikania/SocketSsl.cpp
+)
+
+add_library(libcommon STATIC ${HEADERS} ${SOURCES})
+target_include_directories(libcommon PRIVATE ${libcommon_SOURCE_DIR}/include/malikania)
+set_target_properties(libcommon PROPERTIES PREFIX "")
