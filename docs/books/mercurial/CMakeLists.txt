@@ -16,12 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(books)
-
-add_custom_target(books COMMENT "Generated books")
-
-add_dependencies(docs books)
-
-add_subdirectory(conventions)
-add_subdirectory(specifications)
-add_subdirectory(mercurial)
+malikania_generate_book(
+	mercurial
+	Mercurial.pdf
+	Mercurial.txt
+)
