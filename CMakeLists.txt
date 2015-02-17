@@ -37,6 +37,9 @@ configure_file(
 
 include_directories(${CMAKE_BINARY_DIR})
 
+find_package(Jansson REQUIRED)
+find_package(ZIP REQUIRED)
+
 add_subdirectory(extern)
 add_subdirectory(docs)
 add_subdirectory(cmake)
