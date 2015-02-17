@@ -1,57 +1,19 @@
 ## Animations
 
-The animations are animated sprites. They are described in XML and converted to binary file format.
+The animations are animated sprites. They are described in JSON.
 
-### XML description
+### JSON description
 
-A XML file is always associated with an animation. If you have ten animations, you have ten XML files for them.
+A JSON file is always associated with an animation. If you have ten animations, you have ten JSON files for them.
 
-````xml
-<animation>
-	<frame time="100" image="fire-1.png" />
-	<frame time="105" image="fire-2.png" />
-</animation>
+````json
+[
+	{ "delay": 100, "image" : "fire-1.png" },
+	{ "delay": 105, "image": "fire-2.png" }
+]
 ````
 
 With that following code, a file will be generated with the following images:
 
 * *fire-1.png*, delay of 100 ms before switching to the second frame
 * *fire-2.png*, delay of 105 ms before switching finishing the animation
-
-### Generated file
-
-The generated file is a file with `.mao` extension. The file is in binary format in little endian. Its content is defined as follow:
-
-#### Header
-
-This is the header of the file.
-
-| Segment          | Bytes         | Description                           |
-|------------------|---------------|---------------------------------------|
-| signature        | 12 bytes      | Content: malikania-ao (signature)     |
-| version          | 2 bytes       | The animation object version          |
-| number of frames | 2 bytes `(n)` | The number of frames in the animation |
-
-#### For each frame `(n)`
-
-| Segment  | Bytes            | Description                               |
-|----------|------------------|-------------------------------------------|
-| duration | 2 bytes          | The duration of the frame in milliseconds |
-| size     | 4 bytes `(size)` | The size of the animation frame image     |
-| data     | `(size)` bytes   | The raw image data                        |
-
-### Example
-
-With the two frames as specified above, we will have a file like this:
-
-| Segment            | Value                                    |
-|--------------------|------------------------------------------|
-| signature          | malikania-ao                             |
-| version            | 1                                        |
-| number of frames   | 2                                        |
-| frame [0] duration | 100                                      |
-| frame [0] size     | 509 bytes (example from a PNG)           |
-| frame [0] data     | binary data from the PNG file fire-1.png |
-| frame [1] duration | 105                                      |
-| frame [1] size     | 609 bytes                                |
-| frame [1] data     | binary data from the PNG file fire-2.png |

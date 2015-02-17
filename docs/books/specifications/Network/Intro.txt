@@ -4,8 +4,27 @@ Networking in Malikania Engine.
 
 ## Syntax
 
-The networking in Malikania Engine is a simple UTF-8 text protocol. Each message
-must ends with `\r\n`.
+The network protocol use JSON in multiline format.
+
+You can use both Unix or Windows line endings. However, to terminate
+a message, an empty line must be added and terminated by '\\r\\n'.
+
+**Example:**
+
+1. This is a simple single-line message
+
+````json
+{ "command": "reload" }
+````
+
+2. This is a multi-lines message
+
+````json
+{
+  "command": "identify",
+  "nickname": "foo",
+}
+````
 
 ## Commands
 

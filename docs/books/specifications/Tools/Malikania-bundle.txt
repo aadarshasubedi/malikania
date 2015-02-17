@@ -1,0 +1,36 @@
+## malikania-bundle
+
+The `malikania-bundle` tool manages the games cartridges.
+
+### Command line usage
+
+(@) malikania-bundle create *archive* *game-directory*
+(@) malikania-bundle install [-d directory] *archive*
+(@) malikania-bundle info *field* *name*
+(@) malikania-bundle list
+
+**Signature (1)**
+
+Creates the file *archive* from the game directory specified by
+*game-directory*.
+
+**Signature (2)**
+
+Install the game archive specified by *archive* to the optional directory
+specified by *-d directory*, otherwise, install it to the user Malikania Engine
+folder.
+
+**Note**: the *directory* is the prefix, invoking
+`malikania-bundle install -d /tmp/ game-1.mcg` will install */tmp/game-1*.
+
+**Signature (3)**
+
+Extract a field information from the game which may be an already installed game
+or an game archive specified by path. This usage MUST search for the filesystem path
+before seeking installed games.
+
+The *field* must be one of the following:
+
+- *version*, the game version
+- *engine*, the Malikania Engine version
+- *author*, the game author

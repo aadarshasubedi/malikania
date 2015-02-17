@@ -22,7 +22,6 @@
 set(
 	FILES
 	"${CMAKE_CURRENT_SOURCE_DIR}/Intro.txt"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Scope/Intro.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Overview/Intro.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Architecture/Intro.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Architecture/Technologies.txt"
@@ -36,6 +35,8 @@ set(
 	"${CMAKE_CURRENT_SOURCE_DIR}/GameData/Sprites.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Intro.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/identify.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Intro.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Malikania-bundle.txt"
 )
 
 malikania_generate_book(

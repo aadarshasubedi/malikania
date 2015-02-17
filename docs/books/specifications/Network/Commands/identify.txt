@@ -1,4 +1,4 @@
-### IDENTIFY
+### Identify
 
 Identify a player.
 
@@ -8,11 +8,15 @@ Client -> Server (Secure).
 
 #### Synopsis
 
-````
-IDENTIFY login password
+````json
+{
+  "command": "identify",
+  "login": "login",
+  "password": "password"
+}
 ````
 
 #### Arguments
 
 * login, the login name
-* password, the base64 encoded password
+* password, the password
