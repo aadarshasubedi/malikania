@@ -20,6 +20,7 @@ project(libcommon)
 
 set(
 	HEADERS
+	${libcommon_SOURCE_DIR}/include/malikania/Json.h
 	${libcommon_SOURCE_DIR}/include/malikania/Socket.h
 	${libcommon_SOURCE_DIR}/include/malikania/SocketAddress.h
 	${libcommon_SOURCE_DIR}/include/malikania/SocketListener.h
@@ -28,12 +29,27 @@ set(
 
 set(
 	SOURCES
+	${libcommon_SOURCE_DIR}/src/malikania/Json.cpp
 	${libcommon_SOURCE_DIR}/src/malikania/Socket.cpp
 	${libcommon_SOURCE_DIR}/src/malikania/SocketAddress.cpp
 	${libcommon_SOURCE_DIR}/src/malikania/SocketListener.cpp
 	${libcommon_SOURCE_DIR}/src/malikania/SocketSsl.cpp
 )
 
-add_library(libcommon STATIC ${HEADERS} ${SOURCES})
-target_include_directories(libcommon PRIVATE ${libcommon_SOURCE_DIR}/include/malikania)
+add_library(libcommon SHARED ${HEADERS} ${SOURCES})
+
+target_include_directories(
+	libcommon
+	PRIVATE ${libcommon_SOURCE_DIR}/include/malikania
+	PUBLIC
+		${Jansson_INCLUDE_DIRS}
+		${ZIP_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+	libcommon
+	${Jansson_LIBRARIES}
+	${ZIP_LIBRARIES}
+)
+
 set_target_properties(libcommon PROPERTIES PREFIX "")
