@@ -16,7 +16,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0)
 
 project(malikania)
 
@@ -39,13 +39,15 @@ include_directories(${CMAKE_BINARY_DIR})
 
 find_package(Jansson REQUIRED)
 find_package(ZIP REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 add_subdirectory(extern)
-add_subdirectory(docs)
+#add_subdirectory(docs)
 add_subdirectory(cmake)
 add_subdirectory(libcommon)
 add_subdirectory(libclient)
 add_subdirectory(client)
+add_subdirectory(server)
 
 message("Documentation:")
 message("      UML diagrams:    ${WITH_DOCS_UML_MSG}")

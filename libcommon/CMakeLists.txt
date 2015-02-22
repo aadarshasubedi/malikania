@@ -44,12 +44,14 @@ target_include_directories(
 	PUBLIC
 		${Jansson_INCLUDE_DIRS}
 		${ZIP_INCLUDE_DIRS}
+		${OPENSSL_INCLUDE_DIR}
 )
 
 target_link_libraries(
 	libcommon
 	${Jansson_LIBRARIES}
 	${ZIP_LIBRARIES}
+	${OPENSSL_LIBRARIES}
 )
 
 set_target_properties(libcommon PROPERTIES PREFIX "")
