@@ -58,10 +58,10 @@ include(CMakeParseArguments)
 # Create an executable. Be sure to quote SOURCES, if not only the first file will be passed.
 # If you need flags, just pass them without -D or /D, this is automatically done for you.
 #
-# malikania_define_library
+# malikania_create_library
 # ------------------------
 #
-# malikania_define_library(
+# malikania_create_library(
 #	PROJECT			The project name
 #	TARGET			The target name
 #	SOURCES			The sources
@@ -163,7 +163,7 @@ function(malikania_define_executable)
 	apply_flags(${EXE_TARGET} EXE_FLAGS)
 endfunction()
 
-function(malikania_define_library)
+function(malikania_create_library)
 	set(singleArgs PROJECT TARGET)
 	set(multiArgs SOURCES FLAGS PRIVATE_INCLUDES PUBLIC_INCLUDES LIBRARIES)
 	set(mandatory PROJECT TARGET SOURCES)

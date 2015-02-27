@@ -16,8 +16,6 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(server)
-
-add_executable(server main.cpp)
-
-target_link_libraries(server libserver)
+set(MALIKANIA_VERSION_MAJOR 0)
+set(MALIKANIA_VERSION_MINOR 1)
+set(MALIKANIA_VERSION_PATCH 0)

@@ -1,22 +1,18 @@
-### Identify
+### Identify (Secure)
 
 Identify a player.
-
-#### Direction
-
-Client -> Server (Secure).
 
 #### Synopsis
 
 ````json
 {
   "command": "identify",
-  "login": "login",
+  "account": "jean",
   "password": "password"
 }
 ````
 
-#### Arguments
+#### Fields
 
-* login, the login name
-* password, the password
+- **account**, the account name
+- **password**, the password

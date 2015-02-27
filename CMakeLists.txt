@@ -17,7 +17,6 @@
 #
 
 cmake_minimum_required(VERSION 2.8.12)
-
 project(malikania)
 
 set(
@@ -27,8 +26,10 @@ set(
 	"${malikania_SOURCE_DIR}/cmake/packages"
 )
 
-include(MalikaniaConfig)
-include(Options)
+include(cmake/MalikaniaOptions.cmake)
+include(cmake/MalikaniaFunctions.cmake)
+include(cmake/MalikaniaVersion.cmake)
+include(cmake/MalikaniaSystem.cmake)
 
 configure_file(
 	${malikania_SOURCE_DIR}/cmake/internal/Config.h.in
@@ -42,10 +43,10 @@ find_package(ZIP REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 add_subdirectory(extern)
-#add_subdirectory(docs)
-add_subdirectory(cmake)
+add_subdirectory(docs)
 add_subdirectory(libcommon)
 add_subdirectory(libclient)
+add_subdirectory(libserver)
 add_subdirectory(client)
 add_subdirectory(server)
 

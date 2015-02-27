@@ -16,42 +16,48 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(libcommon)
-
 set(
 	HEADERS
-	${libcommon_SOURCE_DIR}/include/malikania/Json.h
-	${libcommon_SOURCE_DIR}/include/malikania/Socket.h
-	${libcommon_SOURCE_DIR}/include/malikania/SocketAddress.h
-	${libcommon_SOURCE_DIR}/include/malikania/SocketListener.h
-	${libcommon_SOURCE_DIR}/include/malikania/SocketSsl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Application.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Directory.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/DirectoryLoader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/GameSettings.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/LoaderInterface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Socket.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketAddress.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketListener.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketSsl.h
 )
 
 set(
 	SOURCES
-	${libcommon_SOURCE_DIR}/src/malikania/Json.cpp
-	${libcommon_SOURCE_DIR}/src/malikania/Socket.cpp
-	${libcommon_SOURCE_DIR}/src/malikania/SocketAddress.cpp
-	${libcommon_SOURCE_DIR}/src/malikania/SocketListener.cpp
-	${libcommon_SOURCE_DIR}/src/malikania/SocketSsl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Application.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Directory.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/DirectoryLoader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Socket.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketAddress.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketListener.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketSsl.cpp
 )
 
-add_library(libcommon SHARED ${HEADERS} ${SOURCES})
-
-target_include_directories(
-	libcommon
-	PRIVATE ${libcommon_SOURCE_DIR}/include/malikania
-	PUBLIC
+malikania_create_library(
+	PROJECT libcommon
+	TARGET libcommon
+	SOURCES ${HEADERS} ${SOURCES}
+	FLAGS "MALIKANIA_COMMON_BUILD"
+	PRIVATE_INCLUDES
+		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania
+	PUBLIC_INCLUDES
+		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${Jansson_INCLUDE_DIRS}
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}
-)
-
-target_link_libraries(
-	libcommon
-	${Jansson_LIBRARIES}
-	${ZIP_LIBRARIES}
-	${OPENSSL_LIBRARIES}
+	LIBRARIES
+		${Jansson_LIBRARIES}
+		${ZIP_LIBRARIES}
+		${OPENSSL_LIBRARIES}
 )
 
 set_target_properties(libcommon PROPERTIES PREFIX "")

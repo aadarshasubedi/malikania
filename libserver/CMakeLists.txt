@@ -15,3 +15,29 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
+
+set(
+	HEADERS
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApplication.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerDirectoryLoader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoaderInterface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerSettings.h
+)
+
+set(
+	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApplication.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerDirectoryLoader.cpp
+)
+
+malikania_create_library(
+	PROJECT libserver
+	TARGET libserver
+	SOURCES ${HEADERS} ${SOURCES}
+	PRIVATE_INCLUDES
+		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania
+	PUBLIC_INCLUDES
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+	LIBRARIES
+		libcommon
+)

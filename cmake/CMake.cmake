@@ -46,3 +46,12 @@ install(
 	FILES ${FILES}
 	DESTINATION ${DIRECTORY}
 )
+
+set(
+	CMAKE_SOURCES
+	${CMAKE_CURRENT_LIST_DIR}/CMake.cmake
+	${CMAKE_CURRENT_LIST_DIR}/MalikaniaConfig.cmake
+	${CMAKE_CURRENT_LIST_DIR}/MalikaniaFunctions.cmake
+	${CMAKE_CURRENT_LIST_DIR}/MalikaniaSystem.cmake
+	${CMAKE_CURRENT_LIST_DIR}/MalikaniaVersion.cmake
+)

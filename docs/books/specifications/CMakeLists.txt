@@ -31,12 +31,16 @@ set(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Bundle/Usage.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Bundle/Format.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/GameData/Intro.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/GameData/Game.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/GameData/Animations.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/GameData/Sprites.txt"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Intro.txt"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/identify.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Intro.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Malikania-vm.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Malikania-bundle.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Intro.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Messages/server-info.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Messages/server-message.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/identify.txt"
 )
 
 malikania_generate_book(

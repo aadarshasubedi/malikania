@@ -2,6 +2,6 @@
 
 This section details how game objects are defined.
 
-Major data is written in Javascript, other parts may be generated automatically
-from XML files.
+Usually games are defined in JSON if applicable, other scriptable parts
+are written in ECMAScript.
 

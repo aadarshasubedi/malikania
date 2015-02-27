@@ -4,10 +4,10 @@ The `malikania-bundle` tool manages the games cartridges.
 
 ### Command line usage
 
-(@) malikania-bundle create *archive* *game-directory*
-(@) malikania-bundle install [-d directory] *archive*
-(@) malikania-bundle info *field* *name*
-(@) malikania-bundle list
+(@) `malikania-bundle create *archive* *game-directory*`
+(@) `malikania-bundle install [-d directory] *archive*`
+(@) `malikania-bundle info *field* *name*`
+(@) `malikania-bundle list`
 
 **Signature (1)**
 

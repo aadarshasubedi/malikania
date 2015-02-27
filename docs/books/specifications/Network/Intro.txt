@@ -2,6 +2,9 @@
 
 Networking in Malikania Engine.
 
+In that part, we will describe messages and requests. The messages come
+from the server while the requests come from the clients.
+
 ## Syntax
 
 The network protocol use JSON in multiline format.
@@ -26,5 +29,4 @@ a message, an empty line must be added and terminated by '\\r\\n'.
 }
 ````
 
-## Commands
-
+## Messages

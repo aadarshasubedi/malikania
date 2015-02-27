@@ -86,11 +86,13 @@ include(CMakeParseArguments)
 # Extract the version
 if (Pandoc_EXECUTABLE)
 	execute_process(
-		COMMAND pandoc --version
+		COMMAND ${Pandoc_EXECUTABLE} --version
 		OUTPUT_VARIABLE _pandoc_version_tmp
 	)
 
-	string(REGEX REPLACE "^pandoc ([0-9]*\\.[0-9]*\\.[0-9]*).*$" "\\1" Pandoc_VERSION ${_pandoc_version_tmp})
+	if (_pandoc_version_tmp MATCHES "^pandoc[^ ]* ([0-9]+\\.[0-9]+\\.[0-9]+)")
+		set(Pandoc_VERSION "${CMAKE_MATCH_1}")
+	endif ()
 endif ()
 
 find_package_handle_standard_args(

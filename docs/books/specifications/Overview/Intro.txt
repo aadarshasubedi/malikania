@@ -2,7 +2,8 @@
 
 ## What is Malikania Engine?
 
-Malikania Engine is a powerful free, opensource 2D MMORPG engine.
+Malikania Engine is a powerful free, opensource 2D MMORPG engine written in
+C++14 and use ECMAScript for the games.
 
 It is designed in mind to be as easy as possible to use. It is also very
 flexible to let you create games quickly with no difficulties.
@@ -13,4 +14,4 @@ it is not designed to be a general game engine.
 ## How does it work?
 
 Malikania Engine is a set of multiple executables which will execute games
-written in Javascript.
+written in ECMAScript.

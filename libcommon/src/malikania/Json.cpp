@@ -16,179 +16,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <stdexcept>
+
 #include "Json.h"
 
-namespace malikania {
-
 /* --------------------------------------------------------
- * JsonValue implementation
+ * JsonObject
  * -------------------------------------------------------- */
 
-JsonValue::JsonValue(const JsonValue &value)
-	: m_handle{json_deep_copy(value.m_handle.get()), json_decref}
-{
-}
-
-JsonValue &JsonValue::operator=(const JsonValue &value)
-{
-	m_handle = {json_deep_copy(value.m_handle.get()), json_decref};
-}
-
-JsonValue::JsonValue(json_t *json)
-	: m_handle{json, json_decref}
-{
-}
-
-JsonValue::JsonValue()
-	: m_handle{json_null(), json_decref}
-{
-}
-
-JsonValue::JsonValue(bool value)
-	: m_handle{json_boolean(value), json_decref}
-{
-}
-
-JsonValue::JsonValue(int value)
-	: m_handle{json_integer(value), json_decref}
-{
-}
-
-JsonValue::JsonValue(double value)
-	: m_handle{json_real(value), json_decref}
-{
-}
-
-JsonValue::JsonValue(std::string value)
-	: m_handle{json_string(value.c_str()), json_decref}
-{
-}
-
-JsonValue::JsonValue(const char *value)
-	: m_handle{json_string(value), json_decref}
-{
-}
-
-JsonType JsonValue::typeOf() const
-{
-	return static_cast<JsonType>(json_typeof(m_handle.get()));
-}
-
-bool JsonValue::isObject() const
-{
-	return json_is_object(m_handle.get()) != 0;
-}
-
-bool JsonValue::isArray() const
-{
-	return json_is_array(m_handle.get()) != 0;
-}
-
-bool JsonValue::isString() const
-{
-	return json_is_string(m_handle.get()) != 0;
-}
-
-bool JsonValue::isReal() const
-{
-	return json_is_real(m_handle.get()) != 0;
-}
-
-bool JsonValue::isTrue() const
-{
-	return json_is_true(m_handle.get()) != 0;
-}
-
-bool JsonValue::isFalse() const
-{
-	return json_is_false(m_handle.get()) != 0;
-}
-
-bool JsonValue::isNull() const
-{
-	return json_is_null(m_handle.get()) != 0;
-}
-
-bool JsonValue::isNumber() const
-{
-	return json_is_number(m_handle.get()) != 0;
-}
-
-bool JsonValue::isInteger() const
-{
-	return json_is_integer(m_handle.get()) != 0;
-}
-
-bool JsonValue::isBoolean() const
-{
-	return json_is_boolean(m_handle.get()) != 0;
-}
-
-std::string JsonValue::toString() const
-{
-	auto value = json_string_value(m_handle.get());
-
-	return (value == nullptr) ? "" : value;
-}
-
-int JsonValue::toInteger() const noexcept
-{
-	return json_integer_value(m_handle.get());
-}
-
-double JsonValue::toReal() const noexcept
-{
-	return json_real_value(m_handle.get());
-}
-
-JsonObject JsonValue::toObject() const
+JsonObject JsonValue::toObject() const noexcept
 {
 	json_incref(m_handle.get());
 
-	return JsonObject{m_handle.get()};
+	return JsonObject(m_handle.get());
 }
 
-JsonArray JsonValue::toArray() const
+JsonArray JsonValue::toArray() const noexcept
 {
 	json_incref(m_handle.get());
 
-	return JsonArray{m_handle.get()};
+	return JsonArray(m_handle.get());
 }
 
 /* --------------------------------------------------------
  * JsonArray
  * -------------------------------------------------------- */
 
-JsonArray::JsonArray()
-	: JsonValue{json_array()}
+JsonValue JsonArray::at(int index) const
 {
-}
-
-unsigned JsonArray::size() const noexcept
-{
-	return json_array_size(m_handle.get());
-}
-
-void JsonArray::push(const JsonValue &value)
-{
-	json_array_insert(m_handle.get(), 0, value.m_handle.get());
-}
-
-void JsonArray::append(const JsonValue &value)
-{
-	json_array_append(m_handle.get(), value.m_handle.get());
-}
-
-void JsonArray::insert(const JsonValue &value, int index)
-{
-	json_array_insert(m_handle.get(), index, value.m_handle.get());
-}
-
-JsonValue JsonArray::operator[](int index) const
-{
-	if (typeOf() != JsonType::Array)
-		throw JsonError{"not an array"};
-
 	auto value = json_array_get(m_handle.get(), index);
 
 	if (value == nullptr)
@@ -199,68 +54,105 @@ JsonValue JsonArray::operator[](int index) const
 	return JsonValue{value};
 }
 
+JsonValue JsonArray::operator[](int index) const noexcept
+{
+	auto value = json_array_get(m_handle.get(), index);
+
+	if (value == nullptr)
+		return JsonValue();
+
+	json_incref(value);
+
+	return JsonValue(value);
+}
+
+JsonArray::Ref JsonArray::operator[](int index) noexcept
+{
+	auto value = json_array_get(m_handle.get(), index);
+
+	if (value == nullptr)
+		value = json_null();
+	else
+		json_incref(value);
+
+	return Ref(value, *this, index);
+}
+
 /* --------------------------------------------------------
  * JsonObject
  * -------------------------------------------------------- */
 
-JsonObject::JsonObject()
-	: JsonValue{json_object()}
+JsonObject::Ref JsonObject::operator[](const std::string &name)
 {
+	if (typeOf() != JsonType::Object)
+		return Ref(JsonValue(), *this, name);
+
+	auto value = json_object_get(m_handle.get(), name.c_str());
+
+	json_incref(value);
+
+	return Ref(value, *this, name);
 }
 
 JsonValue JsonObject::operator[](const std::string &name) const
 {
 	if (typeOf() != JsonType::Object)
-		throw JsonError{"not an object"};
+		return JsonValue();
 
 	auto value = json_object_get(m_handle.get(), name.c_str());
 
 	if (value == nullptr)
-		throw JsonError{"key " + name + +" not found"};
+		return JsonValue();
 
 	json_incref(value);
 
-	return JsonValue{value};
-}
-
-void JsonObject::set(const std::string &key, const JsonValue &value)
-{
-	json_object_set(m_handle.get(), key.c_str(), value.m_handle.get());
+	return JsonValue(value);
 }
 
 /* --------------------------------------------------------
- * JsonReaderFile
+ * JsonDocument
  * -------------------------------------------------------- */
 
-JsonReaderFile::JsonReaderFile(std::string path)
-	: m_path{std::move(path)}
-{
-}
-
-JsonValue JsonReaderFile::read()
+JsonValue JsonDocument::read(std::string content, int flags) const
 {
 	json_error_t error;
-	json_t *handle = json_load_file(m_path.c_str(), 0, &error);
+	json_t *json = json_loads(content.c_str(), flags, &error);
 
-	if (handle == nullptr)
-		throw JsonError{error};
+	if (json == nullptr)
+		throw JsonError(error);
 
-	return JsonValue{handle};
+	return JsonValue(json);
 }
 
-/* --------------------------------------------------------
- * JsonWriterFile
- * -------------------------------------------------------- */
-
-JsonWriterFile::JsonWriterFile(std::string path)
-	: m_path{std::move(path)}
+JsonValue JsonDocument::read(std::ifstream &stream, int flags) const
 {
+	if (!stream.is_open())
+		throw JsonError("File not opened");
+
+	stream.seekg(0, stream.end);
+	auto length = stream.tellg();
+	stream.seekg(0, stream.beg);
+
+	std::string buffer;
+	buffer.resize(length, ' ');
+
+	stream.read(&buffer[0], length);
+	stream.close();
+
+	return read(std::move(buffer), flags);
 }
 
-void JsonWriterFile::write(const JsonValue &value)
+JsonDocument::JsonDocument(std::ifstream &stream, int flags)
 {
-	if (json_dump_file(value, m_path.c_str(), 0) < 0)
-		throw JsonError{"Failed to write file: " + m_path};
+	m_value = read(stream, flags);
 }
 
-} // !malikania
+JsonDocument::JsonDocument(std::ifstream &&stream, int flags)
+{
+	m_value = read(stream, flags);
+}
+
+JsonDocument::JsonDocument(std::string content, int flags)
+{
+	m_value = read(std::move(content), flags);
+}
