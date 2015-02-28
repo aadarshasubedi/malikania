@@ -1,0 +1,33 @@
+### ServerInfo
+
+Get the server information.
+
+#### Synopsis
+
+````json
+{
+  "command": "server-info",
+  "version": 1.0,
+  "engine": 3.2,
+  "admins": [ "player1", "player2" ],
+  "motd": "Message of the day",
+  "download": {
+    "enabled": true,
+    "sites": [
+      "http://pub.mygame.org/files",
+      "http://pub2.mygame.org/files"
+    ]
+  }
+}
+````
+
+#### Fields
+
+- **version**, the game version
+- **engine**, the engine version running
+- **admins**, (Optional) the list of administrators
+- **motd**, (Optional) a message of the day
+- **download**, (Optional) the download properties
+	- **enabled**: (Optional) enable download from the server. Default: false.
+	- **sites**: (Optional) list of mirrors where to download data, required if **enabled** is set.
+
