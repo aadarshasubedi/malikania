@@ -34,4 +34,8 @@ target_include_directories(
 	${SDL2_IMAGE_INCLUDE_DIRS}
 )
 
-target_link_libraries(client ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries(
+	client
+	${SDL2_LIBRARY}
+	${SDL2_IMAGE_LIBRARY}
+)
