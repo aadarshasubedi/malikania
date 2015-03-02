@@ -1,0 +1,20 @@
+## Animations
+
+The animations are animated sprites. They provide a convenient way of drawing
+animations onto the screen because they update themselves automatically.
+
+### JSON description
+
+A JSON file is always associated with an animation. If you have ten animations, you have ten JSON files for them.
+
+````json
+[
+  { "delay": 100, "image" : "fire-1.png" },
+  { "delay": 105, "image": "fire-2.png" }
+]
+````
+
+With that following code, a file will be generated with the following images:
+
+* **fire-1.png**, delay of 100 ms before switching to the second frame
+* **fire-2.png**, delay of 105 ms before switching finishing the animation

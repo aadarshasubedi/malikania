@@ -1,0 +1,4 @@
+## Format
+
+The format is a compressed ZIP archive file with no password.
+

@@ -1,0 +1,18 @@
+### Identify (Secure)
+
+Identify a player.
+
+#### Synopsis
+
+````json
+{
+  "command": "identify",
+  "account": "jean",
+  "password": "password"
+}
+````
+
+#### Fields
+
+- **account**, the account name
+- **password**, the password
