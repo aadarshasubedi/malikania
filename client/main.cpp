@@ -23,17 +23,82 @@
 
 using namespace std::literals::chrono_literals;
 
+// TODO delete this... just for fun
+bool bouncing = false;
+bool goRight = true;
+
+void bounce(malikania::Window& window, int &x, int &y) {
+
+	if (!bouncing && y < 5) {
+		y += 1;
+	} else if (!bouncing && y < 300) {
+		// Moko falls
+		y += 0.2 * y;
+	} else if (!bouncing && y > 300) {
+		// Moko will bounce :-)
+		bouncing = true;
+	} else if (bouncing && y < 5) {
+		// Moko stop bouncing
+		bouncing = false;
+	} else {
+		// Moko Bounce!!!
+		y -= 0.2 * y;
+	}
+	if (goRight && x < 500) {
+		x += 4;
+	} else {
+		goRight = false;
+	}
+	if (!goRight && x > 0) {
+		x -= 4;
+	} else {
+		goRight = true;
+	}
+	window.updateTexturePosition(x, y);
+}
+
+// End TODO
+
 int main(void)
 {
 	malikania::Window mainWindow;
 
-	mainWindow.onKeyUp([&mainWindow](int sdlKey) {
-		if (sdlKey == SDLK_ESCAPE) {
+	bool isBouncing = false;
+
+	int texturePositionX = 0;
+	int texturePositionY = 0;
+
+	mainWindow.onKeyUp([&mainWindow, &texturePositionX, &texturePositionY, &isBouncing](int sdlKey) {
+		switch (sdlKey) {
+		case SDLK_ESCAPE:
 			mainWindow.close();
+			break;
+		case SDLK_UP:
+			mainWindow.updateTexturePosition(texturePositionX, --texturePositionY);
+			break;
+		case SDLK_DOWN:
+			mainWindow.updateTexturePosition(texturePositionX, ++texturePositionY);
+			break;
+		case SDLK_RIGHT:
+			mainWindow.updateTexturePosition(++texturePositionX, texturePositionY);
+			break;
+		case SDLK_LEFT:
+			mainWindow.updateTexturePosition(--texturePositionX, texturePositionY);
+			break;
+		case SDLK_m:
+			isBouncing = !isBouncing;
 		}
 	});
 
+	mainWindow.setTexture("resources/images/mokodemo.png");
+
 	while (mainWindow.isOpen()) {
+
+		// TODO delete this, just for fun...
+		if (isBouncing) {
+			bounce(mainWindow, texturePositionX, texturePositionY);
+		}
+
 		mainWindow.processEvent();
 		mainWindow.clear();
 		mainWindow.update();

@@ -39,3 +39,20 @@ target_link_libraries(
 	${SDL2_LIBRARY}
 	${SDL2_IMAGE_LIBRARY}
 )
+
+add_custom_command(
+	OUTPUT ${CMAKE_BINARY_DIR}/resources/images/mokodemo.png
+	DEPENDS ${client_SOURCE_DIR}/resources/images/mokodemo.png
+	COMMAND
+		${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/resources/images
+	COMMAND
+		${CMAKE_COMMAND} -E copy ${client_SOURCE_DIR}/resources/images/mokodemo.png ${CMAKE_BINARY_DIR}/resources/images/mokodemo.png
+)
+
+add_custom_target(
+	client-resources ALL
+	DEPENDS ${CMAKE_BINARY_DIR}/resources/images/mokodemo.png
+	SOURCES ${client_SOURCE_DIR}/resources/images/mokodemo.png
+)
+
+add_dependencies(client-resources client)

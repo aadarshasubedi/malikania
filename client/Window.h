@@ -5,13 +5,15 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <string>
 #include <SDL.h>
-#include "Window.h"
 
 namespace malikania {
 
 // Usefull to handle C pointer
 using WindowHandle = std::unique_ptr<SDL_Window, void (*)(SDL_Window *)>;
+using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;
+using TextureHandle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
 
 class Window {
 public:
@@ -28,6 +30,11 @@ private:
 	KeyUpList m_keyUpList;
 	KeyDownList m_keyDownList;
 	MouseMoveList m_mouseMoveList;
+	RendererHandle m_renderer;
+	TextureHandle m_texture;
+	int m_textureXPosition;
+	int m_textureYPosition;
+	void setTexturePosition(int x, int y);
 
 public:
 	Window();
@@ -41,6 +48,8 @@ public:
 	void onKeyUp(KeyUp function);
 	void onKeyDown(KeyDown function);
 	void onMouseMove(MouseMove function);
+	void setTexture(std::string imagePath);
+	void updateTexturePosition(int x, int y);
 };
 
 }// !malikania
