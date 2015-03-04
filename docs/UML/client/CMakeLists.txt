@@ -16,11 +16,16 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(UML)
+project(client)
 
-add_custom_target(uml COMMENT "UML diagram generation")
+set(
+	FILES
+	${client_SOURCE_DIR}/States.txt
+)
 
-add_dependencies(docs uml)
+malikania_generate_uml(
+	NAME client
+	DIRECTORY client
+	SOURCES ${FILES}
+)
 
-add_subdirectory(database)
-add_subdirectory(client)

@@ -47,4 +47,11 @@ hide chest_object methods
 build "1" -- "1" chest
 chest "1" -- "0..*" chest_object
 
+skinparam defaultFontName DejaVu Sans Mono
+skinparam defaultFontSize 10
+
+skinparam classBorderColor #C67C37
+skinparam classBackgroundColor FFC48D
+skinparam classArrowColor #C67C37
+
 @enduml

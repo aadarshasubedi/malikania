@@ -1,0 +1,49 @@
+'
+' ClientStates.txt -- different default client states
+'
+' Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
+'
+' Permission to use, copy, modify, and/or distribute this software for any
+' purpose with or without fee is hereby granted, provided that the above
+' copyright notice and this permission notice appear in all copies.
+'
+' THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+' WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+' MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+' ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+' ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+' OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+'
+
+@startuml
+
+[*] --> Loading
+Loading --> Login
+Login --> Connecting
+Connecting --> Downloading
+Connecting --> LoadingMap
+LoadingMap --> Running
+Downloading --> Running
+Running --> LoadingBattle
+LoadingBattle --> Battle
+Battle --> EndBattle
+
+Loading : Loading game resources
+Login : Waiting for user input for connecting
+Connecting : Waiting for connection to the server
+LoadingMap : Loading the map
+Downloading : Downloading updates locally
+Running : In game map
+LoadingBattle : State before a battle starts (useful for animations)
+Battle : In game battle
+EndBattle : When a battle has finished
+
+skinparam defaultFontName DejaVu Sans Mono
+skinparam defaultFontSize 10
+
+skinparam stateBorderColor #236F79
+skinparam stateBackgroundColor #5D9CA5
+skinparam stateArrowColor #236F79
+
+@enduml

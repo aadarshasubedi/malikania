@@ -77,4 +77,11 @@ character "1" -- "1" status
 log_history "1" -- "0..*" log_history_item
 status "1" -- "1" points
 
+skinparam defaultFontName DejaVu Sans Mono
+skinparam defaultFontSize 10
+
+skinparam classBorderColor #C67C37
+skinparam classBackgroundColor FFC48D
+skinparam classArrowColor #C67C37
+
 @enduml
