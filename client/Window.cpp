@@ -1,12 +1,10 @@
 #include "Window.h"
 #include <stdexcept>
-#include <SDL_image.h>
 
 namespace malikania {
 
 Window::Window()
-	: m_window(nullptr, nullptr), m_renderer(nullptr, nullptr), m_texture(nullptr, nullptr), m_isOpen(true),
-	  m_textureXPosition(0), m_textureYPosition(0)
+	: m_window(nullptr, nullptr), m_renderer(nullptr, nullptr), m_isOpen(true)
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
@@ -66,7 +64,9 @@ void Window::clear()
 
 void Window::update()
 {
-	setTexturePosition(m_textureXPosition, m_textureYPosition);
+	for (auto const &pair : m_imageMap) {
+		setImagePosition(pair.first, pair.second->getX(), pair.second->getY());
+	}
 }
 
 void Window::draw()
@@ -99,33 +99,45 @@ void Window::onMouseMove(MouseMove function)
 	m_mouseMoveList.push_back(std::move(function));
 }
 
-void Window::setTexture(std::string imagePath)
+void Window::setBackground(ImageHandle image)
 {
-	// Create Texture
-	m_texture = TextureHandle(
-		IMG_LoadTexture(m_renderer.get(), imagePath.c_str()),
-		SDL_DestroyTexture
-	);
+	// TODO
+}
 
-	if (m_texture == NULL) {
-		std::string error = "Couldn't create a texture: " + std::string(SDL_GetError());
-		throw std::runtime_error(error);
+void Window::addImage(std::string id, ImageHandle image)
+{
+	m_imageMap[id] = std::move(image);
+}
+
+void Window::addImage(std::string id, std::string imagePath)
+{
+	addImage(id, std::make_unique<Image>(Image(imagePath, m_renderer)));
+}
+
+Image &Window::getImage(std::string id)
+{
+	if (m_imageMap.find(id) != m_imageMap.end()) {
+		return *m_imageMap[id];
+	} else {
+		// FIXME Exception or just an error?
+		throw std::runtime_error("Image id \"" + id + "\" not found");
 	}
 }
 
-void Window::updateTexturePosition(int x, int y)
+void Window::updateImagePosition(std::string id, int x, int y)
 {
-	m_textureXPosition = x;
-	m_textureYPosition = y;
+	getImage(id).setPosition(x, y);
 }
 
-void Window::setTexturePosition(int x, int y)
+void Window::setImagePosition(std::string id, int x, int y)
 {
+	Image& image = getImage(id);
+	SDL_Texture* texturePtr = image.getTexture().get();
 	SDL_Rect pos;
 	pos.x = x;
 	pos.y = y;
-	SDL_QueryTexture(m_texture.get(), NULL, NULL, &pos.w, &pos.h);
-	SDL_RenderCopy(m_renderer.get(), m_texture.get(), NULL, &pos);
+	SDL_QueryTexture(texturePtr, NULL, NULL, &pos.w, &pos.h);
+	SDL_RenderCopy(m_renderer.get(), texturePtr, NULL, &pos);
 }
 
 }// !malikania

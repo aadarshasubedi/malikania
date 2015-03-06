@@ -54,7 +54,7 @@ void bounce(malikania::Window& window, int &x, int &y) {
 	} else {
 		goRight = true;
 	}
-	window.updateTexturePosition(x, y);
+	window.updateImagePosition("moko", x, y);
 }
 
 // End TODO
@@ -65,38 +65,38 @@ int main(void)
 
 	bool isBouncing = false;
 
-	int texturePositionX = 0;
-	int texturePositionY = 0;
+	int mokoPositionX = 0;
+	int mokoPositionY = 0;
 
-	mainWindow.onKeyUp([&mainWindow, &texturePositionX, &texturePositionY, &isBouncing](int sdlKey) {
+	mainWindow.onKeyUp([&mainWindow, &mokoPositionX, &mokoPositionY, &isBouncing](int sdlKey) {
 		switch (sdlKey) {
 		case SDLK_ESCAPE:
 			mainWindow.close();
 			break;
 		case SDLK_UP:
-			mainWindow.updateTexturePosition(texturePositionX, --texturePositionY);
+			mainWindow.updateImagePosition("moko", mokoPositionX, --mokoPositionY);
 			break;
 		case SDLK_DOWN:
-			mainWindow.updateTexturePosition(texturePositionX, ++texturePositionY);
+			mainWindow.updateImagePosition("moko", mokoPositionX, ++mokoPositionY);
 			break;
 		case SDLK_RIGHT:
-			mainWindow.updateTexturePosition(++texturePositionX, texturePositionY);
+			mainWindow.updateImagePosition("moko", ++mokoPositionX, mokoPositionY);
 			break;
 		case SDLK_LEFT:
-			mainWindow.updateTexturePosition(--texturePositionX, texturePositionY);
+			mainWindow.updateImagePosition("moko", --mokoPositionX, mokoPositionY);
 			break;
 		case SDLK_m:
 			isBouncing = !isBouncing;
 		}
 	});
 
-	mainWindow.setTexture("resources/images/mokodemo.png");
+	mainWindow.addImage("moko", "resources/images/mokodemo.png");
 
 	while (mainWindow.isOpen()) {
 
 		// TODO delete this, just for fun...
 		if (isBouncing) {
-			bounce(mainWindow, texturePositionX, texturePositionY);
+			bounce(mainWindow, mokoPositionX, mokoPositionY);
 		}
 
 		mainWindow.processEvent();

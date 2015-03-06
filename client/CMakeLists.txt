@@ -23,6 +23,8 @@ set(
 	main.cpp
 	Window.h
 	Window.cpp
+	Image.h
+	Image.cpp
 )
 
 add_executable(client ${FILES})
