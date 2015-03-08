@@ -1,7 +1,7 @@
 #include "Image.h"
 #include <SDL_image.h>
 
-Image::Image(std::string imagePath, const RendererHandle &renderer, int x, int y)
+Image::Image(std::string imagePath, const RendererHandle &renderer, int width, int height, int x, int y)
 	: m_texture(nullptr, nullptr), m_x(x), m_y(y)
 {
 	// Create Texture
@@ -14,6 +14,12 @@ Image::Image(std::string imagePath, const RendererHandle &renderer, int x, int y
 		std::string error = "Couldn't create a texture: " + std::string(SDL_GetError());
 		throw std::runtime_error(error);
 	}
+
+	m_rectangle = std::make_unique<SDL_Rect>(SDL_Rect());
+	m_rectangle->w = width;
+	m_rectangle->h = height;
+	m_rectangle->x = 0;
+	m_rectangle->y = 0;
 }
 
 TextureHandle& Image::getTexture()
@@ -45,4 +51,19 @@ void Image::setPosition(int x, int y) noexcept
 {
 	setX(x);
 	setY(y);
+}
+
+int Image::getWidth() const
+{
+	return m_rectangle->w;
+}
+
+int Image::getHeight() const
+{
+	return m_rectangle->h;
+}
+
+RectangleHandle &Image::getRectangle()
+{
+	return m_rectangle;
 }

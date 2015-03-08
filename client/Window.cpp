@@ -9,7 +9,7 @@ Window::Window()
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
 	m_window = WindowHandle(
-		SDL_CreateWindow("Malikania", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL),
+		SDL_CreateWindow("Malikania", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL|SDL_WINDOW_FULLSCREEN_DESKTOP),
 		SDL_DestroyWindow
 	);
 
@@ -19,7 +19,6 @@ Window::Window()
 	}
 
 	// Create renderer
-#if 1
 	m_renderer = RendererHandle(
 		SDL_CreateRenderer(m_window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),
 		SDL_DestroyRenderer
@@ -28,8 +27,6 @@ Window::Window()
 	if (m_renderer == nullptr) {
 		throw std::runtime_error("Couldn't create a renderer");
 	}
-
-#endif
 }
 
 bool Window::isOpen() noexcept
@@ -48,6 +45,11 @@ void Window::processEvent()
 			}
 			break;
 		// TODO continue implemanting all event possible
+		case SDL_KEYDOWN:
+			for (KeyDown function : m_keyDownList) {
+				function(event.key.keysym.sym);
+			}
+			break;
 		case SDL_QUIT:
 			m_isOpen = false;
 			break;
@@ -64,8 +66,19 @@ void Window::clear()
 
 void Window::update()
 {
-	for (auto const &pair : m_imageMap) {
-		setImagePosition(pair.first, pair.second->getX(), pair.second->getY());
+	for (auto const &pair : m_animationMap) {
+		Animation& animation = getAnimation(pair.first);
+		SDL_Texture* texturePtr = animation.getTexture().get();
+		SDL_Rect rect;
+		rect.x = pair.second->getX();
+		rect.y = pair.second->getY();
+		rect.w = pair.second->getWidth();
+		rect.h = pair.second->getHeight();
+		SDL_RenderCopy(m_renderer.get(), texturePtr, pair.second->getRectangle().get(), &rect);
+	}
+
+	for (Refresh function : m_refreshList) {
+		function();
 	}
 }
 
@@ -99,45 +112,69 @@ void Window::onMouseMove(MouseMove function)
 	m_mouseMoveList.push_back(std::move(function));
 }
 
+void Window::onRefresh(Refresh function)
+{
+	m_refreshList.push_back(std::move(function));
+}
+
 void Window::setBackground(ImageHandle image)
 {
 	// TODO
 }
 
-void Window::addImage(std::string id, ImageHandle image)
+void Window::addAnimation(std::string id, AnimationHandle animation)
 {
-	m_imageMap[id] = std::move(image);
+	m_animationMap[id] = std::move(animation);
 }
 
-void Window::addImage(std::string id, std::string imagePath)
+void Window::addAnimation(std::string id, std::string imagePath, int width, int height, int cellWidth, int cellHeight)
 {
-	addImage(id, std::make_unique<Image>(Image(imagePath, m_renderer)));
+	addAnimation(id, std::make_unique<Animation>(Animation(imagePath, m_renderer, width, height, cellWidth, cellHeight)));
 }
 
-Image &Window::getImage(std::string id)
+Animation &Window::getAnimation(std::string id)
 {
-	if (m_imageMap.find(id) != m_imageMap.end()) {
-		return *m_imageMap[id];
+	if (m_animationMap.find(id) != m_animationMap.end()) {
+		return *m_animationMap[id];
 	} else {
 		// FIXME Exception or just an error?
 		throw std::runtime_error("Image id \"" + id + "\" not found");
 	}
 }
 
-void Window::updateImagePosition(std::string id, int x, int y)
+void Window::updateAnimationPosition(std::string id, int x, int y)
 {
-	getImage(id).setPosition(x, y);
+	getAnimation(id).setPosition(x, y);
 }
 
-void Window::setImagePosition(std::string id, int x, int y)
+void Window::updateAnimationState(std::string id, std::string state)
 {
-	Image& image = getImage(id);
-	SDL_Texture* texturePtr = image.getTexture().get();
-	SDL_Rect pos;
-	pos.x = x;
-	pos.y = y;
-	SDL_QueryTexture(texturePtr, NULL, NULL, &pos.w, &pos.h);
-	SDL_RenderCopy(m_renderer.get(), texturePtr, NULL, &pos);
+	getAnimation(id).setState(state);
+}
+
+void Window::setAnimationCellMap(std::string id, std::map<std::string, std::tuple<int, int> > cellMap)
+{
+	getAnimation(id).setCellMap(cellMap);
+}
+
+std::tuple<int, int> Window::getWindowResolution()
+{
+	SDL_DisplayMode current;
+	int width = 0;
+	int height = 0;
+	for (int i = 0; i < SDL_GetNumVideoDisplays(); i++) {
+		int error = SDL_GetCurrentDisplayMode(i, &current);
+		if (error == 0) {
+			// Get the last one
+			// TODO test with only one display mode, but we have to test with more than that
+			width = current.w;
+			height = current.h;
+		} else {
+			throw std::runtime_error("Could not get display mode for video display" + std::string(SDL_GetError()));
+		}
+	}
+
+	return std::make_tuple(width, height);
 }
 
 }// !malikania

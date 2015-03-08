@@ -25,6 +25,8 @@ set(
 	Window.cpp
 	Image.h
 	Image.cpp
+	Animation.h
+	Animation.cpp
 )
 
 add_executable(client ${FILES})

@@ -7,8 +7,10 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tuple>
 #include <SDL.h>
 #include "Image.h"
+#include "Animation.h"
 
 namespace malikania {
 
@@ -16,15 +18,18 @@ namespace malikania {
 using WindowHandle = std::unique_ptr<SDL_Window, void (*)(SDL_Window *)>;
 using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;
 using ImageHandle = std::unique_ptr<Image>;
+using AnimationHandle = std::unique_ptr<Animation>;
 
 class Window {
 public:
 	using KeyUp = std::function<void (int)>;
 	using KeyDown = std::function<void (int)>;
 	using MouseMove = std::function<void (int, int)>;
+	using Refresh = std::function<void (void)>;
 	using KeyUpList = std::vector<KeyUp>;
 	using KeyDownList = std::vector<KeyDown>;
 	using MouseMoveList = std::vector<MouseMove>;
+	using RefreshList = std::vector<Refresh>;
 
 private:
 	WindowHandle m_window;
@@ -32,10 +37,10 @@ private:
 	KeyUpList m_keyUpList;
 	KeyDownList m_keyDownList;
 	MouseMoveList m_mouseMoveList;
+	RefreshList m_refreshList;
 	RendererHandle m_renderer;
 	ImageHandle m_background;
-	std::map<std::string, ImageHandle> m_imageMap;
-	void setImagePosition(std::string id, int x, int y);
+	std::map<std::string, AnimationHandle> m_animationMap;
 
 public:
 	Window();
@@ -49,11 +54,15 @@ public:
 	void onKeyUp(KeyUp function);
 	void onKeyDown(KeyDown function);
 	void onMouseMove(MouseMove function);
+	void onRefresh(Refresh function);
 	void setBackground(ImageHandle image);
-	void addImage(std::string id, ImageHandle image);
-	void addImage(std::string id, std::string imagePath);
-	Image &getImage(std::string id);
-	void updateImagePosition(std::string id, int x, int y);
+	void addAnimation(std::string id, AnimationHandle image);
+	void addAnimation(std::string id, std::string imagePath, int width, int height, int cellWidth, int cellHeight);
+	Animation &getAnimation(std::string id);
+	void updateAnimationPosition(std::string id, int x, int y);
+	void updateAnimationState(std::string id, std::string state);
+	void setAnimationCellMap(std::string id, std::map<std::string, std::tuple<int, int>> cellMap);
+	std::tuple<int, int> getWindowResolution();
 };
 
 }// !malikania
