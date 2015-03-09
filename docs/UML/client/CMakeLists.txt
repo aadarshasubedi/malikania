@@ -21,6 +21,7 @@ project(client)
 set(
 	FILES
 	${client_SOURCE_DIR}/States.txt
+	${client_SOURCE_DIR}/Rendering.txt
 )
 
 malikania_generate_uml(

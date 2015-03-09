@@ -1,5 +1,5 @@
 '
-' ClientStates.txt -- different default client states
+' States.txt -- different default client states
 '
 ' Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
 '
