@@ -16,8 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _SOCKET_ADDRESS_H_
-#define _SOCKET_ADDRESS_H_
+#ifndef _SOCKET_ADDRESS_NG_H_
+#define _SOCKET_ADDRESS_NG_H_
 
 #include <string>
 
@@ -27,8 +27,6 @@
 #else
 #  include <sys/socket.h>
 #endif
-
-namespace malikania {
 
 /**
  * @class SocketAddress
@@ -40,7 +38,7 @@ namespace malikania {
  * @see Internet
  * @see Unix
  */
-class MALIKANIA_EXPORT SocketAddress {
+class SocketAddress {
 protected:
 	sockaddr_storage m_addr;
 	socklen_t m_addrlen;
@@ -106,7 +104,7 @@ namespace address {
  * Create a connect address for internet protocol,
  * using getaddrinfo(3).
  */
-class MALIKANIA_EXPORT Internet : public SocketAddress {
+class Internet : public SocketAddress {
 public:
 	/**
 	 * Create an IPv4 or IPV6 end point.
@@ -127,7 +125,7 @@ public:
  *
  * Create an address to a specific path. Only available on Unix.
  */
-class MALIKANIA_EXPORT Unix : public SocketAddress {
+class Unix : public SocketAddress {
 public:
 	/**
 	 * Construct an address to a path.
@@ -142,6 +140,4 @@ public:
 
 } // !address
 
-} // !malikania
-
-#endif // !_SOCKET_ADDRESS_H_
+#endif // !_SOCKET_ADDRESS_NG_H_

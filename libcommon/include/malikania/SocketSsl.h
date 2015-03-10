@@ -16,33 +16,52 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _SOCKET_SSL_H_
-#define _SOCKET_SSL_H_
+#ifndef _SOCKET_SSL_NG_H_
+#define _SOCKET_SSL_NG_H_
+
+#include <atomic>
+#include <mutex>
 
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/ssl.h>
 
-#include "Socket.h"
+#include "SocketTcp.h"
 
-namespace malikania {
-
+/**
+ * @class SocketSslOptions
+ * @brief Options for SocketSsl
+ */
 class SocketSslOptions {
 public:
+	/**
+	 * @brief Method
+	 */
 	enum {
 		SSLv3	= (1 << 0),
 		TLSv1	= (1 << 1),
 		All	= (0xf)
 	};
 
-	unsigned short	method{All};
-	std::string	certificate;
-	std::string	privateKey;
-	bool		verify{false};
+	int		method{All};		//!< The method
+	std::string	certificate;		//!< The certificate path
+	std::string	privateKey;		//!< The private key file
+	bool		verify{false};		//!< Verify or not
 
+	/**
+	 * Default constructor.
+	 */
 	SocketSslOptions() = default;
 
-	SocketSslOptions(unsigned short method, std::string certificate, std::string key, bool verify = false)
+	/**
+	 * More advanced constructor.
+	 *
+	 * @param method the method requested
+	 * @param certificate the certificate file
+	 * @param key the key file
+	 * @param verify set to true to verify
+	 */
+	SocketSslOptions(int method, std::string certificate, std::string key, bool verify = false)
 		: method(method)
 		, certificate(std::move(certificate))
 		, privateKey(std::move(key))
@@ -51,53 +70,64 @@ public:
 	}
 };
 
-class MALIKANIA_EXPORT SocketSslInterface : public SocketStandard {
-private:
-	using Ssl	= std::shared_ptr<SSL>;
-	using SslContext = std::shared_ptr<SSL_CTX>;
-
-	SslContext m_context;
-	Ssl m_ssl;
-	SocketSslOptions m_options;
-
-public:
-	SocketSslInterface(SSL_CTX *context, SSL *ssl, SocketSslOptions options = {});
-	SocketSslInterface(SocketSslOptions options = {});
-	void connect(Socket &s, const SocketAddress &address) override;
-	void tryConnect(Socket &s, const SocketAddress &address, int timeout) override;
-	Socket accept(Socket &s, SocketAddress &info) override;
-	unsigned recv(Socket &s, void *data, unsigned len) override;
-	unsigned recvfrom(Socket &s, void *data, unsigned len, SocketAddress &info) override;
-	unsigned tryRecv(Socket &s, void *data, unsigned len, int timeout) override;
-	unsigned tryRecvfrom(Socket &s, void *data, unsigned len, SocketAddress &info, int timeout) override;
-	unsigned send(Socket &s, const void *data, unsigned len) override;
-	unsigned sendto(Socket &s, const void *data, unsigned len, const SocketAddress &info) override;
-	unsigned trySend(Socket &s, const void *data, unsigned len, int timeout) override;
-	unsigned trySendto(Socket &s, const void *data, unsigned len, const SocketAddress &info, int timeout) override;
-};
-
 /**
  * @class SocketSsl
  * @brief SSL interface for sockets
  *
- * This class derives from Socket and provide SSL support through OpenSSL.
- *
- * It is perfectly safe to cast SocketSsl to Socket and vice-versa.
+ * This class derives from SocketAbstractTcp and provide SSL support through OpenSSL.
  */
-class MALIKANIA_EXPORT SocketSsl : public Socket {
+class SocketSsl : public SocketAbstractTcp {
+public:
+	using ContextHandle = std::unique_ptr<SSL_CTX, void (*)(SSL_CTX *)>;
+	using SslHandle = std::unique_ptr<SSL, void (*)(SSL *)>;
+
 private:
-	using Socket::Socket;
+	static std::mutex s_sslMutex;
+	static std::atomic<bool> s_sslInitialized;
+
+	ContextHandle m_context{nullptr, nullptr};
+	SslHandle m_ssl{nullptr, nullptr};
+	SocketSslOptions m_options;
 
 public:
-	/**
-	 * Initialize SSL library.
-	 */
-	static void init();
+	using SocketAbstractTcp::recv;
+	using SocketAbstractTcp::waitRecv;
+	using SocketAbstractTcp::send;
+	using SocketAbstractTcp::waitSend;
 
 	/**
-	 * Close SSL library.
+	 * Close OpenSSL library.
 	 */
-	static void finish();
+	static inline void sslTerminate()
+	{
+		ERR_free_strings();
+	}
+
+	/**
+	 * Open SSL library.
+	 */
+	static inline void sslInitialize()
+	{
+		std::lock_guard<std::mutex> lock(s_sslMutex);
+
+		if (!s_sslInitialized) {
+			s_sslInitialized = true;
+
+			SSL_library_init();
+			SSL_load_error_strings();
+
+			std::atexit(sslTerminate);
+		}
+	}
+
+	/**
+	 * Create a SocketSsl from an already created one.
+	 *
+	 * @param handle the native handle
+	 * @param context the context
+	 * @param ssl the ssl object
+	 */
+	SocketSsl(Socket::Handle handle, SSL_CTX *context, SSL *ssl);
 
 	/**
 	 * Open a SSL socket with the specified family. Automatically
@@ -106,9 +136,80 @@ public:
 	 * @param family the family
 	 * @param options the options
 	 */
-	SocketSsl(int family, SocketSslOptions options = {});
+	SocketSsl(int family, int protocol, SocketSslOptions options = {});
+
+	/**
+	 * Accept a SSL TCP socket.
+	 *
+	 * @return the socket
+	 * @throw SocketError on error
+	 */
+	SocketSsl accept();
+
+	/**
+	 * Accept a SSL TCP socket.
+	 *
+	 * @param info the client information
+	 * @return the socket
+	 * @throw SocketError on error
+	 */
+	SocketSsl accept(SocketAddress &info);
+
+	/**
+	 * Accept a SSL TCP socket.
+	 *
+	 * @param timeout the maximum timeout in milliseconds
+	 * @return the socket
+	 * @throw SocketError on error
+	 */
+	SocketSsl waitAccept(int timeout);
+
+	/**
+	 * Accept a SSL TCP socket.
+	 *
+	 * @param info the client information
+	 * @param timeout the maximum timeout in milliseconds
+	 * @return the socket
+	 * @throw SocketError on error
+	 */
+	SocketSsl waitAccept(SocketAddress &info, int timeout);
+
+	/**
+	 * Connect to an end point.
+	 *
+	 * @param address the address
+	 * @throw SocketError on error
+	 */
+	void connect(const SocketAddress &address);
+
+	/**
+	 * Connect to an end point.
+	 *
+	 * @param timeout the maximum timeout in milliseconds
+	 * @param address the address
+	 * @throw SocketError on error
+	 */
+	void waitConnect(const SocketAddress &address, int timeout);
+
+	/**
+	 * @copydoc SocketAbstractTcp::recv
+	 */
+	unsigned recv(void *data, unsigned length) override;
+
+	/**
+	 * @copydoc SocketAbstractTcp::recv
+	 */
+	unsigned waitRecv(void *data, unsigned length, int timeout) override;
+
+	/**
+	 * @copydoc SocketAbstractTcp::recv
+	 */
+	unsigned send(const void *data, unsigned length) override;
+
+	/**
+	 * @copydoc SocketAbstractTcp::recv
+	 */
+	unsigned waitSend(const void *data, unsigned length, int timeout) override;
 };
 
-} // !malikania
-
-#endif // !_SOCKET_SSL_H_
+#endif // !_SOCKET_SSL_NG_H_

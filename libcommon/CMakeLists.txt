@@ -28,6 +28,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketAddress.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketListener.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketSsl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketTcp.h
 )
 
 set(
@@ -40,7 +41,12 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketAddress.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketListener.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketSsl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketTcp.cpp
 )
+
+if (WIN32)
+	list(APPEND LIBRARIES ws2_32)
+endif ()
 
 malikania_create_library(
 	PROJECT libcommon
@@ -55,6 +61,7 @@ malikania_create_library(
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}
 	LIBRARIES
+		${LIBRARIES}
 		${Jansson_LIBRARIES}
 		${ZIP_LIBRARIES}
 		${OPENSSL_LIBRARIES}

@@ -16,16 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "SocketAddress.h"
 #include "SocketListener.h"
 #include "SocketSsl.h"
 
-namespace malikania {
-
-using namespace direction;
-
 namespace {
 
-const SSL_METHOD *method(int mflags)
+const SSL_METHOD *sslMethod(int mflags)
 {
 	if (mflags & SocketSslOptions::All)
 		return SSLv23_method();
@@ -42,69 +39,105 @@ inline std::string sslError(int error)
 	return ERR_reason_error_string(error);
 }
 
+inline int toDirection(int error)
+{
+	if (error == SocketError::WouldBlockRead)
+		return SocketListener::Read;
+	if (error ==  SocketError::WouldBlockWrite)
+		return SocketListener::Write;
+
+	return 0;
+}
+
 } // !namespace
 
-SocketSslInterface::SocketSslInterface(SSL_CTX *context, SSL *ssl, SocketSslOptions options)
-	: SocketStandard()
+std::mutex SocketSsl::s_sslMutex;
+std::atomic<bool> SocketSsl::s_sslInitialized{false};
+
+SocketSsl::SocketSsl(Socket::Handle handle, SSL_CTX *context, SSL *ssl)
+	: SocketAbstractTcp(handle)
 	, m_context(context, SSL_CTX_free)
 	, m_ssl(ssl, SSL_free)
-	, m_options(std::move(options))
 {
+#if !defined(SOCKET_NO_SSL_INIT)
+	if (!s_sslInitialized)
+		sslInitialize();
+#endif
 }
 
-SocketSslInterface::SocketSslInterface(SocketSslOptions options)
-	: SocketStandard()
+SocketSsl::SocketSsl(int family, int protocol, SocketSslOptions options)
+	: SocketAbstractTcp(family, protocol)
 	, m_options(std::move(options))
 {
+#if !defined(SOCKET_NO_SSL_INIT)
+	if (!s_sslInitialized)
+		sslInitialize();
+#endif
 }
 
-void SocketSslInterface::connect(Socket &s, const SocketAddress &address)
+void SocketSsl::connect(const SocketAddress &address)
 {
-	SocketStandard::connect(s, address);
+	standardConnect(address);
 
 	// Context first
-	auto context = SSL_CTX_new(method(m_options.method));
+	auto context = SSL_CTX_new(sslMethod(m_options.method));
 
-	m_context = SslContext(context, SSL_CTX_free);
+	m_context = ContextHandle(context, SSL_CTX_free);
 
 	// SSL object then
 	auto ssl = SSL_new(context);
 
-	m_ssl = Ssl(ssl, SSL_free);
+	m_ssl = SslHandle(ssl, SSL_free);
 
-	SSL_set_fd(ssl, s.handle());
+	SSL_set_fd(ssl, m_handle);
 
 	auto ret = SSL_connect(ssl);
 
 	if (ret <= 0) {
 		auto error = SSL_get_error(ssl, ret);
 
-		if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)
-			throw error::InProgress("connect", sslError(error), error, error);
-
-		throw error::Error("accept", sslError(error), error);
+		if (error == SSL_ERROR_WANT_READ) {
+			throw SocketError(SocketError::WouldBlockRead, "connect", "Operation in progress");
+		} else if (error == SSL_ERROR_WANT_WRITE) {
+			throw SocketError(SocketError::WouldBlockWrite, "connect", "Operation in progress");
+		} else {
+			throw SocketError(SocketError::System, "connect", sslError(error));
+		}
 	}
+
+	m_state = SocketState::Connected;
 }
 
-void SocketSslInterface::tryConnect(Socket &s, const SocketAddress &address, int timeout)
+void SocketSsl::waitConnect(const SocketAddress &address, int timeout)
 {
 	try {
 		// Initial try
-		connect(s, address);
-	} catch (const error::InProgress &ipe) {
-		SocketListener listener{{s, ipe.direction()}};
+		connect(address);
+	} catch (const SocketError &ex) {
+		if (ex.code() == SocketError::WouldBlockRead || ex.code() == SocketError::WouldBlockWrite) {
+			SocketListener listener{{*this, toDirection(ex.code())}};
 
-		listener.select(timeout);
+			listener.select(timeout);
 
-		// Second try
-		connect(s, address);
+			// Second try
+			connect(address);
+		} else {
+			throw;
+		}
 	}
 }
 
-Socket SocketSslInterface::accept(Socket &s, SocketAddress &info)
+SocketSsl SocketSsl::accept()
 {
-	auto client = SocketStandard::accept(s, info);
-	auto context = SSL_CTX_new(method(m_options.method));
+	SocketAddress dummy;
+
+	return accept(dummy);
+}
+
+SocketSsl SocketSsl::accept(SocketAddress &info)
+{
+	auto client = standardAccept(info);
+	auto context = SSL_CTX_new(sslMethod(m_options.method));
 
 	if (m_options.certificate.size() > 0)
 		SSL_CTX_use_certificate_file(context, m_options.certificate.c_str(), SSL_FILETYPE_PEM);
@@ -112,7 +145,7 @@ Socket SocketSslInterface::accept(Socket &s, SocketAddress &info)
 		SSL_CTX_use_PrivateKey_file(context, m_options.privateKey.c_str(), SSL_FILETYPE_PEM);
 	if (m_options.verify && !SSL_CTX_check_private_key(context)) {
 		client.close();
-		throw error::Error("accept", "certificate failure", 0);
+		throw SocketError(SocketError::System, "accept", "certificate failure");
 	}
 
 	// SSL object
@@ -125,100 +158,71 @@ Socket SocketSslInterface::accept(Socket &s, SocketAddress &info)
 	if (ret <= 0) {
 		auto error = SSL_get_error(ssl, ret);
 
-		if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)
-			throw error::InProgress("accept", sslError(error), error, error);
-
-		throw error::Error("accept", sslError(error), error);
+		if (error == SSL_ERROR_WANT_READ) {
+			throw SocketError(SocketError::WouldBlockRead, "accept", "Operation would block");
+		} else if (error == SSL_ERROR_WANT_WRITE) {
+			throw SocketError(SocketError::WouldBlockWrite, "accept", "Operation would block");
+		} else {
+			throw SocketError(SocketError::System, "accept", sslError(error));
+		}
 	}
 
-	return SocketSsl{client.handle(), std::make_shared<SocketSslInterface>(context, ssl)};
+	return SocketSsl(client.handle(), context, ssl);
 }
 
-unsigned SocketSslInterface::recv(Socket &, void *data, unsigned len)
+unsigned SocketSsl::recv(void *data, unsigned len)
 {
 	auto nbread = SSL_read(m_ssl.get(), data, len);
 
 	if (nbread <= 0) {
 		auto error = SSL_get_error(m_ssl.get(), nbread);
 
-		if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)
-			throw error::InProgress("accept", sslError(error), error, error);
-
-		throw error::Error("recv", sslError(error), error);
+		if (error == SSL_ERROR_WANT_READ) {
+			throw SocketError(SocketError::WouldBlockRead, "recv", "Operation would block");
+		} else if (error == SSL_ERROR_WANT_WRITE) {
+			throw SocketError(SocketError::WouldBlockWrite, "recv", "Operation would block");
+		} else {
+			throw SocketError(SocketError::System, "recv", sslError(error));
+		}
 	}
 
 	return nbread;
 }
 
-unsigned SocketSslInterface::recvfrom(Socket &, void *, unsigned, SocketAddress &)
+unsigned SocketSsl::waitRecv(void *data, unsigned len, int timeout)
 {
-	throw error::Error("recvfrom", "SSL socket is not UDP compatible", 0);
-}
-
-unsigned SocketSslInterface::tryRecv(Socket &s, void *data, unsigned len, int timeout)
-{
-	SocketListener listener{{s, Read}};
+	SocketListener listener{{*this, SocketListener::Read}};
 
 	listener.select(timeout);
 
-	return recv(s, data, len);
+	return recv(data, len);
 }
 
-unsigned SocketSslInterface::tryRecvfrom(Socket &, void *, unsigned, SocketAddress &, int)
-{
-	throw error::Error("recvfrom", "SSL socket is not UDP compatible", 0);
-}
-
-unsigned SocketSslInterface::send(Socket &, const void *data, unsigned len)
+unsigned SocketSsl::send(const void *data, unsigned len)
 {
 	auto nbread = SSL_write(m_ssl.get(), data, len);
 
 	if (nbread <= 0) {
 		auto error = SSL_get_error(m_ssl.get(), nbread);
 
-		if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)
-			throw error::InProgress("accept", sslError(error), error, error);
-
-		throw error::Error("recv", sslError(error), error);
+		if (error == SSL_ERROR_WANT_READ) {
+			throw SocketError(SocketError::WouldBlockRead, "send", "Operation would block");
+		} else if (error == SSL_ERROR_WANT_WRITE) {
+			throw SocketError(SocketError::WouldBlockWrite, "send", "Operation would block");
+		} else {
+			throw SocketError(SocketError::System, "send", sslError(error));
+		}
 	}
 
 	return nbread;
 }
 
-unsigned SocketSslInterface::sendto(Socket &, const void *, unsigned, const SocketAddress &)
+unsigned SocketSsl::waitSend(const void *data, unsigned len, int timeout)
 {
-	throw error::Error("sendto", "SSL socket is not UDP compatible", 0);
-}
-
-unsigned SocketSslInterface::trySend(Socket &s, const void *data, unsigned len, int timeout)
-{
-	SocketListener listener{{s, Write}};
+	SocketListener listener{{*this, SocketListener::Write}};
 
 	listener.select(timeout);
 
-	return send(s, data, len);
+	return send(data, len);
 }
 
-unsigned SocketSslInterface::trySendto(Socket &, const void *, unsigned, const SocketAddress &, int)
-{
-	throw error::Error("sendto", "SSL socket is not UDP compatible", 0);
-}
-
-void SocketSsl::init()
-{
-	SSL_library_init();
-	SSL_load_error_strings();
-}
-
-void SocketSsl::finish()
-{
-	ERR_free_strings();
-}
-
-SocketSsl::SocketSsl(int family, SocketSslOptions options)
-	: Socket(family, SOCK_STREAM, 0)
-{
-	m_interface = std::make_shared<SocketSslInterface>(std::move(options));
-}
-
-} // !malikania
