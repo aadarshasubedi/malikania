@@ -23,5 +23,6 @@ add_custom_target(books COMMENT "Generated books")
 add_dependencies(docs books)
 
 add_subdirectory(conventions)
+add_subdirectory(developer)
 add_subdirectory(specifications)
 add_subdirectory(mercurial)
