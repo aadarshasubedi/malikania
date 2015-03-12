@@ -28,6 +28,7 @@
 #include <iterator>
 #include <memory>
 #include <string>
+#include <sstream>
 #include <utility>
 
 #include <jansson.h>
@@ -70,6 +71,7 @@ enum class JsonType {
  */
 class JsonError final : public std::exception {
 private:
+	std::string	m_full;
 	std::string	m_text;
 	std::string	m_source;
 	int		m_line{};
@@ -85,6 +87,7 @@ public:
 	inline JsonError(std::string error)
 		: m_text(std::move(error))
 	{
+		m_full = m_text;
 	}
 
 	/**
@@ -99,6 +102,11 @@ public:
 		, m_column(error.column)
 		, m_position(error.position)
 	{
+		std::ostringstream oss;
+
+		oss << m_source << ":" << m_line << ":" << m_column << ": " << m_text;
+
+		m_full = oss.str();
 	}
 
 	/**
@@ -108,7 +116,7 @@ public:
 	 */
 	const char *what() const noexcept override
 	{
-		return m_text.c_str();
+		return m_full.c_str();
 	}
 
 	/**
@@ -691,7 +699,7 @@ public:
 		{
 			return m_index == other.m_index;
 		}
-		
+
 		inline bool operator!=(const iterator &other) const noexcept
 		{
 			return m_index != other.m_index;
@@ -819,7 +827,7 @@ public:
 		{
 			return m_index == other.m_index;
 		}
-		
+
 		inline bool operator!=(const const_iterator &other) const noexcept
 		{
 			return m_index != other.m_index;
@@ -1370,7 +1378,7 @@ public:
 	inline JsonObject(std::initializer_list<value_type> list)
 		: JsonObject()
 	{
-		for (auto &v : list) 
+		for (auto &v : list)
 			set(v.first, std::move(v.second));
 	}
 

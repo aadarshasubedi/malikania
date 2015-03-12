@@ -20,7 +20,7 @@ set(
 	HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApplication.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerDirectoryLoader.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoaderInterface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerSettings.h
 )
 

@@ -23,7 +23,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/DirectoryLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/GameSettings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/LoaderInterface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Loader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Socket.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketAddress.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketListener.h
@@ -35,7 +35,6 @@ set(
 	SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Application.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Directory.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/DirectoryLoader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Socket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketAddress.cpp

@@ -1,17 +1,17 @@
 #ifndef _MALIKANIA_SERVER_LOADER_H_
 #define _MALIKANIA_SERVER_LOADER_H_
 
-#include <malikania/LoaderInterface.h>
+#include <malikania/Loader.h>
 
 #include "ServerSettings.h"
 
 namespace malikania {
 
-class ServerLoaderInterface : public LoaderInterface {
+class ServerLoader : public Loader {
 public:
-	ServerLoaderInterface() = default;
+	ServerLoader() = default;
 
-	virtual ~ServerLoaderInterface() = default;
+	virtual ~ServerLoader() = default;
 
 	virtual ServerSettings serverSettings() = 0;
 };

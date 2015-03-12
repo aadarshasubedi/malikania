@@ -1,5 +1,5 @@
 /*
- * ServerApplication.cpp -- server application
+ * Loader.h -- abstract base class for loading games
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,24 +16,45 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef _MALIKANIA_LOADER_H_
+#define _MALIKANIA_LOADER_H_
 
-#include "ServerApplication.h"
+/**
+ * @file Loader.h
+ * @brief Abstract interface class for loading game
+ */
+
+#include "GameSettings.h"
 
 namespace malikania {
 
-void ServerApplication::run()
-{
-	GameSettings gs = m_loader->gameSettings();
-	ServerSettings ss = m_loader->serverSettings();
+/**
+ * @class Loader
+ * @brief Abstract interface class for loading game
+ * @see ServerLoader
+ * @see ClientLoader
+ */
+class Loader {
+public:
+	/**
+	 * Default constructor.
+	 */
+	Loader() = default;
 
-	std::cout << "Game information:" << std::endl;
-	std::cout << "  Name: " << gs.name << std::endl;
-	std::cout << "  Version: " << gs.version << std::endl;
+	/**
+	 * Default destructor.
+	 */
+	virtual ~Loader() = default;
 
-	std::cout << "Server information:" << std::endl;
-	std::cout << "  Port: " << ss.network.port << std::endl;
-	std::cout << "  Port SSL: " << ss.ssl.port << std::endl;
-}
+	/**
+	 * Get the game data definition.
+	 *
+	 * @return the game
+	 */
+	virtual GameSettings gameSettings() = 0;
+};
 
 } // !malikania
+
+#endif // !_MALIKANIA_LOADER_H_
+
