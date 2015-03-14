@@ -19,8 +19,9 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <tuple>
+#include <map>
 #include "Window.h"
+#include "Size.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -30,9 +31,9 @@ bool goDown = true;
 const int mokoSize = 300;
 
 void bounce(malikania::Window& window, int &x, int &y) {
-	std::tuple<int, int> resolution = window.getWindowResolution();
-	int width = std::get<0>(resolution);
-	int height = std::get<1>(resolution);
+	malikania::Size resolution = window.getWindowResolution();
+	int width = resolution.width();
+	int height = resolution.height();
 	if (y < 10) {
 		goDown = true;
 		y += 1;
@@ -137,21 +138,23 @@ int main(void)
 		}
 	});
 
-	mainWindow.addAnimation("moko", "resources/images/mokodemo.png", 1200, 900, 300, 300);
-	std::map<std::string, std::tuple<int, int>> mokoCellMap;
-	mokoCellMap["default"] = std::make_tuple(0, 600);
-	mokoCellMap["left1"] = std::make_tuple(0, 0);
-	mokoCellMap["left2"] = std::make_tuple(300, 0);
-	mokoCellMap["left3"] = std::make_tuple(600, 0);
-	mokoCellMap["left4"] = std::make_tuple(900, 0);
-	mokoCellMap["right1"] = std::make_tuple(0, 300);
-	mokoCellMap["right2"] = std::make_tuple(300, 300);
-	mokoCellMap["right3"] = std::make_tuple(600, 300);
-	mokoCellMap["right4"] = std::make_tuple(900, 300);
-	mokoCellMap["down1"] = std::make_tuple(0, 600);
-	mokoCellMap["down2"] = std::make_tuple(300, 600);
-	mokoCellMap["down3"] = std::make_tuple(600, 600);
-	mokoCellMap["down4"] = std::make_tuple(900, 600);
+	malikania::Size spriteSize(1200, 900);
+	malikania::Size cellSize(300, 300);
+	mainWindow.addAnimation("moko", "resources/images/mokodemo.png", spriteSize, cellSize);
+	std::map<std::string, malikania::Position> mokoCellMap;
+	mokoCellMap.emplace("default", malikania::Position(0, 600));
+	mokoCellMap.emplace("left1", malikania::Position(0, 0));
+	mokoCellMap.emplace("left2", malikania::Position(300, 0));
+	mokoCellMap.emplace("left3", malikania::Position(600, 0));
+	mokoCellMap.emplace("left4", malikania::Position(900, 0));
+	mokoCellMap.emplace("right1", malikania::Position(0, 300));
+	mokoCellMap.emplace("right2", malikania::Position(300, 300));
+	mokoCellMap.emplace("right3", malikania::Position(600, 300));
+	mokoCellMap.emplace("right4", malikania::Position(900, 300));
+	mokoCellMap.emplace("down1", malikania::Position(0, 600));
+	mokoCellMap.emplace("down2", malikania::Position(300, 600));
+	mokoCellMap.emplace("down3", malikania::Position(600, 600));
+	mokoCellMap.emplace("down4", malikania::Position(900, 600));
 	mainWindow.setAnimationCellMap("moko", mokoCellMap);
 
 	while (mainWindow.isOpen()) {

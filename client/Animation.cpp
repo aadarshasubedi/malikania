@@ -1,13 +1,16 @@
 #include "Animation.h"
 #include <iostream>
 
-Animation::Animation(std::string imagePath, const RendererHandle &renderer, int width, int height, int cellWidth, int cellHeight, std::string defaultState, int x, int y)
-	:Image(imagePath, renderer, width, height, x, y), m_cellWidth(cellWidth), m_cellHeight(cellHeight), m_currentState(defaultState)
+namespace malikania {
+
+Animation::Animation(std::string imagePath, const RendererHandle &renderer, const Rectangle &rectangle, Size cellSize, std::string defaultState)
+	:Image(imagePath, renderer, rectangle)
+	, m_cellSize(cellSize.width(), cellSize.height())
+	, m_currentState(defaultState)
 {
-	m_rectangle->w = m_cellWidth;
-	m_rectangle->h = m_cellHeight;
+	m_rectangle.setSize(m_cellSize);
 	// set default position to x = 0, y = 0
-	m_cellMap[defaultState] = std::make_tuple(0, 0);
+	m_cellMap[defaultState] = Position(0, 0);
 }
 
 void Animation::setState(std::string state)
@@ -15,12 +18,12 @@ void Animation::setState(std::string state)
 	m_currentState = state;
 }
 
-RectangleHandle &Animation::getRectangle()
+Rectangle &Animation::getRectangle() noexcept
 {
 	if (m_cellMap.find(m_currentState) != m_cellMap.end()) {
-		std::tuple<int, int> cell = m_cellMap[m_currentState];
-		m_rectangle->x = std::get<0>(cell);
-		m_rectangle->y = std::get<1>(cell);
+		const Position &cell = m_cellMap[m_currentState];
+		m_rectangle.setX(cell.x());
+		m_rectangle.setY(cell.y());
 	} else {
 		throw std::runtime_error("Couldn't find \"" + m_currentState + "\" in animation states");
 	}
@@ -28,7 +31,9 @@ RectangleHandle &Animation::getRectangle()
 	return m_rectangle;
 }
 
-void Animation::setCellMap(std::map<std::string, std::tuple<int, int>> cellMap)
+void Animation::setCellMap(std::map<std::string, Position> cellMap)
 {
 	m_cellMap = cellMap;
 }
+
+}// !malikania

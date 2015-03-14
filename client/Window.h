@@ -7,10 +7,10 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <tuple>
 #include <SDL.h>
 #include "Image.h"
 #include "Animation.h"
+#include "Size.h"
 
 namespace malikania {
 
@@ -57,12 +57,12 @@ public:
 	void onRefresh(Refresh function);
 	void setBackground(ImageHandle image);
 	void addAnimation(std::string id, AnimationHandle image);
-	void addAnimation(std::string id, std::string imagePath, int width, int height, int cellWidth, int cellHeight);
+	void addAnimation(std::string id, std::string imagePath, const Size &spriteSize, const Size &cellSize);
 	Animation &getAnimation(std::string id);
 	void updateAnimationPosition(std::string id, int x, int y);
 	void updateAnimationState(std::string id, std::string state);
-	void setAnimationCellMap(std::string id, std::map<std::string, std::tuple<int, int>> cellMap);
-	std::tuple<int, int> getWindowResolution();
+	void setAnimationCellMap(std::string id, std::map<std::string, Position> cellMap);
+	Size getWindowResolution();
 };
 
 }// !malikania

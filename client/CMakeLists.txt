@@ -27,6 +27,12 @@ set(
 	Image.cpp
 	Animation.h
 	Animation.cpp
+	Rectangle.h
+	Rectangle.cpp
+	Size.h
+	Size.cpp
+	Position.h
+	Position.cpp
 )
 
 add_executable(client ${FILES})

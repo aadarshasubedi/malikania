@@ -3,29 +3,37 @@
 
 #include <string>
 #include <SDL.h>
+#include "Rectangle.h"
+#include "Position.h"
+
+namespace malikania {
 
 using TextureHandle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
 using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;
-using RectangleHandle = std::unique_ptr<SDL_Rect>;
 
 class Image
 {
 protected:
 	TextureHandle m_texture;
-	RectangleHandle m_rectangle;
-	int m_x;
-	int m_y;
+	Rectangle m_rectangle;
+	Position m_position;
 public:
-	Image(std::string imagePath, const RendererHandle &renderer, int width, int height, int x = 0, int y = 0);
+	Image(std::string imagePath, const RendererHandle &renderer, const Rectangle &rectangle);
 	TextureHandle &getTexture();
-	int getX() const noexcept;
-	int getY() const noexcept;
+	int x() const noexcept;
 	void setX(int x) noexcept;
+	int y() const noexcept;
 	void setY(int y) noexcept;
+	int width() const noexcept;
+	void setWidth(int width) noexcept;
+	int height() const noexcept;
+	void setHeight(int height) noexcept;
+	Position getPosition() const noexcept;
+	void setPosition(const Position &position) noexcept;
 	void setPosition(int x, int y) noexcept;
-	int getWidth() const;
-	int getHeight() const;
-	virtual RectangleHandle &getRectangle();
+	virtual Rectangle &getRectangle() noexcept;
 };
+
+}// !malikania
 
 #endif // IMAGE_H

@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <stdexcept>
+#include "Size.h"
 
 namespace malikania {
 
@@ -69,12 +70,8 @@ void Window::update()
 	for (auto const &pair : m_animationMap) {
 		Animation& animation = getAnimation(pair.first);
 		SDL_Texture* texturePtr = animation.getTexture().get();
-		SDL_Rect rect;
-		rect.x = pair.second->getX();
-		rect.y = pair.second->getY();
-		rect.w = pair.second->getWidth();
-		rect.h = pair.second->getHeight();
-		SDL_RenderCopy(m_renderer.get(), texturePtr, pair.second->getRectangle().get(), &rect);
+		malikania::Rectangle rect(pair.second->x(), pair.second->y(), pair.second->width(), pair.second->height());
+		SDL_RenderCopy(m_renderer.get(), texturePtr, pair.second->getRectangle().get(), rect.get());
 	}
 
 	for (Refresh function : m_refreshList) {
@@ -127,9 +124,9 @@ void Window::addAnimation(std::string id, AnimationHandle animation)
 	m_animationMap[id] = std::move(animation);
 }
 
-void Window::addAnimation(std::string id, std::string imagePath, int width, int height, int cellWidth, int cellHeight)
+void Window::addAnimation(std::string id, std::string imagePath, const Size &spriteSize, const Size &cellSize)
 {
-	addAnimation(id, std::make_unique<Animation>(Animation(imagePath, m_renderer, width, height, cellWidth, cellHeight)));
+	addAnimation(id, std::make_unique<Animation>(Animation(imagePath, m_renderer, Rectangle(Position(), spriteSize), cellSize)));
 }
 
 Animation &Window::getAnimation(std::string id)
@@ -152,12 +149,12 @@ void Window::updateAnimationState(std::string id, std::string state)
 	getAnimation(id).setState(state);
 }
 
-void Window::setAnimationCellMap(std::string id, std::map<std::string, std::tuple<int, int> > cellMap)
+void Window::setAnimationCellMap(std::string id, std::map<std::string, Position> cellMap)
 {
 	getAnimation(id).setCellMap(cellMap);
 }
 
-std::tuple<int, int> Window::getWindowResolution()
+Size Window::getWindowResolution()
 {
 	SDL_DisplayMode current;
 	int width = 0;
@@ -174,7 +171,7 @@ std::tuple<int, int> Window::getWindowResolution()
 		}
 	}
 
-	return std::make_tuple(width, height);
+	return Size(width, height);
 }
 
 }// !malikania

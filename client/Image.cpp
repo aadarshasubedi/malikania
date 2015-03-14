@@ -1,8 +1,12 @@
 #include "Image.h"
 #include <SDL_image.h>
 
-Image::Image(std::string imagePath, const RendererHandle &renderer, int width, int height, int x, int y)
-	: m_texture(nullptr, nullptr), m_x(x), m_y(y)
+namespace malikania {
+
+Image::Image(std::string imagePath, const RendererHandle &renderer, const malikania::Rectangle &rectangle)
+	: m_texture(nullptr, nullptr)
+	, m_position(rectangle.x(), rectangle.y())
+	, m_rectangle(0, 0, rectangle.width(), rectangle.height())
 {
 	// Create Texture
 	m_texture = TextureHandle(
@@ -14,12 +18,6 @@ Image::Image(std::string imagePath, const RendererHandle &renderer, int width, i
 		std::string error = "Couldn't create a texture: " + std::string(SDL_GetError());
 		throw std::runtime_error(error);
 	}
-
-	m_rectangle = std::make_unique<SDL_Rect>(SDL_Rect());
-	m_rectangle->w = width;
-	m_rectangle->h = height;
-	m_rectangle->x = 0;
-	m_rectangle->y = 0;
 }
 
 TextureHandle& Image::getTexture()
@@ -27,43 +25,65 @@ TextureHandle& Image::getTexture()
 	return m_texture;
 }
 
-int Image::getX() const noexcept
+int Image::x() const noexcept
 {
-	return m_x;
+	return m_position.x();
 }
 
-int Image::getY() const noexcept
+int Image::y() const noexcept
 {
-	return m_y;
+	return m_position.y();
 }
 
 void Image::setX(int x) noexcept
 {
-	m_x = x;
+	m_position.setX(x);
 }
 
 void Image::setY(int y) noexcept
 {
-	m_y = y;
+	m_position.setY(y);
+}
+
+int Image::width() const noexcept
+{
+	return m_rectangle.width();
+}
+
+void Image::setWidth(int width) noexcept
+{
+	m_rectangle.setWidth(width);
+}
+
+int Image::height() const noexcept
+{
+	return m_rectangle.height();
+}
+
+void Image::setHeight(int height) noexcept
+{
+	m_rectangle.setHeight(height);
+}
+
+Position Image::getPosition() const noexcept
+{
+	return m_position;
+}
+
+void Image::setPosition(const Position &position) noexcept
+{
+	m_position = position;
 }
 
 void Image::setPosition(int x, int y) noexcept
 {
-	setX(x);
-	setY(y);
+	m_position.setX(x);
+	m_position.setY(y);
 }
 
-int Image::getWidth() const
-{
-	return m_rectangle->w;
-}
-
-int Image::getHeight() const
-{
-	return m_rectangle->h;
-}
-
-RectangleHandle &Image::getRectangle()
+Rectangle &Image::getRectangle() noexcept
 {
 	return m_rectangle;
 }
+
+}// !malikania
