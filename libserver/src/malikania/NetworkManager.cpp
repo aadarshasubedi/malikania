@@ -5,9 +5,14 @@
 
 namespace malikania {
 
-void NetworkManager::accept(Socket &s)
+void NetworkManager::accept(SocketTcp &sc)
 {
 
+}
+
+void NetworkManager::accept(SocketSsl &sc)
+{
+	
 }
 
 void NetworkManager::process(Socket &s, int direction)
@@ -30,7 +35,7 @@ void NetworkManager::run()
 		listener.set(m_sslMaster, SocketListener::Read);
 
 		try {
-			SocketStatus st = listener.select();
+			SocketStatus status = listener.select(250);
 
 			if (isMaster(status.socket)) {
 				accept(status.socket);

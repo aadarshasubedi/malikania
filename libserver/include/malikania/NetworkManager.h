@@ -23,7 +23,8 @@ private:
 	std::map<Socket, std::shared_ptr<NetworkClient>> m_clients;
 	std::atomic<bool> m_running{true};
 
-	void accept(Socket &s);
+	void accept(SocketTcp &s);
+	void accept(SocketSsl &sc);
 	void process(Socket &s, int direction);
 	bool isMaster(const Socket &) const noexcept;
 	void run();
