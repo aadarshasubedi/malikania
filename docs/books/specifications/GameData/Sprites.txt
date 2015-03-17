@@ -21,7 +21,7 @@ Each sprite requires one JSON file.
 }
 ````
 
-- **name**: the sprite name that will be used to retrieve in the registry
+- **alias**: the sprite alias that will be used to retrieve in the registry
 - **image**: the relative path to the image
 - **cell**: each cell size
 - **size**: Optional, the full size of the image, if not set determined at compilation
