@@ -1,0 +1,25 @@
+### account-create (secure)
+
+Create an account on the server. Registration must be enabled, otherwise
+an error is raised to the client.
+
+#### Synopsis
+
+````json
+{
+  "command": "account-create",
+  "login": "login name",
+  "first-name": "first name",
+  "last-name": "last name",
+  "password": "password",
+  "email": "email address"
+}
+````
+
+#### Fields
+
+- **login**: the login, following the login naming rules
+- **first-name**: the user first name
+- **last-name**: the user last name
+- **password**: clear password
+- **email**: the email address

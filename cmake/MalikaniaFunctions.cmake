@@ -74,18 +74,16 @@ include(CMakeParseArguments)
 # Create a shared library. Follow the same specification as malikania_define_executable.
 # However, additional PRIVATE_INCLUDES and PUBLIC_INCLUDES are available.
 #
-# malikania_define_backend
-# ------------------------
+# malikania_create_test
+# ---------------------
 #
-# malikania_define_backend(
-#	PROJECT			The project name
-#	TARGET			The target name
-#	SOURCES			The sources
-#	FLAGS			(Optional) List of flags
-#	LIBRARIES		(Optional) List of libraries to link against
+# malikania_create_test(
+#	NAME			Test name (must be lowercase)
+#	SOURCES			Test sources files
+#	LIBRARIES		(Optional) Libraries to link to
 # )
 #
-# Exactly the same as malikania_define_executable.
+# This will generate a target named test-<name> where name is the parameter NAME.
 #
 # setg
 # ----
@@ -188,34 +186,6 @@ function(malikania_create_library)
 	apply_flags(${LIB_TARGET} LIB_FLAGS)
 endfunction()
 
-function(malikania_define_backend)
-	set(singleArgs PROJECT TARGET)
-	set(multiArgs SOURCES FLAGS INCLUDES LIBRARIES)
-	set(mandatory PROJECT TARGET SOURCES)
-
-	cmake_parse_arguments(MOD "" "${singleArgs}" "${multiArgs}" ${ARGN})
-	check_args(MOD ${mandatory})
-
-	project(${MOD_PROJECT})
-	add_library(${MOD_TARGET} MODULE ${MOD_SOURCES})
-	set_label(${MOD_TARGET} ${MOD_PROJECT})
-
-	# Remove suffix as it's a module
-	set_target_properties(
-		${MOD_TARGET}
-		PROPERTIES
-		PREFIX ""
-	)
-
-	target_link_libraries(${MOD_TARGET} libclient)
-
-	apply_libraries(${MOD_TARGET} MOD_LIBRARIES)
-	apply_includes(${MOD_TARGET} MOD_INCLUDES)
-	apply_flags(${MOD_TARGET} MOD_FLAGS)
-
-	install(TARGETS ${MOD_TARGET} DESTINATION ${BACKEND_PATH})
-endfunction()
-
 function(malikania_generate_uml)
 	set(options "")
 	set(oneValueArgs NAME DIRECTORY)
@@ -246,6 +216,29 @@ function(malikania_generate_uml)
 	)
 
 	add_dependencies(uml uml-${UML_NAME})
+endfunction()
+
+function(malikania_create_test)
+	set(singleArgs NAME)
+	set(multiArgs LIBRARIES SOURCES)
+
+	set(mandatory NAME SOURCES)
+
+	cmake_parse_arguments(TEST "" "${singleArgs}" "${multiArgs}" ${ARGN})
+	check_args(TEST ${mandatory})
+
+	add_executable(test-${TEST_NAME} ${TEST_SOURCES})
+	add_test(${TEST_NAME} test-${TEST_NAME})
+
+	if (UNIX)
+		list(APPEND TEST_LIBRARIES pthread)
+	endif ()
+
+	target_link_libraries(
+		test-${TEST_NAME}
+		${TEST_LIBRARIES}
+		gtest
+	)
 endfunction()
 
 function(malikania_generate_book name output sources)

@@ -38,9 +38,18 @@ set(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Malikania-vm.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Tools/Malikania-bundle.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Intro.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Messages.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Messages/server-info.txt"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Messages/server-message.txt"
-	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/identify.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/account-create.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/account-identify.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/character-create.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/character-delete.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/character-list.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/character-select.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/exchange-start.txt"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Network/Commands/exchange-add.txt"
 )
 
 malikania_generate_book(

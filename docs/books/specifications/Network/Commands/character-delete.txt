@@ -1,0 +1,16 @@
+### character-delete
+
+Deletes a character, there are no confirmation possible, the client must do it.
+
+#### Synopsis
+
+````json
+{
+  "command": "character-delete",
+  "id": 123
+}
+````
+
+#### Fields
+
+- **id**: the character id

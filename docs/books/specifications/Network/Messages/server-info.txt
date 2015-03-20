@@ -1,4 +1,4 @@
-### ServerInfo
+### server-info
 
 Get the server information.
 

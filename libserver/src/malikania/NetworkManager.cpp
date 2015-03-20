@@ -12,7 +12,7 @@ void NetworkManager::accept(SocketTcp &sc)
 
 void NetworkManager::accept(SocketSsl &sc)
 {
-	
+
 }
 
 void NetworkManager::process(Socket &s, int direction)
@@ -38,7 +38,7 @@ void NetworkManager::run()
 			SocketStatus status = listener.select(250);
 
 			if (isMaster(status.socket)) {
-				accept(status.socket);
+				//accept(status.socket);
 			} else {
 				process(status.socket, status.direction);
 			}

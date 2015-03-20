@@ -37,6 +37,7 @@ configure_file(
 )
 
 include_directories(${CMAKE_BINARY_DIR})
+enable_testing()
 
 find_package(Jansson REQUIRED)
 find_package(ZIP REQUIRED)
@@ -49,6 +50,7 @@ add_subdirectory(libclient)
 add_subdirectory(libserver)
 add_subdirectory(client)
 add_subdirectory(server)
+add_subdirectory(tests)
 
 message("Documentation:")
 message("      UML diagrams:    ${WITH_DOCS_UML_MSG}")

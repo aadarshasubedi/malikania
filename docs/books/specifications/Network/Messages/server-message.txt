@@ -1,4 +1,4 @@
-### ServerMessage
+### server-message
 
 The server has sent a global message which is sent to all connected users.
 
