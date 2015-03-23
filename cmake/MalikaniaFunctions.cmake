@@ -239,6 +239,8 @@ function(malikania_create_test)
 		${TEST_LIBRARIES}
 		gtest
 	)
+
+	add_dependencies(tests test-${TEST_NAME})
 endfunction()
 
 function(malikania_generate_book name output sources)

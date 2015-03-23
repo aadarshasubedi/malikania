@@ -18,4 +18,13 @@
 
 project(test)
 
+#
+# Meta target to build all tests.
+#
+add_custom_target(
+	tests
+	COMMENT "Building tests"
+)
+
 add_subdirectory(libcommon)
+add_subdirectory(libserver)
