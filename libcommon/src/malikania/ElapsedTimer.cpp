@@ -26,7 +26,7 @@ namespace malikania {
 
 ElapsedTimer::ElapsedTimer() noexcept
 {
-	m_start = high_resolution_clock::now();
+	m_last = high_resolution_clock::now();
 }
 
 void ElapsedTimer::pause() noexcept
@@ -42,19 +42,20 @@ void ElapsedTimer::pause() noexcept
 void ElapsedTimer::restart() noexcept
 {
 	m_paused = false;
-	m_start = high_resolution_clock::now();
+	m_last = high_resolution_clock::now();
 }
 
 void ElapsedTimer::reset() noexcept
 {
 	m_elapsed = 0;
-	m_start = high_resolution_clock::now();
+	m_last = high_resolution_clock::now();
 }
 
 unsigned ElapsedTimer::elapsed() noexcept
 {
 	if (!m_paused) {
-		m_elapsed += duration_cast<milliseconds>(high_resolution_clock::now() - m_start).count();
+		m_elapsed += duration_cast<milliseconds>(high_resolution_clock::now() - m_last).count();
+		m_last = high_resolution_clock::now();
 	}
 
 	return m_elapsed;

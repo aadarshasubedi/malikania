@@ -26,8 +26,9 @@ using namespace malikania;
 using namespace std::chrono_literals;
 
 /*
- * For all tests, we tolerate 3ms
+ * For all tests, we tolerate 30 ms because some systems have bigger lags.
  */
+static constexpr int margin = 30;
 
 class TestElapsedTimer : public testing::Test {
 protected:
@@ -35,8 +36,8 @@ protected:
 
 	inline void assertRange(int value, int expected) const noexcept
 	{
-		if (value < (expected - 3) || value > (expected + 3)) {
-			FAIL() << value << " is bigger than [" << (expected - 3) << ", " << (expected + 3) << "]";
+		if (value < (expected - margin) || value > (expected + margin)) {
+			FAIL() << value << " is bigger than [" << (expected - margin) << ", " << (expected + margin) << "]";
 		}
 	}
 };
@@ -78,6 +79,17 @@ TEST_F(TestElapsedTimer, pause)
 	std::this_thread::sleep_for(6ms);
 
 	assertRange(m_timer.elapsed(), 16);
+}
+
+TEST_F(TestElapsedTimer, doublecheck)
+{
+	std::this_thread::sleep_for(50ms);
+
+	(void)m_timer.elapsed();
+
+	std::this_thread::sleep_for(50ms);
+
+	assertRange(m_timer.elapsed(), 100);
 }
 
 int main(int argc, char **argv)

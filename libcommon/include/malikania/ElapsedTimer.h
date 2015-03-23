@@ -43,7 +43,7 @@ public:
 	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
 private:
-	TimePoint m_start;
+	TimePoint m_last;
 	bool m_paused{false};
 	unsigned m_elapsed{0};
 
