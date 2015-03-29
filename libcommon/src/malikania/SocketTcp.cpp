@@ -26,8 +26,9 @@
 
 void SocketAbstractTcp::listen(int max)
 {
-	if (::listen(m_handle, max) == Error)
+	if (::listen(m_handle, max) == Error) {
 		throw SocketError(SocketError::System, "listen");
+	}
 }
 
 Socket SocketAbstractTcp::standardAccept(SocketAddress &info)
@@ -45,13 +46,15 @@ Socket SocketAbstractTcp::standardAccept(SocketAddress &info)
 #if defined(_WIN32)
 		int error = WSAGetLastError();
 
-		if (error == WSAEWOULDBLOCK)
+		if (error == WSAEWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockRead, "accept", error);
+		}
 
 		throw SocketError(SocketError::System, "accept", error);
 #else
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockRead, "accept");
+		}
 
 		throw SocketError(SocketError::System, "accept");
 #endif
@@ -64,8 +67,9 @@ Socket SocketAbstractTcp::standardAccept(SocketAddress &info)
 
 void SocketAbstractTcp::standardConnect(const SocketAddress &address)
 {
-	if (m_state == SocketState::Connected)
+	if (m_state == SocketState::Connected) {
 		return;
+	}
 
 	auto &sa = address.address();
 	auto addrlen = address.length();
@@ -78,13 +82,15 @@ void SocketAbstractTcp::standardConnect(const SocketAddress &address)
 #if defined(_WIN32)
 		int error = WSAGetLastError();
 
-		if (error == WSAEWOULDBLOCK)
+		if (error == WSAEWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockWrite, "connect", error);
+		}
 
 		throw SocketError(SocketError::System, "connect", error);
 #else
-		if (errno == EINPROGRESS)
+		if (errno == EINPROGRESS) {
 			throw SocketError(SocketError::WouldBlockWrite, "connect");
+		}
 
 		throw SocketError(SocketError::System, "connect");
 #endif
@@ -116,8 +122,9 @@ void SocketTcp::connect(const SocketAddress &address)
 
 void SocketTcp::waitConnect(const SocketAddress &address, int timeout)
 {
-	if (m_state == SocketState::Connected)
+	if (m_state == SocketState::Connected) {
 		return;
+	}
 
 	// Initial try
 	try {
@@ -168,18 +175,21 @@ unsigned SocketTcp::recv(void *data, unsigned dataLen)
 #if defined(_WIN32)
 		int error = WSAGetLastError();
 
-		if (error == WSAEWOULDBLOCK)
+		if (error == WSAEWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockRead, "recv", error);
+		}
 
 		throw SocketError(SocketError::System, "recv", error);
 #else
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockRead, "recv");
+		}
 
 		throw SocketError(SocketError::System, "recv");
 #endif
-	} else if (nbread == 0)
+	} else if (nbread == 0) {
 		m_state = SocketState::Closed;
+	}
 
 	return (unsigned)nbread;
 }
@@ -202,13 +212,15 @@ unsigned SocketTcp::send(const void *data, unsigned length)
 #if defined(_WIN32)
 		int error = WSAGetLastError();
 
-		if (error == WSAEWOULDBLOCK)
+		if (error == WSAEWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockWrite, "send", error);
+		}
 
 		throw SocketError(SocketError::System, "send", error);
 #else
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
 			throw SocketError(SocketError::WouldBlockWrite, "send");
+		}
 
 		throw SocketError(SocketError::System, "send");
 #endif

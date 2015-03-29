@@ -55,8 +55,9 @@ Internet::Internet(const std::string &host, unsigned port, int domain)
 		hints.ai_family = domain;
 
 		auto error = getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &res);
-		if (error != 0)
+		if (error != 0) {
 			throw SocketError(SocketError::System, "getaddrinfo", gai_strerror(error));
+		}
 
 		std::memcpy(&m_addr, res->ai_addr, res->ai_addrlen);
 		m_addrlen = res->ai_addrlen;
@@ -77,8 +78,9 @@ Unix::Unix(const std::string &path, bool rm)
 	sockaddr_un *sun = (sockaddr_un *)&m_addr;
 
 	// Silently remove the file even if it fails
-	if (rm)
+	if (rm) {
 		::remove(path.c_str());
+	}
 
 	// Copy the path
 	memset(sun->sun_path, 0, sizeof (sun->sun_path));

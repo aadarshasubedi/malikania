@@ -105,16 +105,34 @@ std::atomic<bool> Socket::s_initialized{false};
 Socket::Socket(int domain, int type, int protocol)
 {
 #if defined(_WIN32) && !defined(SOCKET_NO_WSA_INIT)
-	if (!s_initialized)
+	if (!s_initialized) {
 		initialize();
+	}
 #endif
 
 	m_handle = ::socket(domain, type, protocol);
 
-	if (m_handle == Invalid)
+	if (m_handle == Invalid) {
 		throw SocketError(SocketError::System, "socket");
+	}
 
 	m_state = SocketState::Opened;
+}
+
+SocketAddress Socket::address() const
+{
+#if defined(_WIN32)
+	int length;
+#else
+	socklen_t length;
+#endif
+
+	sockaddr_storage ss;
+
+	if (getsockname(m_handle, (sockaddr *)&ss, &length) == Error)
+		throw SocketError(SocketError::System, "getsockname");
+
+	return SocketAddress(ss, length);
 }
 
 void Socket::bind(const SocketAddress &address)
@@ -122,8 +140,9 @@ void Socket::bind(const SocketAddress &address)
 	const auto &sa = address.address();
 	const auto addrlen = address.length();
 
-	if (::bind(m_handle, reinterpret_cast<const sockaddr *>(&sa), addrlen) == Error)
+	if (::bind(m_handle, reinterpret_cast<const sockaddr *>(&sa), addrlen) == Error) {
 		throw SocketError(SocketError::System, "bind");
+	}
 
 	m_state = SocketState::Bound;
 }
@@ -144,21 +163,25 @@ void Socket::setBlockMode(bool block)
 #if defined(O_NONBLOCK) && !defined(_WIN32)
 	int flags;
 
-	if ((flags = fcntl(m_handle, F_GETFL, 0)) == -1)
+	if ((flags = fcntl(m_handle, F_GETFL, 0)) == -1) {
 		flags = 0;
+	}
 
-	if (block)
+	if (block) {
 		flags &= ~(O_NONBLOCK);
-	else
+	} else {
 		flags |= O_NONBLOCK;
+	}
 
-	if (fcntl(m_handle, F_SETFL, flags) == Error)
+	if (fcntl(m_handle, F_SETFL, flags) == Error) {
 		throw SocketError(SocketError::System, "setBlockMode");
+	}
 #else
 	unsigned long flags = (block) ? 0 : 1;
 
-	if (ioctlsocket(m_handle, FIONBIO, &flags) == Error)
+	if (ioctlsocket(m_handle, FIONBIO, &flags) == Error) {
 		throw SocketError(SocketError::System, "setBlockMode");
+	}
 #endif
 }
 

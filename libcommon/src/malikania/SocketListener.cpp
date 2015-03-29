@@ -163,10 +163,12 @@ private:
 	{
 		short result(0);
 
-		if (direction & SocketListener::Read)
+		if (direction & SocketListener::Read) {
 			result |= POLLIN;
-		if (direction & SocketListener::Write)
+		}
+		if (direction & SocketListener::Write) {
 			result |= POLLOUT;
+		}
 
 		return result;
 	}
@@ -182,10 +184,12 @@ private:
 		 * At least, even if POLLHUP or POLLIN is set, recv() always
 		 * return 0 so we mark the socket as readable.
 		 */
-		if ((event & POLLIN) || (event & POLLHUP))
+		if ((event & POLLIN) || (event & POLLHUP)) {
 			direction |= SocketListener::Read;
-		if (event & POLLOUT)
+		}
+		if (event & POLLOUT) {
 			direction |= SocketListener::Write;
+		}
 
 		return direction;
 	}
@@ -196,9 +200,9 @@ public:
 		auto it = std::find_if(m_fds.begin(), m_fds.end(), [&] (const auto &pfd) { return pfd.fd == s.handle(); });
 
 		// If found, add the new direction, otherwise add a new socket
-		if (it != m_fds.end())
+		if (it != m_fds.end()) {
 			it->events |= topoll(direction);
-		else {
+		} else {
 			m_lookup.insert({s.handle(), s});
 			m_fds.push_back({ s.handle(), topoll(direction), 0 });
 		}
@@ -216,8 +220,9 @@ public:
 				} else {
 					++i;
 				}
-			} else
+			} else {
 				++i;
+			}
 		}
 	}
 
@@ -240,10 +245,12 @@ public:
 	SocketStatus select(int ms) override
 	{
 		auto result = poll(m_fds.data(), m_fds.size(), ms);
-		if (result == 0)
+		if (result == 0) {
 			throw SocketError(SocketError::Timeout, "select", "Timeout while listening");
-		if (result < 0)
+		}
+		if (result < 0) {
 			throw SocketError(SocketError::System, "poll");
+		}
 
 		for (auto &fd : m_fds) {
 			if (fd.revents != 0) {
@@ -289,8 +296,9 @@ const int SocketListener::Write{1 << 1};
 SocketListener::SocketListener(std::initializer_list<std::pair<std::reference_wrapper<Socket>, int>> list)
 	: SocketListener()
 {
-	for (const auto &p : list)
+	for (const auto &p : list) {
 		set(p.first, p.second);
+	}
 }
 
 SocketListener::SocketListener(SocketMethod method)

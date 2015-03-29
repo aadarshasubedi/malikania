@@ -60,8 +60,9 @@ SocketSsl::SocketSsl(Socket::Handle handle, SSL_CTX *context, SSL *ssl)
 	, m_ssl(ssl, SSL_free)
 {
 #if !defined(SOCKET_NO_SSL_INIT)
-	if (!s_sslInitialized)
+	if (!s_sslInitialized) {
 		sslInitialize();
+	}
 #endif
 }
 
@@ -70,8 +71,9 @@ SocketSsl::SocketSsl(int family, int protocol, SocketSslOptions options)
 	, m_options(std::move(options))
 {
 #if !defined(SOCKET_NO_SSL_INIT)
-	if (!s_sslInitialized)
+	if (!s_sslInitialized) {
 		sslInitialize();
+	}
 #endif
 }
 

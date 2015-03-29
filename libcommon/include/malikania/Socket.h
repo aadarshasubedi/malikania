@@ -187,7 +187,7 @@ public:
 	 * to Windows.
 	 */
 #if defined(_WIN32)
-	static constexpr const SOCKET Invalid	= INVALID_SOCKET;
+	static constexpr const Handle Invalid	= INVALID_SOCKET;
 	static constexpr const int Error	= SOCKET_ERROR;
 #else
 	static constexpr const int Invalid	= -1;
@@ -296,6 +296,14 @@ public:
 	virtual ~Socket() = default;
 
 	/**
+	 * Get the local name. This is a wrapper of getsockname().
+	 *
+	 * @return the address
+	 * @throw SocketError on failures
+	 */
+	SocketAddress address() const;
+
+	/**
 	 * Set an option for the socket.
 	 *
 	 * @param level the setting level
@@ -307,7 +315,7 @@ public:
 	inline void set(int level, int name, const Argument &arg)
 	{
 #if defined(_WIN32)
-		if (setsockopt(m_handle, level, name, (Socket::ConstArg)&arg, sizeof (arg)) == SOCKET_ERROR)
+		if (setsockopt(m_handle, level, name, (Socket::ConstArg)&arg, sizeof (arg)) == Error)
 #else
 		if (setsockopt(m_handle, level, name, (Socket::ConstArg)&arg, sizeof (arg)) < 0)
 #endif
@@ -328,7 +336,7 @@ public:
 		socklen_t size = sizeof (result);
 
 #if defined(_WIN32)
-		if (getsockopt(m_handle, level, name, (Socket::Arg)&desired, &size) == SOCKET_ERROR)
+		if (getsockopt(m_handle, level, name, (Socket::Arg)&desired, &size) == Error)
 #else
 		if (getsockopt(m_handle, level, name, (Socket::Arg)&desired, &size) < 0)
 #endif
