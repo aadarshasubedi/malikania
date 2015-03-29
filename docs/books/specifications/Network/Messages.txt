@@ -1,0 +1,4 @@
+## Messages
+
+The message are emitted from the server and goes either to a specific
+client or to all connected players

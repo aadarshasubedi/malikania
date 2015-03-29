@@ -20,15 +20,20 @@
 #define _JSON_H_
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 #include <fstream>
 #include <iterator>
 #include <memory>
 #include <string>
+#include <sstream>
 #include <utility>
 
 #include <jansson.h>
+
+namespace malikania {
 
 /**
  * @file Json.h
@@ -66,6 +71,7 @@ enum class JsonType {
  */
 class JsonError final : public std::exception {
 private:
+	std::string	m_full;
 	std::string	m_text;
 	std::string	m_source;
 	int		m_line{};
@@ -79,8 +85,9 @@ public:
 	 * @param error the error message
 	 */
 	inline JsonError(std::string error)
-		: m_text{std::move(error)}
+		: m_text(std::move(error))
 	{
+		m_full = m_text;
 	}
 
 	/**
@@ -89,12 +96,17 @@ public:
 	 * @param error the error
 	 */
 	inline JsonError(const json_error_t &error)
-		: m_text{error.text}
-		, m_source{error.source}
-		, m_line{error.line}
-		, m_column{error.column}
-		, m_position{error.position}
+		: m_text(error.text)
+		, m_source(error.source)
+		, m_line(error.line)
+		, m_column(error.column)
+		, m_position(error.position)
 	{
+		std::ostringstream oss;
+
+		oss << m_source << ":" << m_line << ":" << m_column << ": " << m_text;
+
+		m_full = oss.str();
 	}
 
 	/**
@@ -104,7 +116,7 @@ public:
 	 */
 	const char *what() const noexcept override
 	{
-		return m_text.c_str();
+		return m_full.c_str();
 	}
 
 	/**
@@ -179,7 +191,64 @@ protected:
 	 */
 	Handle m_handle;
 
+	inline void check() const
+	{
+		if (m_handle == nullptr)
+			throw JsonError(std::strerror(errno));
+	}
+
 public:
+	/**
+	 * Deep copy of that element.
+	 *
+	 * @param value the other value
+	 * @throw JsonError on allocation error
+	 */
+	inline JsonValue(const JsonValue &value)
+		: m_handle(json_deep_copy(value.m_handle.get()), json_decref)
+	{
+		check();
+	}
+
+	/**
+	 * Assign a deep copy of the other element.
+	 *
+	 * @return *this
+	 * @throw JsonError on allocation error
+	 */
+	inline JsonValue &operator=(const JsonValue &value)
+	{
+		m_handle = Handle(json_deep_copy(value.m_handle.get()), json_decref);
+
+		check();
+
+		return *this;
+	}
+
+	/**
+	 * Move constructor, the other value is left empty (JsonType::Null).
+	 *
+	 * @param other the other value
+	 */
+	inline JsonValue(JsonValue &&other) noexcept
+		: m_handle(std::move(other.m_handle))
+	{
+		other.m_handle = Handle(json_null(), json_decref);
+	}
+
+	/**
+	 * Move assignment, the other value is left empty (JsonType::Null).
+	 *
+	 * @param other the other value
+	 */
+	inline JsonValue &operator=(JsonValue &&other) noexcept
+	{
+		m_handle = std::move(other.m_handle);
+		other.m_handle = Handle(json_null(), json_decref);
+
+		return *this;
+	}
+
 	/**
 	 * Create a JsonValue from a native Jansson type. This function
 	 * will increment the json_t reference count.
@@ -187,55 +256,22 @@ public:
 	 * @param json the value
 	 */
 	inline JsonValue(json_t *json) noexcept
-		: m_handle{json, json_decref}
+		: m_handle(json, json_decref)
 	{
 	}
 
+	/**
+	 * Construct a null value from a nullptr argument.
+	 */
 	inline JsonValue(std::nullptr_t) noexcept
 		: m_handle(json_null(), json_decref)
 	{
 	}
 
 	/**
-	 * Deep copy of that element.
-	 *
-	 * @param value the other value
-	 */
-	inline JsonValue(const JsonValue &value)
-		: m_handle{json_deep_copy(value.m_handle.get()), json_decref}
-	{
-	}
-
-	/**
-	 * Assign a deep copy of the other element.
-	 *
-	 * @return *this
-	 */
-	inline JsonValue &operator=(const JsonValue &value)
-	{
-		m_handle = Handle(json_deep_copy(value.m_handle.get()), json_decref);
-
-		return *this;
-	}
-
-	/**
-	 * Default move constructor.
-	 *
-	 * @param other the other value
-	 */
-	JsonValue(JsonValue &&other) = default;
-
-	/**
-	 * Default move assignment.
-	 *
-	 * @param other the other value
-	 */
-	JsonValue &operator=(JsonValue &&) = default;
-
-	/**
 	 * Create an empty value (JsonType::Null).
 	 */
-	inline JsonValue()
+	inline JsonValue() noexcept
 		: m_handle(json_null(), json_decref)
 	{
 	}
@@ -245,7 +281,7 @@ public:
 	 *
 	 * @param value the value
 	 */
-	inline JsonValue(bool value)
+	inline JsonValue(bool value) noexcept
 		: m_handle(json_boolean(value), json_decref)
 	{
 	}
@@ -254,50 +290,61 @@ public:
 	 * Create a integer value (JsonType::Integer).
 	 *
 	 * @param value the value
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonValue(int value)
 		: m_handle(json_integer(value), json_decref)
 	{
+		check();
 	}
 
 	/**
 	 * Create a real value (JsonType::Real).
 	 *
 	 * @param value the value
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonValue(double value)
 		: m_handle(json_real(value), json_decref)
 	{
+		check();
 	}
 
 	/**
 	 * Create a string value (JsonType::String).
-	 * @param value
+	 *
+	 * @param value the value
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonValue(std::string value)
 		: m_handle(json_string(value.c_str()), json_decref)
 	{
+		check();
 	}
 
 	/**
 	 * Create from a C string (JsonType::String).
 	 *
 	 * @param value the string
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonValue(const char *value)
 		: m_handle(json_string(value), json_decref)
 	{
+		check();
 	}
 
 	/**
 	 * Create from a string literal (JsonType::String).
 	 *
 	 * @param value the value
+	 * @throw JsonError on allocation error
 	 */
 	template <size_t Size>
 	inline JsonValue(char (&value)[Size])
-		: m_handle{json_string(value), json_decref}
+		: m_handle(json_string(value), json_decref)
 	{
+		check();
 	}
 
 	/**
@@ -620,6 +667,8 @@ public:
 		using reference = Ref;
 		using pointer = Ptr;
 
+		friend class JsonArray;
+
 	private:
 		JsonArray &m_array;
 		int m_index;
@@ -745,6 +794,8 @@ public:
 		using value_type = JsonValue;
 		using reference = JsonValue;
 		using pointer = Ptr;
+
+		friend class JsonArray;
 
 	private:
 		const JsonArray &m_array;
@@ -877,16 +928,20 @@ protected:
 public:
 	/**
 	 * Create an empty array.
+	 *
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonArray()
 		: JsonValue(json_array())
 	{
+		check();
 	}
 
 	/**
 	 * Create an array from a list of values.
 	 *
 	 * @param list the list
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonArray(std::initializer_list<value_type> list)
 		: JsonArray()
@@ -962,6 +1017,44 @@ public:
 	 * @throw JsonError on error
 	 */
 	JsonValue at(int index) const;
+
+	/**
+	 * Erase the array content.
+	 */
+	inline void clear() noexcept
+	{
+		json_array_clear(m_handle.get());
+	}
+
+	/**
+	 * Remove the element at the specified index.
+	 *
+	 * @param index the index
+	 */
+	inline void erase(int index) noexcept
+	{
+		json_array_remove(m_handle.get(), index);
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @param it the iterator
+	 */
+	inline void erase(iterator it) noexcept
+	{
+		erase(it.m_index);
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @param it the iterator
+	 */
+	inline void erase(const_iterator it) noexcept
+	{
+		erase(it.m_index);
+	}
 
 	/**
 	 * Get the number of values in the array
@@ -1135,6 +1228,8 @@ public:
 	public:
 		using value_type = std::pair<std::string, Ref>;
 
+		friend class JsonObject;
+
 	private:
 		JsonObject &m_object;
 		void *m_keyIt;
@@ -1200,6 +1295,8 @@ public:
 	public:
 		using value_type = std::pair<std::string, JsonValue>;
 
+		friend class JsonObject;
+
 	private:
 		const JsonObject &m_object;
 		void *m_keyIt;
@@ -1263,16 +1360,20 @@ protected:
 public:
 	/**
 	 * Create empty object.
+	 *
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonObject()
 		: JsonValue(json_object())
 	{
+		check();
 	}
 
 	/**
 	 * Create a JsonObject from an initializer_list.
 	 *
 	 * @param list the list of key-value pairs
+	 * @throw JsonError on allocation error
 	 */
 	inline JsonObject(std::initializer_list<value_type> list)
 		: JsonObject()
@@ -1360,6 +1461,44 @@ public:
 	inline unsigned size() const noexcept
 	{
 		return json_object_size(m_handle.get());
+	}
+
+	/**
+	 * Remove all elements from the object.
+	 */
+	inline void clear() noexcept
+	{
+		json_object_clear(m_handle.get());
+	}
+
+	/**
+	 * Remove element `key' if exists.
+	 *
+	 * @param key the key
+	 */
+	inline void erase(const std::string &key) noexcept
+	{
+		json_object_del(m_handle.get(), key.c_str());
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @param it the iterator
+	 */
+	inline void erase(iterator it) noexcept
+	{
+		erase(it.key());
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @param it the iterator
+	 */
+	inline void erase(const_iterator it) noexcept
+	{
+		erase(it.key());
 	}
 
 	/**
@@ -1470,5 +1609,7 @@ public:
 		return m_value.toArray();
 	}
 };
+
+} // !malikania
 
 #endif // !_JSON_H_

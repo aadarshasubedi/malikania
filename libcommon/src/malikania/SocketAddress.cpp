@@ -22,8 +22,6 @@
 #include "Socket.h"
 #include "SocketAddress.h"
 
-namespace malikania {
-
 namespace address {
 
 /* --------------------------------------------------------
@@ -58,7 +56,7 @@ Internet::Internet(const std::string &host, unsigned port, int domain)
 
 		auto error = getaddrinfo(host.c_str(), std::to_string(port).c_str(), &hints, &res);
 		if (error != 0)
-			throw error::Error("getaddrinfo", gai_strerror(error), error);
+			throw SocketError(SocketError::System, "getaddrinfo", gai_strerror(error));
 
 		std::memcpy(&m_addr, res->ai_addr, res->ai_addrlen);
 		m_addrlen = res->ai_addrlen;
@@ -136,5 +134,3 @@ bool operator==(const SocketAddress &s1, const SocketAddress &s2)
 
 	return std::equal(array1, array1 + s1.length(), array2, array2 + s2.length());
 }
-
-} // !malikania

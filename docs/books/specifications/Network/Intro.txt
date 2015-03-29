@@ -28,5 +28,3 @@ a message, an empty line must be added and terminated by '\\r\\n'.
   "nickname": "foo",
 }
 ````
-
-## Messages

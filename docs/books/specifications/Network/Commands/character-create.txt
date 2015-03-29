@@ -1,0 +1,20 @@
+### character-create
+
+Create a character.
+
+#### Synopsis
+
+````json
+{
+  "command": "character-create",
+  "nickname": "character nickname",
+  "class": "class alias",
+  "gender": "male or female"
+}
+````
+
+#### Fields
+
+- **nickname**: the character nickname
+- **class**: the class alias
+- **gender**: the character gender

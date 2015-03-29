@@ -16,12 +16,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _SOCKET_LISTENER_H_
-#define _SOCKET_LISTENER_H_
+#ifndef _SOCKET_LISTENER_NG_H_
+#define _SOCKET_LISTENER_NG_H_
 
 #include <chrono>
 #include <functional>
 #include <initializer_list>
+#include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -29,13 +31,11 @@
 
 #if defined(_WIN32)
 #  if _WIN32_WINNT >= 0x0600
-#    define SOCKET_LISTENER_HAVE_POLL
+#    define SOCKET_HAVE_POLL
 #  endif
 #else
-#  define SOCKET_LISTENER_HAVE_POLL
+#  define SOCKET_HAVE_POLL
 #endif
-
-namespace malikania {
 
 /**
  * @enum SocketMethod
@@ -44,7 +44,7 @@ namespace malikania {
  * Select the method of polling. It is only a preferred method, for example if you
  * request for poll but it is not available, select will be used.
  */
-enum SocketMethod {
+enum class SocketMethod {
 	Select,				//!< select(2) method, fallback
 	Poll				//!< poll(2), everywhere possible
 };
@@ -56,9 +56,70 @@ enum SocketMethod {
  * Result of a select call, returns the first ready socket found with its
  * direction.
  */
-struct SocketStatus {
-	Socket	socket;			//!< which socket is ready
-	int	direction;		//!< the direction
+class SocketStatus {
+public:
+	Socket	&socket;		//!< which socket is ready
+	int	 direction;		//!< the direction
+};
+
+/**
+ * @class SocketListenerInterface
+ * @brief Implement the polling method
+ */
+class SocketListenerInterface {
+public:
+	/**
+	 * Default destructor.
+	 */
+	virtual ~SocketListenerInterface() = default;
+
+	/**
+	 * Add a socket with a specified direction.
+	 *
+	 * @param s the socket
+	 * @param direction the direction
+	 */
+	virtual void set(Socket &sc, int direction) = 0;
+
+	/**
+	 * Remove a socket with a specified direction.
+	 *
+	 * @param s the socket
+	 * @param direction the direction
+	 */
+	virtual void unset(Socket &sc, int direction) = 0;
+
+	/**
+	 * Remove completely a socket.
+	 *
+	 * @param sc the socket to remove
+	 */
+	virtual void remove(Socket &sc) = 0;
+
+	/**
+	 * Remove all sockets.
+	 */
+	virtual void clear() = 0;
+
+	/**
+	 * Select one socket.
+	 *
+	 * @param ms the number of milliseconds to wait, -1 means forever
+	 * @return the socket status
+	 * @throw error::Failure on failure
+	 * @throw error::Timeout on timeout
+	 */
+	virtual SocketStatus select(int ms) = 0;
+
+	/**
+	 * Select many sockets.
+	 *
+	 * @param ms the number of milliseconds to wait, -1 means forever
+	 * @return a vector of ready sockets
+	 * @throw error::Failure on failure
+	 * @throw error::Timeout on timeout
+	 */
+	virtual std::vector<SocketStatus> selectMultiple(int ms) = 0;
 };
 
 /**
@@ -66,86 +127,33 @@ struct SocketStatus {
  * @brief Synchronous multiplexing
  *
  * Convenient wrapper around the select() system call.
+ *
+ * This class is implemented using a bridge pattern to allow different uses
+ * of listener implementation.
+ *
+ * Currently, poll and select() are available.
+ *
+ * This wrappers takes abstract sockets as non-const reference but it does not
+ * own them so you must take care that sockets are still alive until the
+ * SocketListener is destroyed.
  */
-class MALIKANIA_EXPORT SocketListener final {
+class SocketListener final {
 public:
-	/**
-	 * @brief Function for listing all sockets
-	 */
-	using MapFunc = std::function<void (Socket &, int)>;
-
-#if defined(SOCKET_LISTENER_HAVE_POLL)
+#if defined(SOCKET_HAVE_POLL)
 	static constexpr const SocketMethod PreferredMethod = SocketMethod::Poll;
 #else
 	static constexpr const SocketMethod PreferredMethod = SocketMethod::Select;
 #endif
 
-	/**
-	 * @class Interface
-	 * @brief Implement the polling method
-	 */
-	class Interface {
-	public:
-		/**
-		 * Default destructor.
-		 */
-		virtual ~Interface() = default;
+	static const int Read;
+	static const int Write;
 
-		/**
-		 * List all sockets in the interface.
-		 *
-		 * @param func the function
-		 */
-		virtual void list(const MapFunc &func) = 0;
+	using Map = std::map<std::reference_wrapper<Socket>, int>;
+	using Iface = std::unique_ptr<SocketListenerInterface>;
 
-		/**
-		 * Add a socket with a specified direction.
-		 *
-		 * @param s the socket
-		 * @param direction the direction
-		 */
-		virtual void add(Socket s, int direction) = 0;
-
-		/**
-		 * Remove a socket with a specified direction.
-		 *
-		 * @param s the socket
-		 * @param direction the direction
-		 */
-		virtual void remove(const Socket &s, int direction) = 0;
-
-		/**
-		 * Remove all sockets.
-		 */
-		virtual void clear() = 0;
-
-		/**
-		 * Get the total number of sockets in the listener.
-		 */
-		virtual unsigned size() const = 0;
-
-		/**
-		 * Select one socket.
-		 *
-		 * @param ms the number of milliseconds to wait, -1 means forever
-		 * @return the socket status
-		 * @throw error::Failure on failure
-		 * @throw error::Timeout on timeout
-		 */
-		virtual SocketStatus select(int ms) = 0;
-
-		/**
-		 * Select many sockets.
-		 *
-		 * @param ms the number of milliseconds to wait, -1 means forever
-		 * @return a vector of ready sockets
-		 * @throw error::Failure on failure
-		 * @throw error::Timeout on timeout
-		 */
-		virtual std::vector<SocketStatus> selectMultiple(int ms) = 0;
-	};
-
-	std::unique_ptr<Interface> m_interface;
+private:
+	Map m_map;
+	Iface m_interface;
 
 public:
 	/**
@@ -168,54 +176,122 @@ public:
 	 *
 	 * @param method the preferred method
 	 */
-	SocketListener(int method = PreferredMethod);
+	SocketListener(SocketMethod method = PreferredMethod);
 
 	/**
-	 * Createa listener with some sockets.
+	 * Create a listener from a list of sockets.
 	 *
-	 * @param list the initializer list
-	 * @param method the preferred method
+	 * @param list the list
 	 */
-	SocketListener(std::initializer_list<std::pair<Socket, int>> list, int method = PreferredMethod);
+	SocketListener(std::initializer_list<std::pair<std::reference_wrapper<Socket>, int>> list);
 
 	/**
-	 * Add a socket to listen to.
+	 * Return an iterator to the beginning.
 	 *
-	 * @param s the socket
-	 * @param direction the direction
+	 * @return the iterator
 	 */
-	inline void add(Socket s, int direction)
+	inline auto begin() noexcept
 	{
-		m_interface->add(std::move(s), direction);
+		return m_map.begin();
 	}
 
 	/**
-	 * Remove a socket from the list.
+	 * Overloaded function.
 	 *
-	 * @param s the socket
-	 * @param direction the direction
+	 * @return the iterator
 	 */
-	inline void remove(const Socket &s, int direction)
+	inline auto begin() const noexcept
 	{
-		m_interface->remove(s, direction);
+		return m_map.begin();
 	}
 
 	/**
-	 * Remove every sockets in the listener.
+	 * Overloaded function.
+	 *
+	 * @return the iterator
 	 */
-	inline void clear()
+	inline auto cbegin() const noexcept
 	{
+		return m_map.cbegin();
+	}
+
+	/**
+	 * Return an iterator to the end.
+	 *
+	 * @return the iterator
+	 */
+	inline auto end() noexcept
+	{
+		return m_map.end();
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @return the iterator
+	 */
+	inline auto end() const noexcept
+	{
+		return m_map.end();
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @return the iterator
+	 */
+	inline auto cend() const noexcept
+	{
+		return m_map.cend();
+	}
+
+	/**
+	 * Add a socket to the listener.
+	 *
+	 * @param sc the socket
+	 * @param direction (may be OR'ed)
+	 */
+	void set(Socket &sc, int direction);
+
+	/**
+	 * Unset a socket from the listener, only the direction is removed
+	 * unless the two directions are requested.
+	 *
+	 * For example, if you added a socket for both reading and writing,
+	 * unsetting the write direction will keep the socket for reading.
+	 *
+	 * @param sc the socket
+	 * @param direction the direction (may be OR'ed)
+	 * @see remove
+	 */
+	void unset(Socket &sc, int direction) noexcept;
+
+	/**
+	 * Remove completely the socket from the listener.
+	 *
+	 * @param sc the socket
+	 */
+	inline void remove(Socket &sc) noexcept
+	{
+		m_map.erase(sc);
+		m_interface->remove(sc);
+	}
+
+	/**
+	 * Remove all sockets.
+	 */
+	inline void clear() noexcept
+	{
+		m_map.clear();
 		m_interface->clear();
 	}
 
 	/**
-	 * Get the number of clients in listener.
-	 *
-	 * @return the total number of sockets in the listener
+	 * Get the number of sockets in the listener.
 	 */
-	inline unsigned size() const
+	unsigned size() const noexcept
 	{
-		return m_interface->size();
+		return m_map.size();
 	}
 
 	/**
@@ -223,8 +299,6 @@ public:
 	 *
 	 * @param duration the duration
 	 * @return the socket ready
-	 * @throw SocketError on error
-	 * @throw SocketTimeout on timeout
 	 */
 	template <typename Rep, typename Ratio>
 	inline SocketStatus select(const std::chrono::duration<Rep, Ratio> &duration)
@@ -239,8 +313,6 @@ public:
 	 *
 	 * @param timeout the optional timeout in milliseconds
 	 * @return the socket ready
-	 * @throw SocketError on error
-	 * @throw SocketTimeout on timeout
 	 */
 	inline SocketStatus select(int timeout = -1)
 	{
@@ -252,8 +324,6 @@ public:
 	 *
 	 * @param duration the duration
 	 * @return the socket ready
-	 * @throw SocketError on error
-	 * @throw SocketTimeout on timeout
 	 */
 	template <typename Rep, typename Ratio>
 	inline std::vector<SocketStatus> selectMultiple(const std::chrono::duration<Rep, Ratio> &duration)
@@ -267,26 +337,11 @@ public:
 	 * Overload with milliseconds.
 	 *
 	 * @return the socket ready
-	 * @throw SocketError on error
-	 * @throw SocketTimeout on timeout
 	 */
 	inline std::vector<SocketStatus> selectMultiple(int timeout = -1)
 	{
 		return m_interface->selectMultiple(timeout);
 	}
-
-	/**
-	 * List every socket in the listener.
-	 *
-	 * @param func the function to call
-	 */
-	template <typename Func>
-	inline void list(Func func)
-	{
-		m_interface->list(func);
-	}
 };
 
-} // !malikania
-
-#endif // !_SOCKET_LISTENER_H_
+#endif // !_SOCKET_LISTENER_NG_H_

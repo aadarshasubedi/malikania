@@ -20,6 +20,8 @@
 
 #include "Json.h"
 
+namespace malikania {
+
 /* --------------------------------------------------------
  * JsonObject
  * -------------------------------------------------------- */
@@ -47,7 +49,7 @@ JsonValue JsonArray::at(int index) const
 	auto value = json_array_get(m_handle.get(), index);
 
 	if (value == nullptr)
-		throw JsonError{"index out of bounds"};
+		throw JsonError("index out of bounds");
 
 	json_incref(value);
 
@@ -156,3 +158,5 @@ JsonDocument::JsonDocument(std::string content, int flags)
 {
 	m_value = read(std::move(content), flags);
 }
+
+} // !malikania

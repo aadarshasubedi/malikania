@@ -1,0 +1,196 @@
+---
+title: Malikania Engine developer guide
+author:
+  - David Demelier <markand@malikania.fr>
+  - Renaud Jenny <renox0@malikania.fr>
+  - Alexis Dörr <nanahara@malikania.fr>
+date: February 26, 2015
+abstract: Document related to Malikania's model of development and developer procedures.
+---
+
+# Introduction
+
+This paper describes the model of development used in Malikania Engine. You must
+read it if you're a Malikania Developer.
+
+You may also read that paper if you want to use a development version for your
+own use.
+
+# Branching model
+
+The Malikania developments use [Mercurial](http://mercurial.selenic.com)
+bookmarks and branches for different purposes.
+
+The branches are used to separate the current development and the stables
+versions.
+
+Malikania Engine offers security fixes from N to N-3 major versions. For example
+if version 5.0 is released and a bug is found in 2.4.5, it is fixed.
+
+However, when a new major version is released (N), the last major version (N-1)
+does not get any new feature anymore.
+
+## Branch: default
+
+This is the most active branch. It can either contains the most recent code
+for the next major release or the next minor release depending on the
+roadmap.
+
+The default branch has active developers who add new features and then merge
+them to stable branches (see below).
+
+## Branch: x-stable
+
+The branch `x-stable` contains the last minor versions for major version
+numbered **x**.
+
+For example, if the last stable branch is `3-stable`, then this branch will
+produces 3.1.z, 3.2.z and such.
+
+The default branch MUST always merge to the **latest** stable branch.
+
+There are no general rules when a new major version is planned, it highly depends
+on the needs and features planned.
+
+This branch is useful if you want to test new features without having to update
+your game since it completely honours semantic versioning, thus having complete
+backward compatibility since version x.0.0.
+
+## Branch: x.y-release
+
+This is the most inactive branch, it is also called as a maintainance branch.
+Only fixes are commited to that branch. It's also the only branch were tags
+are created.
+
+It is the **recommended** branch for any user who wants to use Malikania Engine
+Mercurial repository.
+
+This branch produces the next patch version, for example, with a branch numbered
+`4.1-release`, this branch will produces 4.1.1, 4.1.2, etc.
+
+# Usage of bookmarks
+
+Bookmarks are distinct from branches and are used for different purposes. If you
+don't know Mercurial bookmarks, have a look at this
+[explanation](http://mercurial.selenic.com/wiki/Bookmarks).
+
+Bookmarks are slightly different than Git branches as they do not create heads
+automatically. This is quite confusing at first but it's not a real problem
+since there is a special bookmark named @ (see below).
+
+Bookmarks are created by developers to mark specific works, see below for the
+list of bookmarks.
+
+**Note:** When you push the bookmark for the first time, you must pass it to the
+arguments (e.g `hg push -B feature-hello`).
+
+## Bookmark: @
+
+This is the "default" bookmark. It has a special meaning in Mercurial, it is the
+automatically update bookmark on **new clones**.
+
+It's also the bookmark where all development takes place. When you start
+a **new** work, you MUST always update to that bookmark.
+
+## Bookmark: feature-xyz
+
+When starting a new feature, you MUST create a new bookmark named `feature-xyz`
+where xyz is a shortname for the feature.
+
+## Bookmark: change-xyz
+
+This bookmark is created when a change has to been done. It does not add any new
+features.
+
+## Bookmark: fix-xyz
+
+The `fix-xyz` bookmark is used to fix a bug. These bookmarks usually take places
+only in `x.y-release` branches.
+
+# Finishing a feature
+
+When you have finished a feature, change or any work. There are several steps to
+do correctly.
+
+## Redmine fields
+
+If your task has been created for Redmine, you must do the following
+
+1. Set the amount of time done
+2. Set the percentage
+3. Set the revision number in the description (e.g `r123`)
+
+**Note:** Redmine does not fetch automatically new revisions, you may need to
+visualize the repository from redmine to check the revision number.
+
+## Commit message
+
+You must also use an appropriate commit message. Every commit message starts at
+least with a capital letter and ends with period.
+
+Then, if the task is complete, you may set the following fields after a blank
+line:
+
+- **Task:** the task number (with a #)
+- **Requested by:** requested by a specific person (if no task)
+- **Submitted by:** if the user has provided a patch
+
+For the person identity, use the following convention:
+
+- FirstName LastName \<email\> (if user allow all)
+- FirstName LastName (if user does not want its email to be shown)
+
+Otherwise, don't set the identity if the person does not want to be represented.
+
+You MUST indent the fields in two tabs (8-size indent, no spaces).
+
+Example of a commit message for a standard Redmine task:
+
+````
+Add support for animation files.
+
+Task:		#127
+````
+
+Example of a commit message for a contribution:
+
+````
+Add support for Mac OS X.
+
+Submitted by:	Jean-François Aloué
+````
+
+# Contributing
+
+This section targets users who wants to contribute to Malikania Engine and are
+not developers.
+
+## You found a bug
+
+1. Make sure you indeed found a bug.
+2. Double check if there are no pending issues about the same bug.
+3. Check one more time for the same bug
+
+Then please provide if possible, a reproducable example so we can test easily.
+If you already made a fix for the bug then please add `[PATCH]` prefix to the
+Redmine task and attach it as files.
+
+## You want a new feature
+
+Adding new features makes the Malikania Engine more and more powerful, it also
+makes it more and more big and maybe more and more slow.
+
+Always consider twice for the feature, if it can be done from ECMAScript, then
+keep it into your project.
+
+Then follow these steps:
+
+1. Check if there is an issue about your feature
+	- There is a closed feature
+		- There are no plans to add this feature
+	- There are no issue
+		- Provide a correct description about the feature
+
+Please take in account that we love adding contributions to our project but if
+it is a very big feature always ask us in the forums, IRC or mails to be sure
+if we will accept the feature to avoid you wasting your time.

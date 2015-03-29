@@ -16,6 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <iostream>
 
