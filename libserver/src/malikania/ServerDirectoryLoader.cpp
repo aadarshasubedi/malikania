@@ -73,8 +73,9 @@ ServerSettingsDatabase readDatabase(const JsonObject &object)
 		throw std::runtime_error("missing `type'");
 
 	for (const auto &v : object) {
-		if (v.first == "type")
+		if (v.first == "type") {
 			continue;
+		}
 
 		db.insert({v.first, jsonAsString(v.second)});
 	}
@@ -98,16 +99,17 @@ ServerSettings ServerDirectoryLoader::serverSettings()
 	std::string path = m_path + "/server.json";
 	std::ifstream file(path);
 
-	if (!file.is_open())
+	if (!file.is_open()) {
 		throw std::runtime_error(path + ": " + std::strerror(errno));
+	}
 
 	JsonDocument document(file);
 	JsonObject object = document.toObject();
 	ServerSettings settings;
 
-	if (!object.isObject())
+	if (!object.isObject()) {
 		throw std::runtime_error("invalid file");
-
+	}
 	if (!object.contains("database")) {
 		throw std::runtime_error("missing `database' property");
 	}

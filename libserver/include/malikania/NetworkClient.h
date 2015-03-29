@@ -4,17 +4,20 @@
 #include <malikania/SocketTcp.h>
 #include <malikania/SocketSsl.h>
 
+#include "NetworkConnection.h"
+
 namespace malikania {
 
 class NetworkClient {
 private:
-	SocketTcp m_socket;
-	SocketSsl m_socketSsl;
+	NetworkConnectionTcp m_tcp;
+	NetworkConnectionSsl m_ssl;
 
 public:
-	NetworkClient(SocketTcp socket, SocketSsl ssl);
+	NetworkClient(NetworkConnectionTcp nctcp, NetworkConnectionSsl ncssl);
 };
 
 } // !malikania
 
 #endif // !_MALIKANIA_NETWORK_CLIENT_H_
+

@@ -15,6 +15,10 @@ namespace malikania {
 class NetworkClient;
 class ServerSettings;
 
+class NetworkLobby {
+
+};
+
 class NetworkManager {
 private:
 	SocketTcp m_master;
