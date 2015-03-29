@@ -41,6 +41,10 @@ else ()
 	setg(WITH_DOCS_DOXYGEN Off)
 endif ()
 
+if (WITH_DOCS_DOXYGEN)
+	add_subdirectory(doxygen)
+endif ()
+
 # ---------------------------------------------------------
 # UML generation with plantuml
 # ---------------------------------------------------------

@@ -210,12 +210,12 @@ function(malikania_generate_uml)
 	endforeach ()
 
 	add_custom_target(
-		uml-${UML_NAME}
+		docs-uml-${UML_NAME}
 		DEPENDS ${outputs}
 		SOURCES ${UML_SOURCES}
 	)
 
-	add_dependencies(uml uml-${UML_NAME})
+	add_dependencies(docs-uml docs-uml-${UML_NAME})
 endfunction()
 
 function(malikania_create_test)
@@ -245,7 +245,7 @@ endfunction()
 
 function(malikania_generate_book name output sources)
 	pandoc(
-		TARGET book-${name}
+		TARGET docs-book-${name}
 		SOURCES ${sources}
 		OUTPUT ${docs_BINARY_DIR}/books/${output}
 		FROM markdown
@@ -256,7 +256,7 @@ function(malikania_generate_book name output sources)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 	)
 
-	add_dependencies(books book-${name})
+	add_dependencies(docs-books docs-book-${name})
 endfunction()
 
 macro(setg var value)

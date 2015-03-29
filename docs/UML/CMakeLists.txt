@@ -18,9 +18,9 @@
 
 project(UML)
 
-add_custom_target(uml COMMENT "UML diagram generation")
+add_custom_target(docs-uml COMMENT "UML diagram generation")
 
-add_dependencies(docs uml)
+add_dependencies(docs docs-uml)
 
 add_subdirectory(database)
 add_subdirectory(client)

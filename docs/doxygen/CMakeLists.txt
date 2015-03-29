@@ -16,13 +16,28 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(books)
+project(doxygen)
 
-add_custom_target(docs-books COMMENT "Generated books")
+set(DOXYGEN_SOURCE ${CMAKE_SOURCE_DIR})
+set(DOXYGEN_OUTPUT ${docs_BINARY_DIR}/doxygen)
 
-add_dependencies(docs docs-books)
+if (DOXYGEN_DOT_FOUND)
+	set(DOXYGEN_HAVE_DOT YES)
+	set(DOXYGEN_DOT_PATH \"${DOXYGEN_DOT_EXECUTABLE}\")
+else ()
+	set(DOXYGEN_HAVE_DOT NOsc)
+	set(DOXYGEN_DOT_PATH)
+endif ()
 
-add_subdirectory(conventions)
-add_subdirectory(developer)
-add_subdirectory(specifications)
-add_subdirectory(mercurial)
+configure_file(
+	${doxygen_SOURCE_DIR}/Doxyfile.in
+	${docs_BINARY_DIR}/doxygen/Doxyfile
+)
+
+add_custom_target(
+	docs-doxygen
+	COMMAND ${DOXYGEN_EXECUTABLE} ${docs_BINARY_DIR}/doxygen/Doxyfile
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+add_dependencies(docs docs-doxygen)
