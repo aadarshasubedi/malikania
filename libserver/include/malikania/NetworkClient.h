@@ -14,7 +14,7 @@ private:
 	NetworkConnectionSsl m_ssl;
 
 public:
-	//NetworkClient(NetworkConnectionTcp nctcp, NetworkConnectionSsl ncssl);
+	NetworkClient(NetworkConnectionTcp nctcp, NetworkConnectionSsl ncssl);
 };
 
 } // !malikania

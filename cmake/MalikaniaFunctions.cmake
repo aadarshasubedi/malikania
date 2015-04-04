@@ -180,6 +180,8 @@ function(malikania_create_library)
 		PREFIX ""
 	)
 
+	list(APPEND LIB_LIBRARIES duktape)
+
 	apply_libraries(${LIB_TARGET} LIB_LIBRARIES)
 	apply_private_includes(${LIB_TARGET} LIB_PRIVATE_INCLUDES)
 	apply_public_includes(${LIB_TARGET} LIB_PUBLIC_INCLUDES)

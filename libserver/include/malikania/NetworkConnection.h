@@ -1,7 +1,10 @@
 #ifndef _MALIKANIA_NETWORK_CONNECTION_H_
 #define _MALIKANIA_NETWORK_CONNECTION_H_
 
+#include <malikania/ElapsedTimer.h>
+
 #include <mutex>
+#include <sstream>
 #include <string>
 
 namespace malikania {
@@ -9,8 +12,8 @@ namespace malikania {
 template <typename Sock>
 class NetworkConnection {
 private:
+	ElapsedTimer m_timer;
 	Sock m_socket;
-	std::mutex m_outputLock;
 	std::string m_input;
 	std::string m_output;
 
@@ -22,14 +25,32 @@ public:
 
 	inline void send(std::string output)
 	{
-		std::lock_guard<std::mutex> lock(m_outputLock);
-
 		m_output += output;
 	}
 };
 
 using NetworkConnectionTcp = NetworkConnection<SocketTcp>;
-using NetworkConnectionSsl = NetworkConnection<SocketSsl>;
+
+class NetworkConnectionSsl : public NetworkConnection<SocketSsl> {
+private:
+	unsigned m_id;
+
+public:
+	NetworkConnectionSsl(SocketSsl socket, unsigned id)
+		: NetworkConnection<SocketSsl>(std::move(socket))
+		, m_id(id)
+	{
+		// Send the identify request
+		std::ostringstream oss;
+
+		oss << "{"
+		    <<   "\"command\"" << ":" << "\"identify-request\""
+		    <<   "\"id\"" << ":" << m_id
+		    << "}";
+
+		send(oss.str());
+	}
+};
 
 } // !malikania
 
