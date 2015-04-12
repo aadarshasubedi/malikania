@@ -1,0 +1,4 @@
+# Bundles
+
+Bundles are archives containing the required files to be played in the engine.
+

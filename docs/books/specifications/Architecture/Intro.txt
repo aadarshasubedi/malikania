@@ -1,0 +1,24 @@
+# Architecture
+
+Malikania Engine is exclusively client-server based. While it is strictly a
+client-server architecture, it is still possible to write one player games
+by running a local server on the user's machine with some effort.
+
+## Server
+
+Everything is computed on the server side to avoid any cheat. That includes:
+
+- Handling authentication,
+- Handling players,
+- Handling battles,
+- Handling moves on maps.
+
+## Client
+
+The client is only responsible of:
+
+- Graphics,
+- Sounds,
+- Input,
+- Connection with server.
+
