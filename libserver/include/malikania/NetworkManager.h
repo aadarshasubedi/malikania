@@ -10,27 +10,37 @@
 #include <malikania/SocketSsl.h>
 #include <malikania/SocketTcp.h>
 
+#include "NetworkConnection.h"
+
 namespace malikania {
 
 class NetworkClient;
 class ServerSettings;
 
-class NetworkLobby {
-
-};
-
 class NetworkManager {
 private:
+	/* Master sockets */
 	SocketTcp m_master;
 	SocketSsl m_sslMaster;
+
+	/* Thread */
 	std::thread m_thread;
-	std::map<Socket, std::shared_ptr<NetworkClient>> m_clients;
 	std::atomic<bool> m_running{true};
 
-	void accept(SocketTcp &s);
-	void accept(SocketSsl &sc);
-	void process(Socket &s, int direction);
+	/* Identified clients */
+	std::map<Socket, std::shared_ptr<NetworkClient>> m_clients;
+
+	/* Not identified clients */
+	std::map<Socket, NetworkConnectionTcp> m_anonTcp;
+	std::map<Socket, NetworkConnectionSsl> m_anonSsl;
+
+	void processAccept(Socket &);
+	void processAnonymous(Socket &, int direction);
+	void processClient(Socket &s, int direction);
+
 	bool isMaster(const Socket &) const noexcept;
+	bool isAnonymous(const Socket &) const noexcept;
+
 	void run();
 
 public:
