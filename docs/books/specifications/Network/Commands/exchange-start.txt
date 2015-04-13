@@ -1,0 +1,16 @@
+### exchange-start (secure)
+
+Start an exchange session with a player.
+
+#### Synopsis
+
+````json
+{
+  "command": "exchange-start",
+  "id": 123
+}
+````
+
+#### Fields
+
+- **id**: the player id
