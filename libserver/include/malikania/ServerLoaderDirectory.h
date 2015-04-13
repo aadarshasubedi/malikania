@@ -1,5 +1,5 @@
 /*
- * Loader.h -- abstract base class for loading games
+ * ServerLoaderDirectory.h -- load a server from a directory
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,45 +16,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LOADER_H_
-#define _MALIKANIA_LOADER_H_
+#ifndef _SERVER_LOADER_DIRECTORY_H_
+#define _SERVER_LOADER_DIRECTORY_H_
 
 /**
- * @file Loader.h
- * @brief Abstract interface class for loading game
+ * @file ServerLoaderDirectory.h
+ * @brief Load a server game from a directory
  */
 
-#include "GameSettings.h"
+#include <malikania/LoaderDirectory.h>
+
+#include "ServerSettings.h"
 
 namespace malikania {
 
 /**
- * @class Loader
- * @brief Abstract interface class for loading game
- * @see ServerLoader
- * @see ClientLoader
+ * @class ServerDirectoryLoader
+ * @brief Load a server game from a directory
  */
-class Loader {
+class ServerLoaderDirectory : public LoaderDirectory {
 public:
-	/**
-	 * Default constructor.
-	 */
-	Loader() = default;
+	using LoaderDirectory::LoaderDirectory;
 
 	/**
-	 * Default destructor.
+	 * @copydoc ServerLoader::serverSettings
 	 */
-	virtual ~Loader() = default;
-
-	/**
-	 * Get the game data definition.
-	 *
-	 * @return the game
-	 */
-	virtual GameSettings gameSettings() = 0;
+	ServerSettings serverSettings();
 };
 
 } // !malikania
 
-#endif // !_MALIKANIA_LOADER_H_
-
+#endif // !_SERVER_LOADER_DIRECTORY_H_

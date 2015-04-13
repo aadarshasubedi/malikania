@@ -1,5 +1,5 @@
 /*
- * ServerDirectoryLoader.cpp -- load a server from a directory
+ * ServerLoaderDirectory.cpp -- load a server from a directory
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -19,7 +19,7 @@
 #include <cerrno>
 #include <cstring>
 
-#include "ServerDirectoryLoader.h"
+#include "ServerLoaderDirectory.h"
 
 namespace malikania {
 
@@ -59,8 +59,8 @@ ServerSettingsNetwork readNetwork(const JsonObject &object)
 {
 	ServerSettingsNetwork network;
 
-	network.port = jsonOr(object, "port", 9080).toInteger();
-	network.host = jsonOr(object, "host", "*").toString();
+	network.port = jsonOr(object, "port", network.port).toInteger();
+	network.host = jsonOr(object, "host", network.host).toString();
 
 	return network;
 }
@@ -69,16 +69,11 @@ ServerSettingsDatabase readDatabase(const JsonObject &object)
 {
 	ServerSettingsDatabase db;
 
-	if (!object.contains("type"))
-		throw std::runtime_error("missing `type'");
-
-	for (const auto &v : object) {
-		if (v.first == "type") {
-			continue;
-		}
-
-		db.insert({v.first, jsonAsString(v.second)});
-	}
+	db.host = jsonOr(object, "host", db.host).toString();
+	db.username = jsonOr(object, "username", db.username).toString();
+	db.dbname = jsonOr(object, "dbname", db.dbname).toString();
+	db.password = jsonOr(object, "password", db.password).toString();
+	db.port = jsonOr(object, "port", db.port).toInteger();
 
 	return db;
 }
@@ -87,14 +82,14 @@ ServerSettingsSsl readSsl(const JsonObject &object)
 {
 	ServerSettingsSsl ssl;
 
-	ssl.port = jsonOr(object, "port", 9090).toInteger();
-	ssl.privateKey = jsonOr(object, "private-key", "").toString();
-	ssl.certificate = jsonOr(object, "certificate", "").toString();
+	ssl.port = jsonOr(object, "port", ssl.port).toInteger();
+	ssl.privateKey = jsonOr(object, "private-key", ssl.privateKey).toString();
+	ssl.certificate = jsonOr(object, "certificate", ssl.certificate).toString();
 
 	return ssl;
 }
 
-ServerSettings ServerDirectoryLoader::serverSettings()
+ServerSettings ServerLoaderDirectory::serverSettings()
 {
 	std::string path = m_path + "/server.json";
 	std::ifstream file(path);

@@ -18,15 +18,15 @@
 
 #include <iostream>
 
+#include <malikania/GameSettings.h>
+
 #include "ServerApplication.h"
+#include "ServerSettings.h"
 
 namespace malikania {
 
-void ServerApplication::run()
+void ServerApplication::run(const GameSettings &gs, const ServerSettings &ss)
 {
-	GameSettings gs = m_loader->gameSettings();
-	ServerSettings ss = m_loader->serverSettings();
-
 	std::cout << "Game information:" << std::endl;
 	std::cout << "  Name: " << gs.name << std::endl;
 	std::cout << "  Version: " << gs.version << std::endl;

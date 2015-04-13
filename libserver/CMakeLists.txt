@@ -23,8 +23,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkConnection.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkManager.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApplication.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerDirectoryLoader.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoaderDirectory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerSettings.h
 )
 
@@ -34,7 +33,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkClient.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkManager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApplication.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerDirectoryLoader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerLoaderDirectory.cpp
 )
 
 malikania_create_library(
