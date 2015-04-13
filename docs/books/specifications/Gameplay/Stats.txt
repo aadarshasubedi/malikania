@@ -1,0 +1,41 @@
+## Character statistics
+
+Each character has the following statistics.
+
+### Levels
+
+A character level starts at level 1 and goes to 100 included. This is not
+configurable by the game.
+
+### Spells
+
+The number of spells is defined by the specifications and cannot be configured
+by the game.
+
+The following table shows how the spells are gained during the player
+lifetime.
+
+| Level | Number of spells available |
+|-------|----------------------------|
+| 2 | 3 |
+| 3 | 4 |
+| 8 | 5 |
+| 12 | 6 |
+| 15 | 7 |
+| 20 | 8 |
+| 28 | 9 |
+| 40 | 10 |
+| 56 | 11 |
+| 68 | 12 |
+| 85 | 13 |
+| 100 | 14 |
+
+### Statistics
+
+Each character has:
+
+| Name         | Range   | Description             |
+|--------------|---------|-------------------------|
+| Heal points  | 0-32767 | The player heal points  |
+| Magic points | 0-127   | The player magic points |
+| Move points  | 0-20    | The player move points  |

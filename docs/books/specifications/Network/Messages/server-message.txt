@@ -1,0 +1,18 @@
+### server-message
+
+The server has sent a global message which is sent to all connected users.
+
+#### Synopsis
+
+````json
+{
+  "command": "server-message",
+  "origin": "nickname",
+  "message": "Content of the message"
+}
+````
+
+#### Fields
+
+- **origin**: the user who has sent the global message
+- **message**: the content of the message, never sent empty

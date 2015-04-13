@@ -1,0 +1,604 @@
+---
+title: Coding conventions
+author:
+  - David Demelier <markand@malikania.fr>
+  - Renaud Jenny <renox0@malikania.fr>
+  - Alexis Dörr <nanahara@malikania.fr>
+date: February 8, 2015
+abstract: Official coding conventions for Malikania related developments.
+---
+
+Please read this page with care, we are **very** strict about coding guidelines. Code which does not honour this is rejected.
+
+# C++
+
+## Style
+
+### General rules
+
+- Never write two consecutives blank lines,
+- Always use 8 tabs indent (no spaces),
+- No jokes,
+- No easter eggs,
+- Don’t use raw pointers,
+- A function should do one thing but well [KISS](http://en.wikipedia.org/wiki/KISS_principle)
+
+### Header in the source file
+
+Each file (except examples) must have the license header like this:
+
+````cpp
+/*
+ * filename.ext -- short description here
+ *
+ * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+````
+
+**Note**: For other file than C++, be sure to adapt the comment tokens, see the `CMakeLists.txt` for examples.
+
+### Statement separation
+
+Always separate blocks by contexts.
+
+````cpp
+void Object::destroy()
+{
+	if (m_motor.isStarted()) {
+		m_motor.brake();
+	}
+	if (m_motor.hasOil()) {
+		m_motor.control();
+	}
+
+	if (m_driver.isDead()) {
+		sendLetter();
+	}
+
+	for (auto r : m_wheels) {
+		r.checkInflation();
+	}
+}
+````
+
+### Long lines
+
+We usually like to keep code in less that 100 characters, we admit up to
+120 characters but that should be rare. If possible use local variables
+if it’s too long.
+
+To avoid:
+
+````cpp
+if (myObject.getParameter("foo").getValue().substr(0, 7) == "test") {
+	...
+}
+````
+
+Prefer:
+
+````cpp
+auto &value = myObject.getParameter("foo").getValue();
+
+if (value.substr(0, 7) == "test") {
+	...
+}
+````
+
+When long lines appear in a conditional, indent the next line to 4 characters. In this situation, you must add braces on the next line
+
+````cpp
+if (onecondition && twocondition &&
+    three && four)
+{
+	somestuff();
+}
+````
+
+### Braces
+
+Braces comes on the same line they are needed.
+
+````cpp
+if (condition) {
+	apply();
+	add();
+} else {
+	something();
+	ok();
+}
+````
+
+Braces are mandatory everywhere, even if there is only one statement.
+
+````cpp
+// Correct
+if (condition) {
+	validate();
+}
+
+// Also correct
+if (condition1) {
+	validate();
+} else {
+	clear();
+	restart();
+}
+````
+
+And a lambda has its brace on the same line too:
+
+````cpp
+sort([&] (object &) -> bool {
+	return true;
+});
+````
+
+Only functions have their braces on a new line:
+
+````cpp
+void f()
+{
+}
+````
+
+### Symbols placement and qualifiers
+
+The symbols `&` and `*` must be place just next to the variable name. The qualifiers must always be placed **before** the type.
+
+Bad:
+
+````cpp
+Entity const& entity = find();
+````
+
+Correct:
+
+````cpp
+const Entity &entity = find();
+````
+
+### Naming
+
+All functions, variables, class names are always camelCase. Only
+namespaces must be all lowercase, short and concise.
+
+*Note:* you **must** not create a new namespace except malikania and
+anonymous ones.
+
+More rules:
+
+- English names
+- Member variables start with m\_
+- No hungarian notation
+
+````cpp
+int variable;
+
+void myFunction()
+{
+}
+````
+
+## Programming
+
+### Make elegant code
+
+This is useless:
+
+````cpp
+if (m_valid) {
+	return true;
+}
+
+return false;
+````
+
+Just try to be as concise as possible:
+
+````cpp
+return m_valid;
+````
+
+### Useless else
+
+When you use `continue`, `break` or `return` you **don't** need else.
+
+````cpp
+for (auto &f : values) {
+	if (f.isValid()) {
+		continue;
+	}
+
+	code();
+}
+````
+
+````cpp
+if (notValid) {
+	return;
+}
+
+statement();
+````
+
+### Note about continue
+
+The `continue` keyword is very welcome, but don't make heavy usage of it if the
+loop is simple.
+
+Bad:
+
+````cpp
+for (auto &f : values) {
+	if (!f.isValid()) {
+		continue;
+	}
+	if (!f.advance(100)) {
+		continue;
+	}
+
+	f.trap();
+}
+````
+
+Better:
+
+````cpp
+for (auto &f : values) {
+	if (f.isValid() && f.advance(100)) {
+		f.trap();
+	}
+}
+````
+
+### Comments
+
+Avoid useless comments in source files. Comment complex things or why it
+is done like this. However any public method / function in the .h
+**must** be documented as doxygen without exception.
+
+````cpp
+/*
+ * Multi line comments look like
+ * this.
+ */
+
+// Short comment
+````
+
+Example of class with doxygen:
+
+````cpp
+// header.h
+
+/**
+ * @class A
+ * @brief The A class
+ */
+class A {
+public:
+	/**
+	 * Destory the object and all its ancestors.
+	 *
+	 * @return true
+	 */
+	bool destroy();
+};
+````
+
+### Getters / setters
+
+This concept applies the most to Java programmers. If possible, setters must be
+avoided, it is not a good programming practices. However, getters are
+welcome if they are needed and must return:
+
+- If object:
+	- Const reference to the object (and the function is marked const)
+	- Overload non const
+- If primitive:
+	- A copy of the value
+
+If you really need getters and setters, follow the Qt convention:
+
+- The getter must be the variable name (e.g `title()`)
+- The setter is prefixed by set (e.g `setTitle()`)
+
+Bad:
+
+````cpp
+Window w;
+
+w.setTitle("Fabulous window title here");
+w.setIcon("path/to/the/icon/file.png");
+w.setSize(100, 200);
+````
+
+Better :
+
+````cpp
+WindowParams params {
+	"Fabulous window title here",
+	"path/to/the/icon/file.png",
+	100, 200
+};
+
+Window w(params);
+````
+
+If you need a bunch of parameters, don't hesitate to use small packages classes with public members (with no m\_ prefixe).
+
+### Header guards
+
+- Header guards must be named `MALIKANIA_FILENAME_H`
+- The `#endif` must have a comment
+
+Example if the file is `Foo.h`:
+
+````cpp
+#ifndef MALIKANIA_FOO_H
+#define MALIKANIA_FOO_H
+
+#endif // !MALIKANIA_FOO_H
+````
+
+## Constructs
+
+### Arguments passing
+
+The following rules of thumb must be used when passing arguments:
+
+- The type is an object **non-polymorphic**
+	- The argument will not be copied nor modified in the receiver: **const reference**
+	- The argument is an in/out parameter: **non-const reference**
+	- The argument is a sink-argument (receiver needs its own copy): **value**
+- The type is an object **polymorphic**
+	- You must store the object (e.g a vector, a member variable)
+		- Use smart pointer and pass by value
+	- The object will just be read or forwarded
+		- Pass by template with same rules as non-polymorphic
+		- Pass by universal reference if the type must be forwarded to another function
+- The type is primitive
+	- Pass always by value
+
+Example of sink arguments:
+
+````cpp
+class Person {
+private:
+	std::string m_firstName;
+	std::string m_lastName;
+
+public:
+	Person(std::string firstName, std::string lastName)
+		: m_firstName(std::move(firstName))
+		, m_lastName(std::move(lastName))
+	{
+	}
+};
+````
+
+Example of **polymorphic** read-only
+
+````cpp
+template <typename Drawable>
+void draw(Drawable &drawable)
+{
+	drawable.draw();
+}
+
+Rectangle r{1, 2};
+
+draw(r);
+````
+
+Example of **polymorphic** sink-argument
+
+````cpp
+void addEffect(std::unique_ptr<Effect> effect)
+{
+	m_effets.push_back(std::move(effect));
+}
+
+addEffect(std::make_unique<Fire>());
+````
+
+### Exceptions
+
+Exceptions must be used instead of returns code to indicate errors. However be sure that:
+
+1. You don't throw exceptions in most used functions (e.g main loop)
+2. Try to limit exceptions at loading, on user input
+3. You always catch by const reference
+
+### Class declaration
+
+A class must have the following order:
+
+1. Public, private types (with using, not typedef),
+2. Private fields,
+3. Protected fields,
+4. Private functions
+5. Protected functions
+6. Public functions
+7. Virtual and overrided functions
+8. Operators
+
+````cpp
+class Foo {
+public:
+	using List = std::vector;
+
+private:
+	List m_list;
+	int m_count;
+
+public:
+	Foo();
+
+	int &operator[](int);
+};
+````
+
+**Note**: always add a space after a scope block (public, private, protected).
+
+### Commented code
+
+Commented code must be surrounded by `#if 0` and `#endif`. It easier to manipulate and allows nested comments. Avoid commenting too much code, if the code is useless, just delete it.
+
+````cpp
+#if 0
+	// This is currently buggy
+	memcpy(NULL, "don't use C routines", BUFSIZ);
+#endif
+````
+
+### Comment labels
+
+Lot of IDEs support some labels in comments such as:
+
+- **FIXME**, a label to mark the code as unoptimized / perfectible
+- **TODO**, missing feature or stuff
+- **XXX**, something wrong
+
+Please note that using them indicates that you're probably doing something wrong.
+
+### Includes order
+
+The includes should always come in the following order.
+
+1. C++ headers
+2. C header
+3. Third party libraries
+4. Application headers in ""
+
+````cpp
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <iostream>
+
+#include <Converter.h>
+
+#include "Foo.h"
+````
+
+**Note**: always use C++ headers for C equivalent, stdio.h -\> cstdio, etc.
+
+### RTTI
+
+- Usage of dynamic_cast is strictly forbidden
+- Same for anything requiring RTTI (typeid)
+
+### Singleton
+
+Do not use singletons.
+
+### C language
+
+Don't use anything from C such as `#define`, `memcpy`, `fopen` or even `malloc`.
+
+# CMake
+
+## Style
+
+CMake files guidelines are quite close to the C++ one.
+
+- Use only tabs
+- Put spaces before keywords (if, foreach)
+
+## Argument indent
+
+When there is a function which takes named arguments, indent all of them if the
+function is too long.
+
+You must also indent if there are more than one argument to parameters.
+
+````cmake
+long_command(
+	NAME foo
+	TARGET foo
+	ARGS
+		-j6
+		-c'a'
+	SOURCES
+		a.txt
+		b.txt
+)
+````
+
+# Json
+
+JSON files are close to the C++ guidelines.
+
+## Indent
+
+Only use 2 spaces indentation.
+
+````json
+{
+  "property": "value"
+}
+````
+
+## Braces
+
+Braces follow same conventions as C++ except for arrays where you must place
+object braces on their own line.
+
+````json
+{
+  "property": "value",
+  "verbose": false,
+  "network": {
+    "port": 19000
+  },
+  "array": [
+    {
+      "has-indent": true
+    }
+  ]
+}
+````
+
+# Markdown
+
+Markdown is used for the documentation process.
+
+## Bullet lists
+
+Markdown offers different bullet list symbols, you must only use `-`.
+
+## Headers
+
+Do not use underlined headers (`====` and `----`), only use `#`.
+
+Bad:
+
+````markdown
+Level 1
+=======
+
+Level 2
+-------
+````
+
+Correct:
+
+````markdown
+# Level 1
+
+## Level 2
+````
