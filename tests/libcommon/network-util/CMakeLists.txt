@@ -16,5 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(elapsed-timer)
-add_subdirectory(network-util)
+malikania_create_test(
+	NAME networkutil
+	LIBRARIES libcommon
+	SOURCES main.cpp
+)
