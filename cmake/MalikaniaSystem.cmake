@@ -29,7 +29,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 		message(FATAL_ERROR "You need at least GCC 4.9")
 	endif ()
 
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	#
 	# LLVM/clang implemented C++14 starting from version 3.4 but the
@@ -40,9 +40,9 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	endif ()
 
 	if (${VERSION} VERSION_LESS "3.5")
-		message("-Wall -Wextra -std=c++1y")
+		message("-Wall -Wextra -std=c++1y  ${CMAKE_CXX_FLAGS}")
 	else ()
-		message("-Wall -Wextra -std=c++14")
+		message("-Wall -Wextra -std=c++14  ${CMAKE_CXX_FLAGS}")
 	endif ()
 else ()
 	message(WARNING "Unsupported ${CMAKE_CXX_COMPILER_ID}, may not build correctly.")
