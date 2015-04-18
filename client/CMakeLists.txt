@@ -41,7 +41,7 @@ target_include_directories(
 	client
 	PRIVATE
 	${SDL2_INCLUDE_DIR}
-	${SDL2_IMAGE_INCLUDE_DIRS}
+	${SDL2_IMAGE_INCLUDE_DIR}
 )
 
 target_link_libraries(
