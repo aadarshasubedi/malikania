@@ -16,6 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(duktape)
-add_subdirectory(gtest)
-add_subdirectory(plantuml)
+project(duktape)
+
+add_library(duktape STATIC duktape.c duktape.h)
+
+target_include_directories(duktape PUBLIC ${duktape_SOURCE_DIR})

@@ -3,86 +3,73 @@
 namespace malikania {
 
 Rectangle::Rectangle(int x, int y, int width, int height)
+	:m_position(Position(x, y)), m_size(Size(width, height))
 {
-	m_rectangle.x = x;
-	m_rectangle.y = y;
-	m_rectangle.h = width;
-	m_rectangle.w = height;
 }
 
-Rectangle::Rectangle(const Position &position, const Size &size)
+Rectangle::Rectangle(Position position, Size size)
+	:m_position(std::move(position)), m_size(std::move(size))
 {
-	m_rectangle.x = position.x();
-	m_rectangle.y = position.y();
-	m_rectangle.w = size.width();
-	m_rectangle.h = size.height();
-}
-
-SDL_Rect *Rectangle::get()
-{
-	return &m_rectangle;
 }
 
 Size Rectangle::size() const noexcept
 {
-	return Size(m_rectangle.w, m_rectangle.h);
+	return m_size;
 }
 
-void Rectangle::setSize(const Size &size) noexcept
+void Rectangle::setSize(Size size) noexcept
 {
-	m_rectangle.w = size.width();
-	m_rectangle.h = size.height();
+	m_size = std::move(size);
 }
 
 int Rectangle::width() const noexcept
 {
-	return m_rectangle.w;
+	return m_size.width();
 }
 
 void Rectangle::setWidth(int width) noexcept
 {
-	m_rectangle.w = width;
+	m_size.setWidth(width);
 }
 
 int Rectangle::height() const noexcept
 {
-	return m_rectangle.h;
+	return m_size.height();
 }
 
 void Rectangle::setHeight(int height) noexcept
 {
-	m_rectangle.h = height;
+	m_size.setHeight(height);
 }
 
 Position Rectangle::position() const noexcept
 {
-	return Position(m_rectangle.x, m_rectangle.y);
+	return m_position;
 }
 
-void Rectangle::setPosition(const Position &position) noexcept
+void Rectangle::setPosition(Position position) noexcept
 {
-	m_rectangle.x = position.x();
-	m_rectangle.y = position.y();
+	m_position = std::move(position);
 }
 
 int Rectangle::x() const noexcept
 {
-	return m_rectangle.x;
+	return m_position.x();
 }
 
 void Rectangle::setX(int x) noexcept
 {
-	m_rectangle.x = x;
+	m_position.setX(x);
 }
 
 int Rectangle::y() const noexcept
 {
-	return m_rectangle.y;
+	return m_position.y();
 }
 
 void Rectangle::setY(int y) noexcept
 {
-	m_rectangle.y = y;
+	m_position.setY(y);
 }
 
 }// !malikania

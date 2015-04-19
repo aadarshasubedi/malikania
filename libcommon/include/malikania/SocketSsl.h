@@ -117,7 +117,7 @@ public:
 			SSL_library_init();
 			SSL_load_error_strings();
 
-			std::atexit(sslTerminate);
+			atexit(sslTerminate);
 		}
 	}
 

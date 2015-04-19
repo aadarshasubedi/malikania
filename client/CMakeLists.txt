@@ -25,14 +25,14 @@ set(
 	Window.cpp
 	Image.h
 	Image.cpp
-	Animation.h
-	Animation.cpp
 	Rectangle.h
 	Rectangle.cpp
 	Size.h
 	Size.cpp
 	Position.h
 	Position.cpp
+	Sprite.h
+	Sprite.cpp
 )
 
 add_executable(client ${FILES})
@@ -41,11 +41,12 @@ target_include_directories(
 	client
 	PRIVATE
 	${SDL2_INCLUDE_DIR}
-	${SDL2_IMAGE_INCLUDE_DIRS}
+	${SDL2_IMAGE_INCLUDE_DIR}
 )
 
 target_link_libraries(
 	client
+	libcommon
 	${SDL2_LIBRARY}
 	${SDL2_IMAGE_LIBRARY}
 )
@@ -66,3 +67,7 @@ add_custom_target(
 )
 
 add_dependencies(client-resources client)
+
+if (APPLE)
+	target_compile_options(libcommon PRIVATE "-Wno-deprecated-declarations")
+endif ()

@@ -1,19 +1,19 @@
 #include <stdexcept>
 
 #include "Image.h"
+#include "Window.h"
 
 #include <SDL_image.h>
 
 namespace malikania {
 
-Image::Image(std::string imagePath, const RendererHandle &renderer, const malikania::Rectangle &rectangle)
+Image::Image(std::string imagePath, Size size)
 	: m_texture(nullptr, nullptr)
-	, m_position(rectangle.x(), rectangle.y())
-	, m_rectangle(0, 0, rectangle.width(), rectangle.height())
+	, m_size(std::move(size))
 {
 	// Create Texture
 	m_texture = TextureHandle(
-		IMG_LoadTexture(renderer.get(), imagePath.c_str()),
+		IMG_LoadTexture(Window::renderer().get(), imagePath.c_str()),
 		SDL_DestroyTexture
 	);
 
@@ -28,65 +28,34 @@ TextureHandle& Image::getTexture()
 	return m_texture;
 }
 
-int Image::x() const noexcept
-{
-	return m_position.x();
-}
-
-int Image::y() const noexcept
-{
-	return m_position.y();
-}
-
-void Image::setX(int x) noexcept
-{
-	m_position.setX(x);
-}
-
-void Image::setY(int y) noexcept
-{
-	m_position.setY(y);
-}
-
 int Image::width() const noexcept
 {
-	return m_rectangle.width();
+	return m_size.width();
 }
 
 void Image::setWidth(int width) noexcept
 {
-	m_rectangle.setWidth(width);
+	m_size.setWidth(width);
 }
 
 int Image::height() const noexcept
 {
-	return m_rectangle.height();
+	return m_size.height();
 }
 
 void Image::setHeight(int height) noexcept
 {
-	m_rectangle.setHeight(height);
+	m_size.setHeight(height);
 }
 
-Position Image::getPosition() const noexcept
+const Size &Image::size() const noexcept
 {
-	return m_position;
+	return m_size;
 }
 
-void Image::setPosition(const Position &position) noexcept
+void Image::setSize(Size size) noexcept
 {
-	m_position = position;
-}
-
-void Image::setPosition(int x, int y) noexcept
-{
-	m_position.setX(x);
-	m_position.setY(y);
-}
-
-Rectangle &Image::getRectangle() noexcept
-{
-	return m_rectangle;
+	m_size = std::move(size);
 }
 
 }// !malikania

@@ -1,11 +1,13 @@
 #include "Window.h"
 #include <stdexcept>
-#include "Size.h"
 
 namespace malikania {
 
+static WindowHandle m_window = WindowHandle(nullptr, nullptr);
+static RendererHandle m_renderer = RendererHandle(nullptr, nullptr);
+
 Window::Window()
-	: m_window(nullptr, nullptr), m_renderer(nullptr, nullptr), m_isOpen(true)
+	: m_isOpen(true)
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);
@@ -67,13 +69,6 @@ void Window::clear()
 
 void Window::update()
 {
-	for (auto const &pair : m_animationMap) {
-		Animation& animation = getAnimation(pair.first);
-		SDL_Texture* texturePtr = animation.getTexture().get();
-		malikania::Rectangle rect(pair.second->x(), pair.second->y(), pair.second->width(), pair.second->height());
-		SDL_RenderCopy(m_renderer.get(), texturePtr, pair.second->getRectangle().get(), rect.get());
-	}
-
 	for (Refresh function : m_refreshList) {
 		function();
 	}
@@ -114,46 +109,6 @@ void Window::onRefresh(Refresh function)
 	m_refreshList.push_back(std::move(function));
 }
 
-void Window::setBackground(ImageHandle image)
-{
-	// TODO
-}
-
-void Window::addAnimation(std::string id, AnimationHandle animation)
-{
-	m_animationMap[id] = std::move(animation);
-}
-
-void Window::addAnimation(std::string id, std::string imagePath, const Size &spriteSize, const Size &cellSize)
-{
-	addAnimation(id, std::make_unique<Animation>(Animation(imagePath, m_renderer, Rectangle(Position(), spriteSize), cellSize)));
-}
-
-Animation &Window::getAnimation(std::string id)
-{
-	if (m_animationMap.find(id) != m_animationMap.end()) {
-		return *m_animationMap[id];
-	} else {
-		// FIXME Exception or just an error?
-		throw std::runtime_error("Image id \"" + id + "\" not found");
-	}
-}
-
-void Window::updateAnimationPosition(std::string id, int x, int y)
-{
-	getAnimation(id).setPosition(x, y);
-}
-
-void Window::updateAnimationState(std::string id, std::string state)
-{
-	getAnimation(id).setState(state);
-}
-
-void Window::setAnimationCellMap(std::string id, std::map<std::string, Position> cellMap)
-{
-	getAnimation(id).setCellMap(cellMap);
-}
-
 Size Window::getWindowResolution()
 {
 	SDL_DisplayMode current;
@@ -172,6 +127,16 @@ Size Window::getWindowResolution()
 	}
 
 	return Size(width, height);
+}
+
+WindowHandle& Window::window()
+{
+	return m_window;
+}
+
+RendererHandle& Window::renderer()
+{
+	return m_renderer;
 }
 
 }// !malikania

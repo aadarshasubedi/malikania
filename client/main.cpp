@@ -20,8 +20,11 @@
 #include <chrono>
 #include <thread>
 #include <map>
+#include <malikania/Json.h>
 #include "Window.h"
 #include "Size.h"
+#include "Sprite.h"
+#include "Image.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -61,7 +64,6 @@ void bounce(malikania::Window& window, int &x, int &y) {
 	} else {
 		goRight = true;
 	}
-	window.updateAnimationPosition("moko", x, y);
 }
 
 // End TODO
@@ -84,19 +86,15 @@ int main(void)
 			break;
 		case SDLK_UP:
 			keyPressed[SDLK_UP] = true;
-			mainWindow.updateAnimationPosition("moko", mokoPositionX, mokoPositionY -= 1);
 			break;
 		case SDLK_DOWN:
 			keyPressed[SDLK_DOWN] = true;
-			mainWindow.updateAnimationPosition("moko", mokoPositionX, mokoPositionY += 1);
 			break;
 		case SDLK_RIGHT:
 			keyPressed[SDLK_RIGHT] = true;
-			mainWindow.updateAnimationPosition("moko", mokoPositionX += 1, mokoPositionY);
 			break;
 		case SDLK_LEFT:
 			keyPressed[SDLK_LEFT] = true;
-			mainWindow.updateAnimationPosition("moko", mokoPositionX -= 1, mokoPositionY);
 			break;
 		case SDLK_m:
 			isBouncing = !isBouncing;
@@ -125,22 +123,17 @@ int main(void)
 	mainWindow.onRefresh([&mainWindow, &keyPressed, &animationStep](){
 		if (keyPressed[SDLK_LEFT]) {
 			std::string animationState = "left" + std::to_string(animationStep > 4 ? 4 : animationStep++);
-			mainWindow.updateAnimationState("moko", animationState);
 		} else if (keyPressed[SDLK_RIGHT]) {
 			std::string animationState = "right" + std::to_string(animationStep > 4 ? 4 : animationStep++);
-			mainWindow.updateAnimationState("moko", animationState);
 		} else if (keyPressed[SDLK_DOWN]) {
 			std::string animationState = "down" + std::to_string(animationStep > 4 ? 4 : animationStep++);
-			mainWindow.updateAnimationState("moko", animationState);
 		} else {
-			mainWindow.updateAnimationState("moko", "default");
 			animationStep = 1;
 		}
 	});
 
 	malikania::Size spriteSize(1200, 900);
 	malikania::Size cellSize(300, 300);
-	mainWindow.addAnimation("moko", "resources/images/mokodemo.png", spriteSize, cellSize);
 	std::map<std::string, malikania::Position> mokoCellMap;
 	mokoCellMap.emplace("default", malikania::Position(0, 600));
 	mokoCellMap.emplace("left1", malikania::Position(0, 0));
@@ -155,7 +148,10 @@ int main(void)
 	mokoCellMap.emplace("down2", malikania::Position(300, 600));
 	mokoCellMap.emplace("down3", malikania::Position(600, 600));
 	mokoCellMap.emplace("down4", malikania::Position(900, 600));
-	mainWindow.setAnimationCellMap("moko", mokoCellMap);
+
+	malikania::Sprite testSprite = malikania::Sprite::fromJson(malikania::JsonDocument(
+		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
+	).toObject());
 
 	while (mainWindow.isOpen()) {
 
@@ -167,6 +163,12 @@ int main(void)
 		mainWindow.processEvent();
 		mainWindow.clear();
 		mainWindow.update();
+
+		testSprite.draw(0, malikania::Rectangle(0, 0, 300, 300));
+		testSprite.draw(1, malikania::Rectangle(200, 200, 300, 300));
+		testSprite.draw(2, malikania::Rectangle(400, 400, 300, 300));
+		testSprite.draw(11, malikania::Rectangle(600, 400, 300, 300));
+
 		mainWindow.draw();
 
 		std::this_thread::sleep_for(5ms);

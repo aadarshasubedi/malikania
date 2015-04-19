@@ -22,7 +22,7 @@
 
 namespace {
 
-const SSL_METHOD *sslMethod(int mflags)
+auto sslMethod(int mflags)
 {
 	if (mflags & SocketSslOptions::All)
 		return SSLv23_method();

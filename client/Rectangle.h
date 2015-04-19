@@ -1,6 +1,7 @@
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
+#include <utility>
 #include <SDL.h>
 #include "Size.h"
 #include "Position.h"
@@ -9,20 +10,21 @@ namespace malikania {
 
 class Rectangle {
 private:
-	SDL_Rect m_rectangle;
+	Position m_position;
+	Size m_size;
 
 public:
 	Rectangle(int x, int y, int width, int height);
-	Rectangle(const Position &position, const Size &size);
+	Rectangle(Position position, Size size);
 	SDL_Rect *get();
 	Size size() const noexcept;
-	void setSize(const Size &size) noexcept;
+	void setSize(Size size) noexcept;
 	int width() const noexcept;
 	void setWidth(int width) noexcept;
 	int height() const noexcept;
 	void setHeight(int height) noexcept;
 	Position position() const noexcept;
-	void setPosition(const Position &position) noexcept;
+	void setPosition(Position position) noexcept;
 	int x() const noexcept;
 	void setX(int x) noexcept;
 	int y() const noexcept;
