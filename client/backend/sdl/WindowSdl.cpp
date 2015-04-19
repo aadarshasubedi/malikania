@@ -1,5 +1,12 @@
+#include <stdexcept>
+
+#include "Window.h"
+
+namespace malikania {
 
 WindowSdl::WindowSdl()
+	: m_window(nullptr, nullptr)
+	, m_renderer(nullptr, nullptr)
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -25,25 +32,21 @@ WindowSdl::WindowSdl()
 	}
 }
 
-void WindowSdl::processEvent()
+void WindowSdl::processEvents(Window &window)
 {
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_KEYUP:
-			for (KeyUp &function : m_keyUpList) {
-				function(event.key.keysym.sym);
-			}
+			window.onKeyUp(event.key.keysym.sym);
 			break;
 		// TODO continue implemanting all event possible
 		case SDL_KEYDOWN:
-			for (KeyDown &function : m_keyDownList) {
-				function(event.key.keysym.sym);
-			}
+			window.onKeyDown(event.key.keysym.sym);
 			break;
 		case SDL_QUIT:
-			m_isOpen = false;
+			window.close();
 			break;
 		default:
 			break;
@@ -66,12 +69,12 @@ void WindowSdl::update()
 #endif
 }
 
-void WindowSdl::draw()
+void WindowSdl::present()
 {
 	SDL_RenderPresent(m_renderer.get());
 }
 
-Size WindowSdl::getWindowResolution()
+Size WindowSdl::resolution()
 {
 	SDL_DisplayMode current;
 	int width = 0;
@@ -91,3 +94,8 @@ Size WindowSdl::getWindowResolution()
 	return Size(width, height);
 }
 
+void WindowSdl::close()
+{
+}
+
+} // !malikania

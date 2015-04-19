@@ -1,13 +1,15 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "Image.h"
 #include <malikania/Json.h>
+
+#include "Image.h"
 
 namespace malikania {
 
-class Sprite
-{
+class Window;
+
+class Sprite {
 private:
 	Image m_image;
 	std::string m_name;
@@ -19,8 +21,8 @@ private:
 
 public:
 	Sprite(Image image, std::string alias, Size cell, Size size, Size space = {0, 0}, Size margin = {0, 0});
-	static Sprite fromJson(const JsonObject& jsonSprite);
-	void draw(int index, const Rectangle &rectangle);
+	static Sprite fromJson(Window &window, const JsonObject &jsonSprite);
+	void draw(Window &window, int index, const Rectangle &rectangle);
 };
 
 }// !malikania

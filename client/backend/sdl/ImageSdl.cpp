@@ -1,3 +1,7 @@
+#include <SDL_image.h>
+
+#include <Window.h>
+
 #include "ImageSdl.h"
 
 using namespace std::string_literals;
@@ -6,7 +10,6 @@ namespace malikania {
 
 ImageSdl::ImageSdl(Image &image, Window &window, const std::string &path)
 	: m_texture(nullptr, nullptr)
-	, m_size(std::move(size))
 {
 	// Create Texture
 	m_texture = TextureHandle(
@@ -17,6 +20,11 @@ ImageSdl::ImageSdl(Image &image, Window &window, const std::string &path)
 	if (m_texture == nullptr) {
 		throw std::runtime_error("failed to load texture: "s + std::string(SDL_GetError()));
 	}
+}
+
+void ImageSdl::draw(Window &window, const Position &position)
+{
+
 }
 
 } // !malikania

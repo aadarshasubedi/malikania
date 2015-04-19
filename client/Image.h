@@ -27,13 +27,20 @@ public:
 	{
 	}
 
-	const Size &size() const noexcept;
-	void setSize(Size size) noexcept;
+	inline BackendImage &backend() noexcept
+	{
+		return m_backend;
+	}
 
 	inline void draw(Window &window, const Position &position = {0, 0})
 	{
 		m_backend.draw(window, position);
 	}
+
+	const Size &size() const noexcept;
+
+	void setSize(Size size) noexcept;
+
 };
 
 }// !malikania

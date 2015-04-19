@@ -56,7 +56,7 @@ public:
 
 	inline void processEvent()
 	{
-		m_backend.processEvents();
+		m_backend.processEvents(*this);
 	}
 
 	inline void clear()
