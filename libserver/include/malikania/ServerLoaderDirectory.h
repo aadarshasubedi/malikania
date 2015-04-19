@@ -1,5 +1,5 @@
 /*
- * ServerDirectoryLoader.h -- load a server from a directory
+ * ServerLoaderDirectory.h -- load a server from a directory
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,17 +16,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _SERVER_DIRECTORY_LOADER_H_
-#define _SERVER_DIRECTORY_LOADER_H_
+#ifndef _SERVER_LOADER_DIRECTORY_H_
+#define _SERVER_LOADER_DIRECTORY_H_
 
 /**
- * @file ServerDirectoryLoader.h
+ * @file ServerLoaderDirectory.h
  * @brief Load a server game from a directory
  */
 
-#include <malikania/DirectoryLoader.h>
+#include <malikania/LoaderDirectory.h>
 
-#include "ServerLoader.h"
 #include "ServerSettings.h"
 
 namespace malikania {
@@ -35,16 +34,16 @@ namespace malikania {
  * @class ServerDirectoryLoader
  * @brief Load a server game from a directory
  */
-class ServerDirectoryLoader : public DirectoryLoader<ServerLoader> {
+class ServerLoaderDirectory : public LoaderDirectory {
 public:
-	using DirectoryLoader::DirectoryLoader;
+	using LoaderDirectory::LoaderDirectory;
 
 	/**
 	 * @copydoc ServerLoader::serverSettings
 	 */
-	ServerSettings serverSettings() override;
+	ServerSettings serverSettings();
 };
 
 } // !malikania
 
-#endif // !_SERVER_DIRECTORY_LOADER_H_
+#endif // !_SERVER_LOADER_DIRECTORY_H_

@@ -1,5 +1,5 @@
 /*
- * ServerApplication.cpp -- server application
+ * NetworkUtil.h -- networking utilities
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,24 +16,35 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef _NETWORK_UTIL_H_
+#define _NETWORK_UTIL_H_
 
-#include <malikania/GameSettings.h>
+/**
+ * @file NetworkUtil.h
+ * @brief Some utilities for network
+ */
 
-#include "ServerApplication.h"
-#include "ServerSettings.h"
+#include <string>
+#include <vector>
 
 namespace malikania {
 
-void ServerApplication::run(const GameSettings &gs, const ServerSettings &ss)
-{
-	std::cout << "Game information:" << std::endl;
-	std::cout << "  Name: " << gs.name << std::endl;
-	std::cout << "  Version: " << gs.version << std::endl;
-
-	std::cout << "Server information:" << std::endl;
-	std::cout << "  Port: " << ss.network.port << std::endl;
-	std::cout << "  Port SSL: " << ss.ssl.port << std::endl;
-}
+/**
+ * @class NetworkUtil
+ * @brief Some utilities for network
+ */
+class NetworkUtil {
+public:
+	/**
+	 * Split the network message buffer by \r\n\r\n and update the
+	 * buffer in-place.
+	 *
+	 * @param input the buffer to split and update
+	 * @return the list of received message or empty if not ready
+	 */
+	static std::vector<std::string> split(std::string &input);
+};
 
 } // !malikania
+
+#endif // !_NETWORK_UTIL_H_

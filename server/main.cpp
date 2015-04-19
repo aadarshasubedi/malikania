@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include <malikania/ServerApplication.h>
-#include <malikania/ServerDirectoryLoader.h>
+#include <malikania/ServerLoaderDirectory.h>
 
 using namespace malikania;
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
 	try {
 		ServerApplication app(argc, argv);
-		ServerDirectoryLoader loader("/home/markand/mygame");
+		ServerLoaderDirectory loader("testgame");
 
 		app.run(std::move(loader));
 	} catch (const std::exception &ex) {

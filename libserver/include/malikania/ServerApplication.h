@@ -29,9 +29,10 @@
 
 #include <malikania/Application.h>
 
-#include "ServerLoader.h"
-
 namespace malikania {
+
+class GameSettings;
+class ServerSettings;
 
 /**
  * @class ServerApplication
@@ -39,9 +40,7 @@ namespace malikania {
  */
 class ServerApplication : public Application {
 private:
-	std::unique_ptr<ServerLoader> m_loader;
-
-	void run();
+	void run(const GameSettings &, const ServerSettings &);
 
 public:
 	using Application::Application;
@@ -54,9 +53,7 @@ public:
 	template <typename Loader>
 	void run(Loader &&loader)
 	{
-		m_loader = std::make_unique<std::decay_t<Loader>>(std::forward<Loader>(loader));
-
-		run();
+		run(loader.gameSettings(), loader.serverSettings());
 	}
 };
 

@@ -1,5 +1,5 @@
 /*
- * Loader.h -- abstract base class for loading games
+ * NetworkUtil.cpp -- networking utilities
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,45 +16,21 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LOADER_H_
-#define _MALIKANIA_LOADER_H_
-
-/**
- * @file Loader.h
- * @brief Abstract interface class for loading game
- */
-
-#include "GameSettings.h"
+#include <malikania/NetworkUtil.h>
 
 namespace malikania {
 
-/**
- * @class Loader
- * @brief Abstract interface class for loading game
- * @see ServerLoader
- * @see ClientLoader
- */
-class Loader {
-public:
-	/**
-	 * Default constructor.
-	 */
-	Loader() = default;
+std::vector<std::string> NetworkUtil::split(std::string &input)
+{
+	std::vector<std::string> ret;
+	std::string::size_type pos;
 
-	/**
-	 * Default destructor.
-	 */
-	virtual ~Loader() = default;
+	while ((pos = input.find("\r\n\r\n")) != std::string::npos) {
+		ret.push_back(input.substr(0U, pos));
+		input.erase(0U, pos + 4);
+	}
 
-	/**
-	 * Get the game data definition.
-	 *
-	 * @return the game
-	 */
-	virtual GameSettings gameSettings() = 0;
-};
+	return ret;
+}
 
 } // !malikania
-
-#endif // !_MALIKANIA_LOADER_H_
-
