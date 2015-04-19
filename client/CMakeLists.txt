@@ -35,6 +35,17 @@ set(
 	Sprite.cpp
 )
 
+# TODO: move to a Sdl.cmake
+if (WITH_BACKEND_SDL)
+	list(
+		APPEND
+		backend/sdl/ImageSdl.cpp
+		backend/sdl/ImageSdl.h
+		backend/sdl/WindowSdl.cpp
+		backend/sdl/WindowSdl.h
+	)
+endif ()
+
 add_executable(client ${FILES})
 
 target_include_directories(

@@ -17,27 +17,14 @@
 #
 
 # ---------------------------------------------------------
-# Directories options
+# Backend options
 #
 # The following options are available:
-#    WITH_BACKEND_PATH	- Path where to install backends, defaults to PREFIX + "lib/malikania/backends".
+#    WITH_BACKEND		- Type of backend to use. (Default: SDL)
 # ---------------------------------------------------------
 
-set(WITH_BACKEND_PATH "lib/malikania/backends"
+set(WITH_BACKEND "SDL"
 	CACHE STRING "Where to install backends")
-
-# ---------------------------------------------------------
-# Database support
-#
-# The following options are available:
-#    WITH_POSTGRESQL	- Enable PostgreSQL backend.
-#    WITH_MYSQL		- Enable MySQL backend.
-#    WITH_SQLITE	- Enable SQLite backend.
-# ---------------------------------------------------------
-
-option(WITH_POSTGRESQL "Enable PostgreSQL" On)
-option(WITH_MYSQL "Enable MySQL" On)
-option(WITH_SQLITE "Enable SQLite" On)
 
 # ---------------------------------------------------------
 # Documentation and technical references
@@ -64,17 +51,15 @@ endif ()
 # Targets to build
 #
 # The following options are available:
-#    WITH_LIBCOMMON	- Disable building of libcommon, if set to Off, disable all targets.
 #    WITH_LIBCLIENT	- Build the client library.
 #    WITH_LIBSERVER	- Build the server library.
 # ---------------------------------------------------------
 
-option(WITH_LIBCOMMON "Build libcommon" On)
 option(WITH_LIBCLIENT "Build libclient" On)
 option(WITH_LIBSERVER "Build libserver" On)
 
-# Ensure dependencies
-if (NOT WITH_LIBCOMMON)
-	set(WITH_LIBCLIENT Off)
-	set(WITH_LIBSERVER Off)
+if (WITH_BACKEND MATCHES "SDL")
+	set(WITH_BACKEND_SDL TRUE)
+else ()
+	message(FATAL_ERROR "Unknown backend selected: ${WITH_BACKEND}")
 endif ()

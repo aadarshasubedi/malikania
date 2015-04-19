@@ -1,20 +1,20 @@
 #ifndef WINDOW_H
 #define WINDOW_H
-#define SDL_MAIN_HANDLED
 
-#include <memory>
 #include <functional>
 #include <vector>
 #include <string>
 #include <map>
-#include <SDL.h>
+
+#include <Config.h>
+
+#if defined(WITH_BACKEND_SDL)
+#  include "backend/sdl/WindowSdl.h"
+#endif
+
 #include "Size.h"
 
 namespace malikania {
-
-// Usefull to handle C pointer
-using WindowHandle = std::unique_ptr<SDL_Window, void (*)(SDL_Window *)>;
-using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;
 
 class Window {
 public:
@@ -28,28 +28,82 @@ public:
 	using RefreshList = std::vector<Refresh>;
 
 private:
-	bool m_isOpen;
+	BackendWindow m_backend;
+	bool m_isOpen{true};
 	KeyUpList m_keyUpList;
 	KeyDownList m_keyDownList;
 	MouseMoveList m_mouseMoveList;
 	RefreshList m_refreshList;
 
+	template <typename FuncList, typename... Args>
+	inline void notify(FuncList list, Args&&... args)
+	{
+		for (auto &f : list) {
+			f(std::forward<Args>(args)...);
+		}
+	}
+
 public:
-	Window();
-	bool isOpen() noexcept;
-	void processEvent();
-	void clear();
-	void update();
-	void draw();
-	void close() noexcept;
-	static void quit();
-	void onKeyUp(KeyUp function);
-	void onKeyDown(KeyDown function);
-	void onMouseMove(MouseMove function);
-	void onRefresh(Refresh function);
-	Size getWindowResolution();
-	static WindowHandle& window();
-	static RendererHandle& renderer();
+	inline BackendWindow &backend() noexcept
+	{
+		return m_backend;
+	}
+
+	inline Size getWindowResolution()
+	{
+		return m_backend.resolution();
+	}
+
+	inline void processEvent()
+	{
+		m_backend.processEvents();
+	}
+
+	inline void clear()
+	{
+		m_backend.clear();
+	}
+
+	inline void update()
+	{
+		m_backend.update();
+	}
+
+	inline void present()
+	{
+		m_backend.present();
+	}
+
+	inline bool isOpen() noexcept
+	{
+		return m_isOpen;
+	}
+
+	inline void close() noexcept
+	{
+		m_isOpen = false;
+		m_backend.close();
+	}
+
+	void setOnKeyUp(KeyUp function);
+	void setOnKeyDown(KeyDown function);
+	void setOnMouseMove(MouseMove function);
+	void setOnRefresh(Refresh function);
+
+	inline void onKeyUp(int key)
+	{
+		notify(m_keyUpList, key);
+	}
+
+	inline void onKeyDown(int key)
+	{
+		notify(m_keyDownList, key);
+	}
+
+	inline void onMouseMove(int x, int y)
+	{
+		notify(m_mouseMoveList, x, y);
+	}
 };
 
 }// !malikania

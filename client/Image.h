@@ -4,32 +4,36 @@
 #include <memory>
 #include <string>
 
-#include <SDL.h>
+#include <Config.h>
+
+#if defined(WITH_BACKEND_SDL)
+#  include "backend/sdl/ImageSdl.h"
+#endif
 
 #include "Rectangle.h"
-#include "Position.h"
 
 namespace malikania {
 
-using TextureHandle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
-using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;
+class Window;
 
-class Image
-{
-protected:
-	TextureHandle m_texture;
+class Image {
+private:
+	BackendImage m_backend;
 	Size m_size;
-	Position m_position;
 
 public:
-	Image(std::string imagePath, Size size = {0, 0});
-	TextureHandle &getTexture();
-	int width() const noexcept;
-	void setWidth(int width) noexcept;
-	int height() const noexcept;
-	void setHeight(int height) noexcept;
+	inline Image(Window &window, std::string path)
+		: m_backend(*this, window, path)
+	{
+	}
+
 	const Size &size() const noexcept;
 	void setSize(Size size) noexcept;
+
+	inline void draw(Window &window, const Position &position = {0, 0})
+	{
+		m_backend.draw(window, position);
+	}
 };
 
 }// !malikania

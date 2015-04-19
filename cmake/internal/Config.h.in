@@ -20,21 +20,6 @@
 #define _MALIKANIA_CONFIG_H_
 
 /*
- * From cmake/Config.cmake
- */
-#define MALIKANIA_BACKEND_SUFFIX	"@MALIKANIA_BACKEND_SUFFIX@"
-
-/*
- * From cmake/Options.cmake
- */
-#define MALIKANIA_BACKEND_PATH		"@WITH_BACKEND_PATH@"
-
-/*
- * From CMake
- */
-#define MALIKANIA_PREFIX		"@CMAKE_INSTALL_PREFIX@"
-
-/*
  * Export attributes.
  */
 #if defined(_WIN32)
@@ -46,5 +31,7 @@
 #else
 #  define MALIKANIA_EXPORT
 #endif
+
+#cmakedefine WITH_BACKEND_SDL
 
 #endif // !_MALIKANIA_CONFIG_H_
