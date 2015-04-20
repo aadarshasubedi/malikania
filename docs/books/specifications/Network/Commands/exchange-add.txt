@@ -1,0 +1,17 @@
+### exchange-add
+
+Add an object to the exchange session, this automatically disable acceptation
+in the other side.
+
+#### Synopsis
+
+````json
+{
+  "command": "exchange-add",
+  "id": 123
+}
+````
+
+#### Fields
+
+- **id**: the object id in the player inventory

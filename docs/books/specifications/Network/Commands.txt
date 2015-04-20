@@ -1,0 +1,3 @@
+## Commands
+
+The commands are sent from the client to the server.

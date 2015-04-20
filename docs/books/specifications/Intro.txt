@@ -1,0 +1,19 @@
+﻿---
+title: Malikania Engine
+author:
+  - David Demelier <markand@malikania.fr>
+  - Renaud Jenny <renox0@malikania.fr>
+  - Alexis Dörr <nanahara@malikania.fr>
+date: February 26, 2015
+abstract: Official Malikania Engine specifications
+---
+
+# Synopsis
+
+This paper details the official Malikania Engine specifications and its
+reference implementation.
+
+# Terms
+
+The keywords MUST, SHOULD, MAY are to be interpreted as described in
+[RFC 2119](http://tools.ietf.org/html/rfc2119).
