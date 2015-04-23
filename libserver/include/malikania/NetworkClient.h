@@ -12,6 +12,7 @@ namespace malikania {
 
 class NetworkClient {
 private:
+	unsigned m_id;
 	std::string m_input;
 	std::string m_output;
 	std::string m_inputSsl;
@@ -22,6 +23,11 @@ private:
 	std::function<void (std::string)> m_onSslMessage;
 
 public:
+	inline NetworkClient(unsigned id)
+		: m_id(id)
+	{
+	}
+
 	inline void setOnDisconnect(std::function<void ()> func) noexcept
 	{
 		m_onDisconnect = std::move(func);

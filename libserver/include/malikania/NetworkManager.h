@@ -2,12 +2,16 @@
 #define _MALIKANIA_NETWORK_MANAGER_H_
 
 #include <atomic>
+#include <cassert>
 #include <map>
 #include <memory>
 #include <thread>
 #include <vector>
 
 #include <malikania/ElapsedTimer.h>
+#include <malikania/Hash.h>
+#include <malikania/NetworkUtil.h>
+#include <malikania/SocketListener.h>
 #include <malikania/SocketSsl.h>
 #include <malikania/SocketTcp.h>
 
@@ -32,9 +36,38 @@ private:
 		{
 		}
 
-		inline void send(std::string output)
+		inline Sock &socket() noexcept
+		{
+			return m_socket;
+		}
+
+		inline void append(std::string output)
 		{
 			m_output += output;
+		}
+
+		inline bool hasOutput() const noexcept
+		{
+			return !m_output.empty();
+		}
+
+		inline void send()
+		{
+			assert(hasOutput());
+
+			unsigned nsent = m_socket.send(m_output);
+
+			m_output.erase(0, nsent);
+		}
+
+		inline void read()
+		{
+			m_input += m_socket.recv(512);
+		}
+
+		inline std::vector<std::string> data()
+		{
+			return NetworkUtil::split(m_input);
 		}
 	};
 
@@ -43,6 +76,7 @@ private:
 	class AnonymousSsl : public AnonymousBase<SocketSsl> {
 	private:
 		std::string m_hash;
+		std::string m_result;
 		unsigned m_id;
 
 	public:
@@ -51,6 +85,12 @@ private:
 			, m_hash(std::move(hash))
 			, m_id(id)
 		{
+			m_result = hash + std::to_string(id);
+		}
+
+		inline const std::string &result() const noexcept
+		{
+			return m_result;
 		}
 
 		inline unsigned id() const noexcept
@@ -61,6 +101,7 @@ private:
 
 private:
 	/* Master sockets */
+	SocketListener m_listener;
 	SocketTcp m_master;
 	SocketSsl m_masterSsl;
 
@@ -76,16 +117,24 @@ private:
 	std::map<Socket, Anonymous> m_anon;
 	std::map<Socket, AnonymousSsl> m_anonSsl;
 
-	void processAcceptStandard(SocketTcp &sc);
-	void processAcceptSsl(SocketSsl &sc);
-	void processAccept(Socket &);
+	/* Accept routines */
+	void acceptStandard(SocketTcp &sc);
+	void acceptSsl(SocketSsl &sc);
+	void accept(Socket &);
 
-	void processAnonymous(Socket &c, int flags);
-	void processClient(Socket &sc, int flags);
-	void process(Socket &sc, int flags);
+	/* Socket I/O routines */
+	void flushAnonymousStandard(Socket &sc, int flags);
+	void flushAnonymousSsl(Socket &sc, int flags);
+	void flushStandard(Socket &sc, int flags);
+	void flushSsl(Socket &sc, int flags);
+	void flush(Socket &sc, int flags);
 
+	/* Tests */
+	bool isAnonymousStandard(const Socket &sc) const noexcept;
+	bool isAnonymousSsl(const Socket &sc) const noexcept;
+	bool isStandard(const Socket &sc) const noexcept;
+	bool isSsl(const Socket &sc) const noexcept;
 	bool isMaster(const Socket &sc) const noexcept;
-	bool isAnonymous(const Socket &sc) const noexcept;
 
 	void run();
 
