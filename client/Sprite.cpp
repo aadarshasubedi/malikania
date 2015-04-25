@@ -95,7 +95,7 @@ Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space,
 {
 }
 
-Sprite Sprite::fromJson(const JsonObject& jsonSprite)
+Sprite Sprite::fromJson(Window &window, const JsonObject& jsonSprite)
 {
 	checkJSONFormat(jsonSprite);
 
@@ -104,14 +104,15 @@ Sprite Sprite::fromJson(const JsonObject& jsonSprite)
 	int width = 0;
 	int height = 0;
 
-	Image image(jsonSprite["image"].toString());
+	Image image(window, jsonSprite["image"].toString());
 
 	if (jsonSprite.contains("size")) {
 		width = jsonSprite["size"].toArray()[0].toInteger();
 		height = jsonSprite["size"].toArray()[1].toInteger();
 	} else {
 		// TODO: test this
-		SDL_QueryTexture(image.getTexture().get(), NULL, NULL, &width, &height);
+		// TODO: remove this dep to SDL
+		SDL_QueryTexture(image.backend().texture(), nullptr, nullptr, &width, &height);
 	}
 
 	image.setSize(Size(width, height));
@@ -132,7 +133,7 @@ Sprite Sprite::fromJson(const JsonObject& jsonSprite)
 			, Size(width, height), std::move(space), std::move(margin));
 }
 
-void Sprite::draw(int index, const Rectangle &rectangle)
+void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
 {
 	std::string prependErrorMessage = "Couldn't draw image from Sprite " + m_name + ": ";
 
@@ -171,7 +172,7 @@ void Sprite::draw(int index, const Rectangle &rectangle)
 	destinationRectangle.w = rectangle.width();
 	destinationRectangle.h = rectangle.height();
 
-	SDL_RenderCopy(Window::renderer().get(), m_image.getTexture().get(), &sourceRectangle, &destinationRectangle);
+	SDL_RenderCopy(window.backend().renderer(), m_image.backend().texture(), &sourceRectangle, &destinationRectangle);
 }
 
 }// !malikania

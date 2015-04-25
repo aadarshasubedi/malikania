@@ -39,6 +39,7 @@ set(
 if (WITH_BACKEND_SDL)
 	list(
 		APPEND
+		FILES
 		backend/sdl/ImageSdl.cpp
 		backend/sdl/ImageSdl.h
 		backend/sdl/WindowSdl.cpp
@@ -51,6 +52,7 @@ add_executable(client ${FILES})
 target_include_directories(
 	client
 	PRIVATE
+	${client_SOURCE_DIR}
 	${SDL2_INCLUDE_DIR}
 	${SDL2_IMAGE_INCLUDE_DIR}
 )

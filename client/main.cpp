@@ -79,7 +79,7 @@ int main(void)
 
 	std::map<int, bool> keyPressed = { {SDLK_UP, false}, {SDLK_DOWN, false}, {SDLK_RIGHT, false}, {SDLK_LEFT, false} };
 
-	mainWindow.onKeyDown([&mainWindow, &mokoPositionX, &mokoPositionY, &isBouncing, &keyPressed](int sdlKey) {
+	mainWindow.setOnKeyDown([&mainWindow, &mokoPositionX, &mokoPositionY, &isBouncing, &keyPressed](int sdlKey) {
 		switch (sdlKey) {
 		case SDLK_ESCAPE:
 			mainWindow.close();
@@ -102,7 +102,7 @@ int main(void)
 		}
 	});
 
-	mainWindow.onKeyUp([&keyPressed](int sdlKey) {
+	mainWindow.setOnKeyUp([&keyPressed](int sdlKey) {
 		switch (sdlKey) {
 		case SDLK_UP:
 			keyPressed[SDLK_UP] = false;
@@ -120,7 +120,7 @@ int main(void)
 	});
 
 	int animationStep = 1;
-	mainWindow.onRefresh([&mainWindow, &keyPressed, &animationStep](){
+	mainWindow.setOnRefresh([&mainWindow, &keyPressed, &animationStep](){
 		if (keyPressed[SDLK_LEFT]) {
 			std::string animationState = "left" + std::to_string(animationStep > 4 ? 4 : animationStep++);
 		} else if (keyPressed[SDLK_RIGHT]) {
@@ -149,7 +149,7 @@ int main(void)
 	mokoCellMap.emplace("down3", malikania::Position(600, 600));
 	mokoCellMap.emplace("down4", malikania::Position(900, 600));
 
-	malikania::Sprite testSprite = malikania::Sprite::fromJson(malikania::JsonDocument(
+	malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
 		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
 	).toObject());
 
@@ -164,17 +164,17 @@ int main(void)
 		mainWindow.clear();
 		mainWindow.update();
 
-		testSprite.draw(0, malikania::Rectangle(0, 0, 300, 300));
-		testSprite.draw(1, malikania::Rectangle(200, 200, 300, 300));
-		testSprite.draw(2, malikania::Rectangle(400, 400, 300, 300));
-		testSprite.draw(11, malikania::Rectangle(600, 400, 300, 300));
+		testSprite.draw(mainWindow, 0, malikania::Rectangle(0, 0, 300, 300));
+		testSprite.draw(mainWindow, 1, malikania::Rectangle(200, 200, 300, 300));
+		testSprite.draw(mainWindow, 2, malikania::Rectangle(400, 400, 300, 300));
+		testSprite.draw(mainWindow, 11, malikania::Rectangle(600, 400, 300, 300));
 
-		mainWindow.draw();
+		mainWindow.present();
 
 		std::this_thread::sleep_for(5ms);
 	}
 
-	malikania::Window::quit();
+	//malikania::Window::quit();
 
 	return 0;
 }
