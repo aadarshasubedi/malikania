@@ -18,22 +18,10 @@
 
 #include <iostream>
 
-#include <malikania/ServerApplication.h>
-#include <malikania/ServerLoaderDirectory.h>
+#include <mongoc.h>
+#include <bson.h>
 
-using namespace malikania;
-
-int main(int argc, char **argv)
+int main(void)
 {
-	try {
-		ServerApplication app(argc, argv);
-		ServerLoaderDirectory loader("testgame");
-
-		app.run(std::move(loader));
-	} catch (const std::exception &ex) {
-		std::cerr << ex.what() << std::endl;
-		std::exit(1);
-	}
-
 	return 0;
 }

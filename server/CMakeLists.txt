@@ -20,4 +20,5 @@ project(server)
 
 add_executable(server main.cpp)
 
-target_link_libraries(server libserver)
+target_include_directories(server PRIVATE ${Mongo_INCLUDE_DIRS})
+target_link_libraries(server libserver ${Mongo_LIBRARIES})
