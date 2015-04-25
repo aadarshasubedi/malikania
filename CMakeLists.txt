@@ -42,6 +42,7 @@ enable_testing()
 find_package(Jansson REQUIRED)
 find_package(ZIP REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(Mongo REQUIRED)
 
 add_subdirectory(extern)
 add_subdirectory(docs)
