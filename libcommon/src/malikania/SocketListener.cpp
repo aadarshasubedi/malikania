@@ -17,10 +17,7 @@
  */
 
 #include <algorithm>
-#include <map>
 #include <set>
-#include <utility>
-#include <vector>
 
 #include "SocketListener.h"
 
@@ -30,20 +27,19 @@
 
 namespace backend {
 
-void Select::set(Socket s, int direction)
+void Select::set(Socket s, int flags)
 {
 	if (m_table.count(s.handle()) > 0) {
-		m_table.at(s.handle()).second |= direction;
+		m_table.at(s.handle()).second |= flags;
 	} else {
-		m_table.insert({s.handle(), {s, direction}});
+		m_table.emplace(s.handle(), std::make_pair(s, flags));
 	}
-
 }
 
-void Select::unset(Socket s, int direction)
+void Select::unset(Socket s, int flags)
 {
 	if (m_table.count(s.handle()) != 0) {
-		m_table.at(s.handle()).second &= ~(direction);
+		m_table.at(s.handle()).second &= ~(flags);
 
 		// If no read, no write is requested, remove it
 		if (m_table.at(s.handle()).second == 0) {
@@ -64,7 +60,7 @@ void Select::clear()
 
 SocketStatus Select::wait(int ms)
 {
-	auto result = waitMultiple(ms);
+	std::vector<SocketStatus> result = waitMultiple(ms);
 
 	if (result.size() == 0) {
 		throw SocketError(SocketError::System, "select", "No socket found");
@@ -115,10 +111,10 @@ std::vector<SocketStatus> Select::waitMultiple(int ms)
 
 	for (auto &c : m_table) {
 		if (FD_ISSET(c.first, &readset)) {
-			sockets.push_back({ c.second.first, SocketListener::Read });
+			sockets.push_back(SocketStatus{c.second.first, SocketListener::Read});
 		}
 		if (FD_ISSET(c.first, &writeset)) {
-			sockets.push_back({ c.second.first, SocketListener::Write });
+			sockets.push_back(SocketStatus{c.second.first, SocketListener::Write});
 		}
 	}
 
@@ -135,23 +131,23 @@ std::vector<SocketStatus> Select::waitMultiple(int ms)
 #  define poll WSAPoll
 #endif
 
-short Poll::topoll(int direction) const noexcept
+short Poll::topoll(int flags) const noexcept
 {
 	short result(0);
 
-	if (direction & SocketListener::Read) {
+	if (flags & SocketListener::Read) {
 		result |= POLLIN;
 	}
-	if (direction & SocketListener::Write) {
+	if (flags & SocketListener::Write) {
 		result |= POLLOUT;
 	}
 
 	return result;
 }
 
-int Poll::todirection(short event) const noexcept
+int Poll::toflags(short &event) const noexcept
 {
-	int direction = 0;
+	int flags = 0;
 
 	/*
 	 * Poll implementations mark the socket differently regarding
@@ -161,33 +157,38 @@ int Poll::todirection(short event) const noexcept
 	 * return 0 so we mark the socket as readable.
 	 */
 	if ((event & POLLIN) || (event & POLLHUP)) {
-		direction |= SocketListener::Read;
+		flags |= SocketListener::Read;
 	}
 	if (event & POLLOUT) {
-		direction |= SocketListener::Write;
+		flags |= SocketListener::Write;
 	}
 
-	return direction;
+	// Reset event for safety
+	event = 0;
+
+	return flags;
 }
 
-void Poll::set(Socket s, int direction)
+void Poll::set(Socket s, int flags)
 {
-	auto it = std::find_if(m_fds.begin(), m_fds.end(), [&] (const auto &pfd) { return pfd.fd == s.handle(); });
+	auto it = std::find_if(m_fds.begin(), m_fds.end(), [&] (const auto &pfd) {
+		return pfd.fd == s.handle();
+	});
 
-	// If found, add the new direction, otherwise add a new socket
+	// If found, add the new flags, otherwise add a new socket
 	if (it != m_fds.end()) {
-		it->events |= topoll(direction);
+		it->events |= topoll(flags);
 	} else {
-		m_lookup.insert({s.handle(), s});
-		m_fds.push_back({ s.handle(), topoll(direction), 0 });
+		m_lookup.emplace(s.handle(), s);
+		m_fds.push_back({ s.handle(), topoll(flags), 0 });
 	}
 }
 
-void Poll::unset(Socket s, int direction)
+void Poll::unset(Socket s, int flags)
 {
 	for (auto i = m_fds.begin(); i != m_fds.end();) {
 		if (i->fd == s.handle()) {
-			i->events &= ~(topoll(direction));
+			i->events &= ~(topoll(flags));
 
 			if (i->events == 0) {
 				m_lookup.erase(i->fd);
@@ -229,7 +230,7 @@ SocketStatus Poll::wait(int ms)
 
 	for (auto &fd : m_fds) {
 		if (fd.revents != 0) {
-			return { m_lookup.at(fd.fd), todirection(fd.revents) };
+			return SocketStatus{m_lookup.at(fd.fd), toflags(fd.revents)};
 		}
 	}
 
@@ -249,7 +250,7 @@ std::vector<SocketStatus> Poll::waitMultiple(int ms)
 	std::vector<SocketStatus> sockets;
 	for (auto &fd : m_fds) {
 		if (fd.revents != 0) {
-			sockets.push_back({ m_lookup.at(fd.fd), todirection(fd.revents) });
+			sockets.push_back(SocketStatus{m_lookup.at(fd.fd), toflags(fd.revents)});
 		}
 	}
 
@@ -265,84 +266,98 @@ std::vector<SocketStatus> Poll::waitMultiple(int ms)
 #if defined(SOCKET_HAVE_KQUEUE)
 
 Kqueue::Kqueue()
-	: m_handle(nullptr, nullptr)
+	: m_handle(kqueue())
 {
-	int handle = kqueue();
-
-	if (handle < 0) {
+	if (m_handle < 0) {
 		throw SocketError(SocketError::System, "kqueue");
 	}
-
-	m_handle = std::unique_ptr<int, void (*)(int *)>(new int(handle), [] (int *p) {
-		(void)::close(*p);
-	});
 }
 
-std::vector<struct kevent>::iterator Kqueue::find(const Socket &s)
+Kqueue::~Kqueue()
 {
-	return std::find_if(m_list.begin(), m_list.end(), [&] (struct kevent &kv) -> bool {
-		return static_cast<Socket::Handle>(kv.ident) == s.handle();
-	});
+	close(m_handle);
 }
 
-void Kqueue::set(Socket &s, int direction)
+void Kqueue::update(Socket &sc, int filter, int flags)
 {
 	struct kevent ev;
 
-	if (direction == SocketListener::Read) {
-		EV_SET(&ev, s.handle(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, &s);
-	} else if (direction == SocketListener::Write) {
-		EV_SET(&ev, s.handle(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, &s);
+	EV_SET(&ev, sc.handle(), filter, flags, 0, 0, nullptr);
+
+	if (kevent(m_handle, &ev, 1, nullptr, 0, nullptr) < 0) {
+		throw SocketError(SocketError::System, "kevent");
+	}
+}
+
+void Kqueue::set(Socket sc, int flags)
+{
+	if (flags & SocketListener::Read) {
+		puts("About to set to add");
+		update(sc, EVFILT_READ, EV_ADD | EV_ENABLE);
+	}
+	if (flags & SocketListener::Write) {
+		puts("About to set to remove");
+		update(sc, EVFILT_WRITE, EV_ADD | EV_ENABLE);
 	}
 
-	auto it = find(s);
-
-	if (it == m_list.end()) {
-		m_list.push_back(ev);
+	auto it = m_table.find(sc.handle());
+	if (it == m_table.end()) {
+		m_table.emplace(sc.handle(), std::make_pair(std::move(sc), flags));
 	} else {
-		*it = ev;
+		it->second.second |= flags;
 	}
 
-	m_result.resize(m_list.size());
+	m_result.resize(m_table.size());
 }
 
-void Kqueue::unset(Socket s, int direction)
+void Kqueue::unset(Socket sc, int flags)
 {
-	auto it = find(s);
+	if (flags & SocketListener::Read) {
+		update(sc, EVFILT_READ, EV_DELETE);
+	}
+	if (flags & SocketListener::Write) {
+		update(sc, EVFILT_WRITE, EV_DELETE);
+	}
 
-	if (it != m_list.end()) {
-		if (direction & SocketListener::Read) {
-			it->filter &= ~(EVFILT_READ);
-		}
-		if (direction & SocketListener::Write) {
-			it->filter &= ~(EVFILT_WRITE);
-		}
+	auto it = m_table.find(sc.handle());
+	if (it != m_table.end()) {
+		it->second.second &= ~(flags);
 
-		/* complete removal */
-		if ((it->filter & ~(direction)) == 0) {
-			m_list.erase(it);
+		if (it->second.second == 0) {
+			m_table.erase(it);
 		}
 	}
+
+	m_result.resize(m_table.size());
 }
 
-void Kqueue::remove(Socket s)
+void Kqueue::remove(Socket sc)
 {
-	auto it = find(s);
+	auto it = m_table.find(sc.handle());
 
-	if (it != m_list.end()) {
-		m_list.erase(it);
+	if (it != m_table.end()) {
+		if (it->second.second & SocketListener::Read) {
+			update(sc, EVFILT_READ, EV_DELETE);
+		}
+		if (it->second.second & SocketListener::Write) {
+			update(sc, EVFILT_WRITE, EV_DELETE);
+		}
+
+		m_table.erase(sc.handle());
 	}
 
-	m_result.resize(m_list.size());
+	m_result.resize(m_table.size());
 }
 
 void Kqueue::clear()
 {
-	m_list.clear();
-	m_result.clear();
+	for (auto &pair : m_table) {
+		update(pair.second.first, EVFILT_READ, EV_DELETE);
+		update(pair.second.first, EVFILT_WRITE, EV_DELETE);
+	}
 
-	m_list.resize(0);
-	m_result.resize(0);
+	m_table.clear();
+	m_result.resize(0U);
 }
 
 SocketStatus Kqueue::wait(int ms)
@@ -359,7 +374,7 @@ std::vector<SocketStatus> Kqueue::waitMultiple(int ms)
 	ts.tv_sec = ms / 1000;
 	ts.tv_nsec = (ms % 1000) * 1000000;
 
-	int nevents = kevent(*m_handle, m_list.data(), m_list.size(), &m_result[0], m_result.capacity(), pts);
+	int nevents = kevent(m_handle, nullptr, 0, &m_result[0], m_result.capacity(), pts);
 
 	if (nevents == 0) {
 		throw SocketError(SocketError::Timeout, "kevent");
@@ -369,10 +384,10 @@ std::vector<SocketStatus> Kqueue::waitMultiple(int ms)
 	}
 
 	for (int i = 0; i < nevents; ++i) {
-		sockets.push_back(SocketStatus{
-			*static_cast<Socket *>(m_result[i].udata),
-			(m_result[i].filter & EVFILT_READ) ? SocketListener::Read : SocketListener::Write
-		});
+		Socket sc = m_table.at(m_result[i].ident).first;
+		int flags = m_result[i].filter == EVFILT_READ ? SocketListener::Read : SocketListener::Write;
+
+		sockets.push_back(SocketStatus{sc, flags});
 	}
 
 	return sockets;

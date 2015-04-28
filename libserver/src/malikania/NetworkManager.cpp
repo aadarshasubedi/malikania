@@ -137,6 +137,7 @@ void NetworkManager::flushUnidentifiedStandard(Socket &sc, int flags)
 
 		if (it != m_anonSsl.end()) {
 			printf("network: <- client successfully identified!\n");
+
 			// TODO: logger debug, found client
 			m_listener.remove(sc);
 			m_listener.remove(it->second.socket());

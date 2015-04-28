@@ -91,7 +91,7 @@
 
 #include "Socket.h"
 
-#if defined(SOCKET_HAVE_POLL)
+#if defined(SOCKET_HAVE_POLL) && !defined(_WIN32)
 #  include <poll.h>
 #endif
 
@@ -121,8 +121,8 @@ private:
 	std::map<Socket::Handle, std::pair<Socket, int>> m_table;
 
 public:
-	void set(Socket s, int direction);
-	void unset(Socket s, int direction);
+	void set(Socket s, int flags);
+	void unset(Socket s, int flags);
 	void remove(Socket sc);
 	void clear();
 	SocketStatus wait(int ms);
@@ -143,12 +143,12 @@ private:
 	std::vector<pollfd> m_fds;
 	std::map<Socket::Handle, Socket> m_lookup;
 
-	short topoll(int direction) const noexcept;
-	int todirection(short event) const noexcept;
+	short topoll(int flags) const noexcept;
+	int toflags(short &event) const noexcept;
 
 public:
-	void set(Socket s, int direction);
-	void unset(Socket s, int direction);
+	void set(Socket s, int flags);
+	void unset(Socket s, int flags);
 	void remove(Socket sc);
 	void clear();
 	SocketStatus wait(int ms);
@@ -176,23 +176,24 @@ class Epoll {
  */
 class Kqueue {
 private:
-	std::vector<struct kevent> m_list;
+	std::map<Socket::Handle, std::pair<Socket, int>> m_table;
 	std::vector<struct kevent> m_result;
-	std::unique_ptr<int, void (*)(int *)> m_handle;
+	int m_handle;
 
 	Kqueue(const Kqueue &) = delete;
 	Kqueue &operator=(const Kqueue &) = delete;
+	Kqueue(Kqueue &&) = delete;
+	Kqueue &operator=(Kqueue &&) = delete;
 
-	std::vector<struct kevent>::iterator find(Socket &s);
+	void update(Socket &sc, int filter, int flags);
 
 public:
 	Kqueue();
-	Kqueue(Kqueue &&) = default;
-	Kqueue &operator=(Kqueue &&) = default;
+	~Kqueue();
 
-	void set(Socket &s, int direction);
-	void unset(Socket &s, int direction);
-	void remove(Socket &sc);
+	void set(Socket sc, int flags);
+	void unset(Socket sc, int flags);
+	void remove(Socket sc);
 	void clear();
 	SocketStatus wait(int ms);
 	std::vector<SocketStatus> waitMultiple(int ms);
@@ -210,6 +211,10 @@ public:
  *
  * This class is implemented using a bridge pattern to allow different uses
  * of listener implementation.
+ *
+ * You should not reinstanciate a new SocketListener at each iteartion of your
+ * main loop as it can be extremely costly. Instead use the same listener that
+ * you can safely modify on the fly.
  *
  * Currently, poll, select and kqueue are available.
  */
@@ -320,11 +325,11 @@ public:
 	}
 
 	/**
-	 * Unset a socket from the listener, only the direction is removed
-	 * unless the two directions are requested.
+	 * Unset a socket from the listener, only the flags is removed
+	 * unless the two flagss are requested.
 	 *
 	 * For example, if you added a socket for both reading and writing,
-	 * unsetting the write direction will keep the socket for reading.
+	 * unsetting the write flags will keep the socket for reading.
 	 *
 	 * @param sc the socket
 	 * @param flags the flags (may be OR'ed)
