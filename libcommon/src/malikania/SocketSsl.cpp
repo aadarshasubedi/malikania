@@ -119,7 +119,7 @@ void SocketSsl::waitConnect(const SocketAddress &address, int timeout)
 		if (ex.code() == SocketError::WouldBlockRead || ex.code() == SocketError::WouldBlockWrite) {
 			SocketListener listener{{*this, toDirection(ex.code())}};
 
-			listener.select(timeout);
+			listener.wait(timeout);
 
 			// Second try
 			connect(address);
@@ -195,7 +195,7 @@ unsigned SocketSsl::waitRecv(void *data, unsigned len, int timeout)
 {
 	SocketListener listener{{*this, SocketListener::Read}};
 
-	listener.select(timeout);
+	listener.wait(timeout);
 
 	return recv(data, len);
 }
@@ -223,7 +223,7 @@ unsigned SocketSsl::waitSend(const void *data, unsigned len, int timeout)
 {
 	SocketListener listener{{*this, SocketListener::Write}};
 
-	listener.select(timeout);
+	listener.wait(timeout);
 
 	return send(data, len);
 }

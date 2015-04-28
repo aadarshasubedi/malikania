@@ -19,6 +19,7 @@
 #ifndef _SOCKET_SSL_NG_H_
 #define _SOCKET_SSL_NG_H_
 
+#include <cstdint>
 #include <atomic>
 #include <memory>
 #include <mutex>

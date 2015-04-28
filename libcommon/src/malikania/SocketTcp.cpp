@@ -133,10 +133,9 @@ void SocketTcp::waitConnect(const SocketAddress &address, int timeout)
 		if (ex.code() == SocketError::WouldBlockWrite) {
 			SocketListener listener{{*this, SocketListener::Write}};
 
-			listener.select(timeout);
+			listener.wait(timeout);
 
 			// Socket is writable? Check if there is an error
-
 			int error = get<int>(SOL_SOCKET, SO_ERROR);
 
 			if (error) {
@@ -161,7 +160,7 @@ SocketTcp SocketTcp::waitAccept(SocketAddress &info, int timeout)
 {
 	SocketListener listener{{*this, SocketListener::Read}};
 
-	listener.select(timeout);
+	listener.wait(timeout);
 
 	return accept(info);
 }
@@ -198,7 +197,7 @@ unsigned SocketTcp::waitRecv(void *data, unsigned length, int timeout)
 {
 	SocketListener listener{{*this, SocketListener::Read}};
 
-	listener.select(timeout);
+	listener.wait(timeout);
 
 	return recv(data, length);
 }
@@ -233,7 +232,7 @@ unsigned SocketTcp::waitSend(const void *data, unsigned length, int timeout)
 {
 	SocketListener listener{{*this, SocketListener::Write}};
 
-	listener.select(timeout);
+	listener.wait(timeout);
 
 	return send(data, length);
 }

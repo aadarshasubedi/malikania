@@ -1,7 +1,12 @@
 #include <algorithm>
 #include <random>
 
+#if !defined(_WIN32)
+#  include <netinet/tcp.h>
+#endif
+
 #include <malikania/Json.h>
+#include <malikania/SocketAddress.h>
 #include <malikania/SocketListener.h>
 
 #include "NetworkClient.h"
@@ -19,8 +24,11 @@ void NetworkManager::acceptStandard(SocketTcp &sc)
 
 	SocketTcp client = sc.accept();
 	client.setBlockMode(false);
+	client.set(IPPROTO_TCP, TCP_NODELAY, 1);
 
-	m_listener.set(sc, SocketListener::Read);
+	printf("network: <- unidentified client connected\n");
+
+	m_listener.set(client, SocketListener::Read);
 	m_anon.emplace(client, Anonymous(client));
 }
 
@@ -40,19 +48,23 @@ void NetworkManager::acceptSsl(SocketSsl &sc)
 	});
 
 	SocketSsl clientSsl = sc.accept();
-	AnonymousSsl anon(std::move(clientSsl), rstring, Id::next());
 
 	clientSsl.setBlockMode(false);
-	anon.append(
+	clientSsl.set(IPPROTO_TCP, TCP_NODELAY, 1);
+
+	printf("network: <- unidentified SSL client connected\n");
+
+	AnonymousSsl anonymous(std::move(clientSsl), rstring, Id::next());
+	anonymous.append(
 		"{"
 		"\"command\":\"identify-req\","
-		"\"id\":" + std::to_string(anon.id()) + ","
+		"\"id\":" + std::to_string(anonymous.id()) + ","
 		"\"hash\":\"" + rstring + "\""
 		"}"
 	);
 
-	m_listener.set(sc, SocketListener::Write);
-	m_anonSsl.emplace(clientSsl, std::move(anon));
+	m_listener.set(anonymous.socket(), SocketListener::Write);
+	m_anonSsl.emplace(anonymous.socket(), std::move(anonymous));
 }
 
 void NetworkManager::accept(Socket &sc)
@@ -80,6 +92,8 @@ void NetworkManager::flushAnonymousStandard(Socket &sc, int flags)
 		m_anon.at(sc).read();
 	}
 
+	printf("network: <- unidentified message received\n");
+
 	/* Check if user has identified */
 	for (const std::string &msg : m_anon.at(sc).data()) {
 		JsonObject object = JsonDocument(msg).toObject();
@@ -104,6 +118,7 @@ void NetworkManager::flushAnonymousStandard(Socket &sc, int flags)
 		});
 
 		if (it != m_anonSsl.end()) {
+			printf("network: <- client successfully identified!\n");
 			// TODO: logger debug, found client
 			m_listener.remove(sc);
 			m_listener.remove(it->second.socket());
@@ -122,11 +137,13 @@ void NetworkManager::flushAnonymousSsl(Socket &sc, int flags)
 {
 	assert(isAnonymousSsl(sc));
 
+	printf("network: -> unidentified SSL message about to be sent\n");
+
 	/* Only write is needed for anonymous SSL */
 	if (flags & SocketListener::Write) {
 		if (m_anonSsl.at(sc).hasOutput()) {
 			m_anonSsl.at(sc).send();
-		} 
+		}
 
 		/* No more data to send? */
 		if (!m_anonSsl.at(sc).hasOutput()) {
@@ -149,15 +166,15 @@ void NetworkManager::flush(Socket &sc, int flags)
 {
 	assert(!isMaster(sc));
 
-	/*
-	 * For unidentified clients, any error makes immediat forced
-	 * disconnection from the server.
-	 */
 	try {
 		if (isAnonymousStandard(sc))
 			flushAnonymousStandard(sc, flags);
 		else if (isAnonymousSsl(sc))
 			flushAnonymousSsl(sc, flags);
+		else if (isStandard(sc))
+			flushStandard(sc, flags);
+		else if (isSsl(sc))
+			flushSsl(sc, flags);
 	} catch (const std::exception &ex) {
 		// TODO: remove id if error with flushAnonymousSsl.
 
@@ -167,13 +184,6 @@ void NetworkManager::flush(Socket &sc, int flags)
 		// TODO: logger
 		printf("error: %s\n", ex.what());
 	}
-
-	if (isStandard(sc))
-		flushStandard(sc, flags);
-	else if (isSsl(sc))
-		flushSsl(sc, flags);
-	else
-		throw std::runtime_error("unknown socket selected");
 }
 
 bool NetworkManager::isAnonymousStandard(const Socket &sc) const noexcept
@@ -203,32 +213,45 @@ bool NetworkManager::isMaster(const Socket &sc) const noexcept
 
 void NetworkManager::run()
 {
-	while (m_running) {
-		m_listener.clear();
-		m_listener.set(m_master, SocketListener::Read);
-		m_listener.set(m_masterSsl, SocketListener::Read);
+	m_listener.clear();
+	m_listener.set(m_master, SocketListener::Read);
+	m_listener.set(m_masterSsl, SocketListener::Read);
 
+	while (m_running) {
 		try {
-			SocketStatus status = m_listener.select(250);
+			SocketStatus status = m_listener.wait(250);
 
 			if (isMaster(status.socket)) {
 				accept(status.socket);
 			} else {
-				flush(status.socket, status.direction);
+				flush(status.socket, status.flags);
 			}
 
 			// TODO: kick, zombies
 		} catch (const SocketError &ex) {
 			// TODO: logger
-			printf("error: %s\n", ex.what());
+			if (ex.code() != SocketError::Timeout)
+				printf("error: %s\n", ex.what());
 		}
 	}
 }
 
-NetworkManager::NetworkManager(const ServerSettings &)
+NetworkManager::NetworkManager(const ServerSettings &ss)
 	: m_master(AF_INET, 0)
-	, m_masterSsl(AF_INET, 0)
+	, m_masterSsl(AF_INET, 0, SocketSslOptions(
+		SocketSslOptions::TLSv1,
+		ss.ssl.certificate,
+		ss.ssl.privateKey
+	))
 {
+	m_master.bind(address::Internet(ss.network.host, ss.network.port, AF_INET));
+	m_master.listen(1024);
+	m_masterSsl.bind(address::Internet(ss.network.host, ss.ssl.port, AF_INET));
+	m_masterSsl.listen(1024);
+
+	m_thread = std::thread([this] () {
+		run();
+	});
 }
 
 } // !malikania

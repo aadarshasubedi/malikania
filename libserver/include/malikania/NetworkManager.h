@@ -44,6 +44,7 @@ private:
 		inline void append(std::string output)
 		{
 			m_output += output;
+			m_output += "\r\n\r\n";
 		}
 
 		inline bool hasOutput() const noexcept
@@ -85,7 +86,7 @@ private:
 			, m_hash(std::move(hash))
 			, m_id(id)
 		{
-			m_result = hash + std::to_string(id);
+			m_result = Hash::sha256(m_hash + std::to_string(id));
 		}
 
 		inline const std::string &result() const noexcept

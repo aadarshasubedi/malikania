@@ -40,6 +40,7 @@
  *			  _WIN32_WINNT variable is greater or equal to 0x0600.
  */
 
+#include <cstdlib>
 #include <cstring>
 #include <exception>
 #include <string>
@@ -229,7 +230,7 @@ public:
 			 * must also call finish himself.
 			 */
 #if !defined(SOCKET_WSA_NO_INIT)
-			std::atexit(finish);
+			atexit(finish);
 #endif
 		}
 	}
@@ -238,7 +239,7 @@ public:
 	/**
 	 * no-op.
 	 */
-	static inline void init() noexcept {}
+	static inline void initialize() noexcept {}
 
 	/**
 	 * no-op.

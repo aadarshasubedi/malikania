@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include <malikania/GameSettings.h>
+#include <malikania/NetworkManager.h>
 
 #include "ServerApplication.h"
 #include "ServerSettings.h"
@@ -34,6 +35,12 @@ void ServerApplication::run(const GameSettings &gs, const ServerSettings &ss)
 	std::cout << "Server information:" << std::endl;
 	std::cout << "  Port: " << ss.network.port << std::endl;
 	std::cout << "  Port SSL: " << ss.ssl.port << std::endl;
+
+	NetworkManager manager(ss);
+
+	while (true) {
+		sleep(1);
+	}
 }
 
 } // !malikania
