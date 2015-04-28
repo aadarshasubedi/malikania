@@ -38,6 +38,8 @@ void ServerApplication::run(const GameSettings &gs, const ServerSettings &ss)
 
 	NetworkManager manager(ss);
 
+	manager.start();
+
 	while (true) {
 		sleep(1);
 	}

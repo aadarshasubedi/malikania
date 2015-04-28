@@ -1,3 +1,21 @@
+/*
+ * NetworkManager.cpp -- processes clients
+ *
+ * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #include <algorithm>
 #include <random>
 
@@ -29,7 +47,7 @@ void NetworkManager::acceptStandard(SocketTcp &sc)
 	printf("network: <- unidentified client connected\n");
 
 	m_listener.set(client, SocketListener::Read);
-	m_anon.emplace(client, Anonymous(client));
+	m_anon.emplace(client, UnidentifiedClient(client));
 }
 
 void NetworkManager::acceptSsl(SocketSsl &sc)
@@ -47,24 +65,24 @@ void NetworkManager::acceptSsl(SocketSsl &sc)
 		return distribution(rng);
 	});
 
-	SocketSsl clientSsl = sc.accept();
+	SocketSsl clientSock = sc.accept();
 
-	clientSsl.setBlockMode(false);
-	clientSsl.set(IPPROTO_TCP, TCP_NODELAY, 1);
+	clientSock.setBlockMode(false);
+	clientSock.set(IPPROTO_TCP, TCP_NODELAY, 1);
 
 	printf("network: <- unidentified SSL client connected\n");
 
-	AnonymousSsl anonymous(std::move(clientSsl), rstring, Id::next());
-	anonymous.append(
+	UnidentifiedClientSsl client(std::move(clientSock), rstring, Id::next());
+	client.append(
 		"{"
 		"\"command\":\"identify-req\","
-		"\"id\":" + std::to_string(anonymous.id()) + ","
+		"\"id\":" + std::to_string(client.id()) + ","
 		"\"hash\":\"" + rstring + "\""
 		"}"
 	);
 
-	m_listener.set(anonymous.socket(), SocketListener::Write);
-	m_anonSsl.emplace(anonymous.socket(), std::move(anonymous));
+	m_listener.set(client.socket(), SocketListener::Write);
+	m_anonSsl.emplace(client.socket(), std::move(client));
 }
 
 void NetworkManager::accept(Socket &sc)
@@ -83,11 +101,11 @@ void NetworkManager::accept(Socket &sc)
 	}
 }
 
-void NetworkManager::flushAnonymousStandard(Socket &sc, int flags)
+void NetworkManager::flushUnidentifiedStandard(Socket &sc, int flags)
 {
-	assert(isAnonymousStandard(sc));
+	assert(isUnidentifiedStandard(sc));
 
-	/* Nothing to write for standard anonymous socket */
+	/* Nothing to write for standard Unidentified socket */
 	if (flags & SocketListener::Read) {
 		m_anon.at(sc).read();
 	}
@@ -124,8 +142,6 @@ void NetworkManager::flushAnonymousStandard(Socket &sc, int flags)
 			m_listener.remove(it->second.socket());
 
 			// TODO: store the socket into NetworkClient.
-			m_lookup.emplace(sc, std::make_shared<NetworkClient>(it->second.id()));
-			m_lookupSsl.emplace(it->second.socket(), std::make_shared<NetworkClient>(it->second.id()));
 
 			m_anon.erase(sc);
 			m_anonSsl.erase(it);
@@ -133,13 +149,13 @@ void NetworkManager::flushAnonymousStandard(Socket &sc, int flags)
 	}
 }
 
-void NetworkManager::flushAnonymousSsl(Socket &sc, int flags)
+void NetworkManager::flushUnidentifiedSsl(Socket &sc, int flags)
 {
-	assert(isAnonymousSsl(sc));
+	assert(isUnidentifiedSsl(sc));
 
 	printf("network: -> unidentified SSL message about to be sent\n");
 
-	/* Only write is needed for anonymous SSL */
+	/* Only write is needed for Unidentified SSL */
 	if (flags & SocketListener::Write) {
 		if (m_anonSsl.at(sc).hasOutput()) {
 			m_anonSsl.at(sc).send();
@@ -167,16 +183,16 @@ void NetworkManager::flush(Socket &sc, int flags)
 	assert(!isMaster(sc));
 
 	try {
-		if (isAnonymousStandard(sc))
-			flushAnonymousStandard(sc, flags);
-		else if (isAnonymousSsl(sc))
-			flushAnonymousSsl(sc, flags);
+		if (isUnidentifiedStandard(sc))
+			flushUnidentifiedStandard(sc, flags);
+		else if (isUnidentifiedSsl(sc))
+			flushUnidentifiedSsl(sc, flags);
 		else if (isStandard(sc))
 			flushStandard(sc, flags);
 		else if (isSsl(sc))
 			flushSsl(sc, flags);
 	} catch (const std::exception &ex) {
-		// TODO: remove id if error with flushAnonymousSsl.
+		// TODO: remove id if error with flushUnidentifiedSsl.
 
 		sc.close();
 		m_listener.remove(sc);
@@ -186,12 +202,12 @@ void NetworkManager::flush(Socket &sc, int flags)
 	}
 }
 
-bool NetworkManager::isAnonymousStandard(const Socket &sc) const noexcept
+bool NetworkManager::isUnidentifiedStandard(const Socket &sc) const noexcept
 {
 	return m_anon.count(sc) > 0;
 }
 
-bool NetworkManager::isAnonymousSsl(const Socket &sc) const noexcept
+bool NetworkManager::isUnidentifiedSsl(const Socket &sc) const noexcept
 {
 	return m_anonSsl.count(sc) > 0;
 }
@@ -218,6 +234,10 @@ void NetworkManager::run()
 	m_listener.set(m_masterSsl, SocketListener::Read);
 
 	while (m_running) {
+		/* Clean zombies */
+		cleanUnidentified(m_anon);
+		cleanUnidentified(m_anonSsl);
+
 		try {
 			SocketStatus status = m_listener.wait(250);
 
@@ -226,8 +246,6 @@ void NetworkManager::run()
 			} else {
 				flush(status.socket, status.flags);
 			}
-
-			// TODO: kick, zombies
 		} catch (const SocketError &ex) {
 			// TODO: logger
 			if (ex.code() != SocketError::Timeout)
@@ -244,14 +262,47 @@ NetworkManager::NetworkManager(const ServerSettings &ss)
 		ss.ssl.privateKey
 	))
 {
+	m_master.set(SOL_SOCKET, SO_REUSEADDR, 1);
 	m_master.bind(address::Internet(ss.network.host, ss.network.port, AF_INET));
 	m_master.listen(1024);
+	m_masterSsl.set(SOL_SOCKET, SO_REUSEADDR, 1);
 	m_masterSsl.bind(address::Internet(ss.network.host, ss.ssl.port, AF_INET));
 	m_masterSsl.listen(1024);
+}
 
+NetworkManager::~NetworkManager()
+{
+	if (m_running) {
+		throw std::runtime_error("thread still running");
+	}
+
+	/* Close all clients */
+	cleanUnidentified(m_anon);
+	cleanUnidentified(m_anonSsl);
+
+	// TODO: same for authenticated
+}
+
+void NetworkManager::start()
+{
+	if (m_running) {
+		throw std::runtime_error("thread already running");
+	}
+
+	m_running = true;
 	m_thread = std::thread([this] () {
 		run();
 	});
+}
+
+void NetworkManager::stop()
+{
+	if (!m_running) {
+		throw std::runtime_error("thread not running");
+	}
+
+	m_running = false;
+	m_thread.join();
 }
 
 } // !malikania

@@ -86,6 +86,13 @@ ServerSettingsSsl readSsl(const JsonObject &object)
 	ssl.privateKey = jsonOr(object, "private-key", ssl.privateKey).toString();
 	ssl.certificate = jsonOr(object, "certificate", ssl.certificate).toString();
 
+	if (ssl.privateKey.empty()) {
+		throw std::invalid_argument("private-key must be set");
+	}
+	if (ssl.certificate.empty()) {
+		throw std::invalid_argument("certificate must be set");
+	}
+
 	return ssl;
 }
 
