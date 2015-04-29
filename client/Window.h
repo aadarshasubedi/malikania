@@ -54,6 +54,11 @@ public:
 		return m_backend.resolution();
 	}
 
+	inline BackendRenderer *renderer()
+	{
+		return m_backend.renderer();
+	}
+
 	inline void processEvent()
 	{
 		m_backend.processEvents(*this);

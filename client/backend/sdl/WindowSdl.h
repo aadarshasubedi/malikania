@@ -37,6 +37,7 @@ public:
 };
 
 using BackendWindow = WindowSdl;
+using BackendRenderer = SDL_Renderer;
 
 } // !malikania
 
