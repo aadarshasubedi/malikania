@@ -54,7 +54,7 @@
  * +---------------+-------------------------+
  * | System        | Backend                 |
  * +---------------+-------------------------+
- * | Linux         | epoll(2)                |
+ * | Linux         | epoll(7)                |
  * | *BSD          | kqueue(2)               |
  * | Windows       | poll(2), select(2)      |
  * | Mac OS X      | kqueue(2)               |
@@ -68,11 +68,12 @@
 #    define SOCKET_DEFAULT_BACKEND backend::Select
 #  endif
 #elif defined(__linux__)
-   // TODO NOT READY YET
-   //#  define SOCKET_DEFAULT_BACKEND backend::Epoll
-#  define SOCKET_DEFAULT_BACKEND backend::Poll
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
-#  include <sys/stat.h>
+#  include <sys/epoll.h>
+#  include <cstring>
+
+#  define SOCKET_DEFAULT_BACKEND backend::Epoll
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__APPLE__)
+#  include <sys/types.h>
 #  include <sys/event.h>
 #  include <sys/time.h>
 
@@ -108,6 +109,12 @@ public:
 	int flags;		//!< the flags
 };
 
+/**
+ * Table used in the socket listener to store which sockets have been
+ * set in which directions.
+ */
+using SocketTable = std::map<Socket::Handle, std::pair<Socket, int>>;
+
 namespace backend {
 
 /**
@@ -117,16 +124,26 @@ namespace backend {
  * This class is the fallback of any other method, it is not preferred at all for many reasons.
  */
 class Select {
-private:
-	std::map<Socket::Handle, std::pair<Socket, int>> m_table;
-
 public:
-	void set(Socket s, int flags);
-	void unset(Socket s, int flags);
-	void remove(Socket sc);
-	void clear();
-	SocketStatus wait(int ms);
-	std::vector<SocketStatus> waitMultiple(int ms);
+	/**
+	 * Backend identifier
+	 */
+	inline const char *name() const noexcept
+	{
+		return "select";
+	}
+
+	/**
+	 * No-op, uses the SocketTable directly.
+	 */
+	inline void set(const SocketTable &, const Socket &, int, bool) noexcept {}
+
+	/**
+	 * No-op, uses the SocketTable directly.
+	 */
+	inline void unset(const SocketTable &, const Socket &, int, bool) noexcept {}
+
+	std::vector<SocketStatus> wait(const SocketTable &table, int ms);
 };
 
 #if defined(SOCKET_HAVE_POLL)
@@ -147,12 +164,9 @@ private:
 	int toflags(short &event) const noexcept;
 
 public:
-	void set(Socket s, int flags);
-	void unset(Socket s, int flags);
-	void remove(Socket sc);
-	void clear();
-	SocketStatus wait(int ms);
-	std::vector<SocketStatus> waitMultiple(int ms);
+	void set(const SocketTable &, Socket sc, int flags, bool add);
+	void unset(const SocketTable &, Socket sc, int flags, bool remove);
+	std::vector<SocketStatus> wait(const SocketTable &, int ms);
 };
 
 #endif
@@ -160,7 +174,33 @@ public:
 #if defined(SOCKET_HAVE_EPOLL)
 
 class Epoll {
-	// TODO
+private:
+	int m_handle;
+	std::vector<struct epoll_event> m_events;
+
+	Epoll(const Epoll &) = delete;
+	Epoll &operator=(const Epoll &) = delete;
+	Epoll(const Epoll &&) = delete;
+	Epoll &operator=(const Epoll &&) = delete;
+
+	uint32_t toepoll(int flags) const noexcept;
+	int toflags(uint32_t events) const noexcept;
+	void update(Socket &sc, int op, int flags);
+
+public:
+	Epoll();
+	~Epoll();
+	void set(const SocketTable &, Socket &sc, int flags, bool add);
+	void unset(const SocketTable &, Socket &sc, int flags, bool remove);
+	std::vector<SocketStatus> wait(const SocketTable &table, int ms);
+
+	/**
+	 * Backend identifier
+	 */
+	inline const char *name() const noexcept
+	{
+		return "epoll";
+	}
 };
 
 #endif
@@ -176,7 +216,6 @@ class Epoll {
  */
 class Kqueue {
 private:
-	std::map<Socket::Handle, std::pair<Socket, int>> m_table;
 	std::vector<struct kevent> m_result;
 	int m_handle;
 
@@ -185,18 +224,23 @@ private:
 	Kqueue(Kqueue &&) = delete;
 	Kqueue &operator=(Kqueue &&) = delete;
 
-	void update(Socket &sc, int filter, int flags);
+	void update(const Socket &sc, int filter, int flags);
 
 public:
 	Kqueue();
 	~Kqueue();
 
-	void set(Socket sc, int flags);
-	void unset(Socket sc, int flags);
-	void remove(Socket sc);
-	void clear();
-	SocketStatus wait(int ms);
-	std::vector<SocketStatus> waitMultiple(int ms);
+	void set(const SocketTable &, const Socket &sc, int flags, bool add);
+	void unset(const SocketTable &, const Socket &sc, int flags, bool remove);
+	std::vector<SocketStatus> wait(const SocketTable &, int ms);
+
+	/**
+	 * Backend identifier
+	 */
+	inline const char *name() const noexcept
+	{
+		return "kqueue";
+	}
 };
 
 #endif
@@ -217,6 +261,34 @@ public:
  * you can safely modify on the fly.
  *
  * Currently, poll, select and kqueue are available.
+ *
+ * To implement the backend, the following functions must be available:
+ *
+ * # Set
+ *
+ * @code
+ * void set(Socket sc, int flags, bool add);
+ * @endcode
+ *
+ * This function, takes the socket to be added and the flags. The flags are
+ * always guaranteed to be correct and the function will never be called twice
+ * even if the user tries to set the same flag again.
+ *
+ * An optional add argument is added for backends which needs to do different
+ * operation depending if the socket was already set before or if it is the
+ * first time (e.g EPOLL_CTL_ADD vs EPOLL_CTL_MOD for epoll(7).
+ *
+ * # Unset
+ *
+ * @code
+ * void unset(Socket sc, int flags, bool remove);
+ * @endcode
+ *
+ * Like set, this function is only called if the flags are actually set and will
+ * not be called multiple times.
+ *
+ * Also like set, an optional remove argument is set if the socket is being
+ * completely removed (e.g no more flags are set for this socket).
  */
 template <typename Backend = SOCKET_DEFAULT_BACKEND>
 class SocketListenerBase final {
@@ -224,13 +296,14 @@ public:
 	static const int Read;
 	static const int Write;
 
-	using Map = std::map<Socket, int>;
-
 private:
 	Backend m_backend;
-	Map m_map;
+	SocketTable m_table;
 
 public:
+	/**
+	 * Construct an empty listener.
+	 */
 	inline SocketListenerBase()
 	{
 	}
@@ -248,13 +321,23 @@ public:
 	}
 
 	/**
-	 * Return an iterator to the beginning.
+	 * Get the backend.
 	 *
-	 * @return the iterator
+	 * @return the backend
 	 */
-	inline auto begin() noexcept
+	inline const Backend &backend() const noexcept
 	{
-		return m_map.begin();
+		return m_backend;
+	}
+
+	/**
+	 * Get the non-modifiable table.
+	 *
+	 * @return the table
+	 */
+	inline const SocketTable &table() const noexcept
+	{
+		return m_table;
 	}
 
 	/**
@@ -264,7 +347,7 @@ public:
 	 */
 	inline auto begin() const noexcept
 	{
-		return m_map.begin();
+		return m_table.begin();
 	}
 
 	/**
@@ -274,17 +357,7 @@ public:
 	 */
 	inline auto cbegin() const noexcept
 	{
-		return m_map.cbegin();
-	}
-
-	/**
-	 * Return an iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto end() noexcept
-	{
-		return m_map.end();
+		return m_table.cbegin();
 	}
 
 	/**
@@ -294,7 +367,7 @@ public:
 	 */
 	inline auto end() const noexcept
 	{
-		return m_map.end();
+		return m_table.end();
 	}
 
 	/**
@@ -304,25 +377,22 @@ public:
 	 */
 	inline auto cend() const noexcept
 	{
-		return m_map.cend();
+		return m_table.cend();
 	}
 
 	/**
-	 * Add a socket to the listener.
+	 * Add or update a socket to the listener.
+	 *
+	 * If the socket is already placed with the appropriate flags, the
+	 * function is a no-op.
+	 *
+	 * If incorrect flags are passed, the function does nothing.
 	 *
 	 * @param sc the socket
 	 * @param flags (may be OR'ed)
+	 * @throw SocketError if the backend failed to set
 	 */
-	void set(Socket sc, int flags)
-	{
-		if (m_map.count(sc) > 0) {
-			m_map[sc] |= flags;
-			m_backend.set(sc, flags);
-		} else {
-			m_map.insert({sc, flags});
-			m_backend.set(sc, flags);
-		}
-	}
+	void set(Socket sc, int flags);
 
 	/**
 	 * Unset a socket from the listener, only the flags is removed
@@ -335,45 +405,36 @@ public:
 	 * @param flags the flags (may be OR'ed)
 	 * @see remove
 	 */
-	void unset(Socket sc, int flags) noexcept
-	{
-		if (m_map.count(sc) > 0) {
-			m_map[sc] &= ~(flags);
-			m_backend.unset(sc, flags);
-
-			// No more flags, remove it
-			if (m_map[sc] == 0) {
-				m_map.erase(sc);
-			}
-		}
-	}
+	void unset(Socket sc, int flags);
 
 	/**
 	 * Remove completely the socket from the listener.
 	 *
+	 * It is a shorthand for unset(sc, SocketListener::Read | SocketListener::Write);
+	 *
 	 * @param sc the socket
 	 */
-	inline void remove(Socket sc) noexcept
+	inline void remove(Socket sc)
 	{
-		m_map.erase(sc);
-		m_backend.remove(sc);
+		unset(sc, Read | Write);
 	}
 
 	/**
 	 * Remove all sockets.
 	 */
-	inline void clear() noexcept
+	inline void clear()
 	{
-		m_map.clear();
-		m_backend.clear();
+		while (!m_table.empty()) {
+			remove(m_table.begin()->second.first);
+		}
 	}
 
 	/**
 	 * Get the number of sockets in the listener.
 	 */
-	unsigned size() const noexcept
+	inline auto size() const noexcept
 	{
-		return m_map.size();
+		return m_table.size();
 	}
 
 	/**
@@ -387,7 +448,7 @@ public:
 	{
 		auto cvt = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
-		return m_backend.wait(cvt.count());
+		return m_backend.wait(m_table, cvt.count())[0];
 	}
 
 	/**
@@ -398,7 +459,7 @@ public:
 	 */
 	inline SocketStatus wait(int timeout = -1)
 	{
-		return m_backend.wait(timeout);
+		return wait(std::chrono::milliseconds(timeout));
 	}
 
 	/**
@@ -412,7 +473,7 @@ public:
 	{
 		auto cvt = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 
-		return m_backend.waitMultiple(cvt.count());
+		return m_backend.wait(m_table, cvt.count());
 	}
 
 	/**
@@ -422,9 +483,75 @@ public:
 	 */
 	inline std::vector<SocketStatus> waitMultiple(int timeout = -1)
 	{
-		return m_backend.waitMultiple(timeout);
+		return waitMultiple(std::chrono::milliseconds(timeout));
 	}
 };
+
+template <typename Backend>
+void SocketListenerBase<Backend>::set(Socket sc, int flags)
+{
+	/* Invalid or useless flags */
+	if (flags == 0 || flags > 0x3)
+		return;
+
+	auto it = m_table.find(sc.handle());
+
+	/*
+	 * Do not update the table if the backend failed to add
+	 * or update.
+	 */
+	if (it == m_table.end()) {
+		m_backend.set(m_table, sc, flags, true);
+		m_table.emplace(sc.handle(), std::make_pair(sc, flags));
+	} else {
+		if ((flags & Read) && (it->second.second & Read)) {
+			flags &= ~(Read);
+		}
+		if ((flags & Write) && (it->second.second & Write)) {
+			flags &= ~(Write);
+		}
+
+		/* Still need a call? */
+		if (flags != 0) {
+			m_backend.set(m_table, sc, flags, false);
+			it->second.second |= flags;
+		}
+	}
+}
+
+template <typename Backend>
+void SocketListenerBase<Backend>::unset(Socket sc, int flags)
+{
+	auto it = m_table.find(sc.handle());
+
+	/* Invalid or useless flags */
+	if (flags == 0 || flags > 0x3 || it == m_table.end())
+		return;
+
+	/*
+	 * Like set, do not update if the socket is already at the appropriate
+	 * state.
+	 */
+	if ((flags & Read) && !(it->second.second & Read)) {
+		flags &= ~(Read);
+	}
+	if ((flags & Write) && !(it->second.second & Write)) {
+		flags &= ~(Write);
+	}
+
+	if (flags != 0) {
+		/* Determine if it's a complete removal */
+		bool removal = ((it->second.second) & ~(flags)) == 0;
+
+		m_backend.unset(m_table, sc, flags, removal);
+
+		if (removal) {
+			m_table.erase(it);
+		} else {
+			it->second.second &= ~(flags);
+		}
+	}
+}
 
 /**
  * Helper to use the default.

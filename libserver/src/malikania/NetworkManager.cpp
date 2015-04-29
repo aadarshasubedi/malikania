@@ -278,8 +278,8 @@ NetworkManager::~NetworkManager()
 	}
 
 	/* Close all clients */
-	cleanUnidentified(m_anon);
-	cleanUnidentified(m_anonSsl);
+	closeUnidentified(m_anon);
+	closeUnidentified(m_anonSsl);
 
 	// TODO: same for authenticated
 }
