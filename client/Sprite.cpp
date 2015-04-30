@@ -89,8 +89,12 @@ void Sprite::checkJSONFormat(const JsonObject& json)
 }
 
 Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space, Size margin)
-	: m_image(std::move(image)), m_backend(), m_name(std::move(alias)), m_cell(std::move(cell))
-	, m_size(std::move(size)), m_space(std::move(space)), m_margin(std::move(margin))
+	: m_image(std::move(image))
+	, m_name(std::move(alias))
+	, m_cell(std::move(cell))
+	, m_size(std::move(size))
+	, m_space(std::move(space))
+	, m_margin(std::move(margin))
 {
 }
 

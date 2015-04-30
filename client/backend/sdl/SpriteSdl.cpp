@@ -29,7 +29,7 @@ void SpriteSdl::render(Sprite &sprite, Window &window, int leftPosition, int top
 	destinationRectangle.w = rectangle.width();
 	destinationRectangle.h = rectangle.height();
 
-	SDL_RenderCopy(window.renderer(), sprite.image().backend().texture(), &sourceRectangle, &destinationRectangle);
+	SDL_RenderCopy(window.backend().renderer(), sprite.image().backend().texture(), &sourceRectangle, &destinationRectangle);
 }
 
 } // !malikania
