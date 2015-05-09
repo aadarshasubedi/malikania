@@ -89,16 +89,18 @@ void Sprite::checkJSONFormat(const JsonObject& json)
 }
 
 Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space, Size margin)
-	: m_image(std::move(image)), m_name(std::move(alias))
-	, m_size(std::move(size)), m_cell(std::move(cell))
-	, m_space(std::move(space)), m_margin(std::move(margin))
+	: m_image(std::move(image))
+	, m_name(std::move(alias))
+	, m_cell(std::move(cell))
+	, m_size(std::move(size))
+	, m_space(std::move(space))
+	, m_margin(std::move(margin))
 {
 }
 
-Sprite Sprite::fromJson(Window &window, const JsonObject& jsonSprite)
+Sprite Sprite::fromJson(Window &window, const JsonObject &jsonSprite)
 {
-	checkJSONFormat(jsonSprite);
-
+	Sprite::checkJSONFormat(jsonSprite);
 	Size cell(jsonSprite["cell"].toArray()[0].toInteger(), jsonSprite["cell"].toArray()[1].toInteger());
 
 	int width = 0;
@@ -110,11 +112,14 @@ Sprite Sprite::fromJson(Window &window, const JsonObject& jsonSprite)
 		width = jsonSprite["size"].toArray()[0].toInteger();
 		height = jsonSprite["size"].toArray()[1].toInteger();
 	} else {
-		// TODO: test this
-		// TODO: remove this dep to SDL
+		throw std::runtime_error("Error \"size\" of Sprite must be present, it's marked non required but for now Sprite need it");
+	}
+// TODO: find a workaround, only works with SDL now
+#if 0
+	else {
 		SDL_QueryTexture(image.backend().texture(), nullptr, nullptr, &width, &height);
 	}
-
+#endif
 	image.setSize(Size(width, height));
 
 	Size space;
@@ -158,21 +163,7 @@ void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
 	leftPosition += (m_space.height() * horizontalIndex);
 	topPosition += (m_space.width() * verticalIndex);
 
-	// Source rectangle (a particular cell of the sprite)
-	SDL_Rect sourceRectangle;
-	sourceRectangle.x = leftPosition;
-	sourceRectangle.y = topPosition;
-	sourceRectangle.w = m_cell.width();
-	sourceRectangle.h = m_cell.height();
-
-	// Destination rectangle (define the rectangle where the texture will be displayed)
-	SDL_Rect destinationRectangle;
-	destinationRectangle.x = rectangle.x();
-	destinationRectangle.y = rectangle.y();
-	destinationRectangle.w = rectangle.width();
-	destinationRectangle.h = rectangle.height();
-
-	SDL_RenderCopy(window.backend().renderer(), m_image.backend().texture(), &sourceRectangle, &destinationRectangle);
+	m_backend.render(*this, window, leftPosition, topPosition, rectangle);
 }
 
 }// !malikania

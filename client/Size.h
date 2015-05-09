@@ -17,6 +17,16 @@ public:
 	void setHeight(int height) noexcept;
 };
 
+inline bool operator==(const Size &lhs, const Size &rhs)
+{
+	return lhs.width() == rhs.width() && lhs.height() == rhs.height();
+}
+
+inline bool operator!=(const Size &lhs, const Size &rhs)
+{
+	return !(lhs == rhs);
+}
+
 }// !malikania
 
 #endif // SIZE_H

@@ -44,6 +44,8 @@ if (WITH_BACKEND_SDL)
 		backend/sdl/ImageSdl.h
 		backend/sdl/WindowSdl.cpp
 		backend/sdl/WindowSdl.h
+		backend/sdl/SpriteSdl.h
+		backend/sdl/SpriteSdl.cpp
 	)
 endif ()
 
