@@ -59,26 +59,6 @@ public:
 	}
 };
 
-/*
- * Private helpers.
- */
-namespace {
-
-inline duk_ret_t dukx_push_wrap(duk_context *, duk_ret_t count) noexcept
-{
-	return count;
-}
-
-template <typename T, typename... Args>
-inline duk_ret_t dukx_push_wrap(duk_context *ctx, duk_ret_t count, T &&value, Args&&... args)
-{
-	dukx_push(ctx, std::forward<T>(value));
-
-	return dukx_push_wrap(ctx, count + 1, std::forward<Args>(args)...);
-}
-
-} // !namespace
-
 /**
  * Push a boolean value.
  *
@@ -282,6 +262,26 @@ inline void dukx_require(duk_context *ctx, duk_idx_t index, double &value)
 {
 	value = duk_require_number(ctx, index);
 }
+
+/*
+ * Private helpers.
+ */
+namespace {
+
+inline duk_ret_t dukx_push_wrap(duk_context *, duk_ret_t count) noexcept
+{
+	return count;
+}
+
+template <typename T, typename... Args>
+inline duk_ret_t dukx_push_wrap(duk_context *ctx, duk_ret_t count, T &&value, Args&&... args)
+{
+	dukx_push(ctx, std::forward<T>(value));
+
+	return dukx_push_wrap(ctx, count + 1, std::forward<Args>(args)...);
+}
+
+} // !namespace
 
 /**
  * Convenient variadic dukx_push function. This function takes at least
