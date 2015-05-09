@@ -4,6 +4,7 @@
 #include <malikania/Json.h>
 
 #include "Rectangle.h"
+#include "Size.h"
 
 namespace malikania {
 

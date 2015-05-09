@@ -22,7 +22,7 @@ ImageSdl::ImageSdl(Image &image, Window &window, const std::string &path)
 	}
 }
 
-void ImageSdl::draw(Window &window, const Position &position)
+void ImageSdl::draw(Window &window, const Point &position)
 {
 
 }

@@ -26,13 +26,12 @@ set(
 	Image.h
 	Image.cpp
 	Rectangle.h
-	Rectangle.cpp
 	Size.h
-	Size.cpp
-	Position.h
-	Position.cpp
 	Sprite.h
 	Sprite.cpp
+	Color.h
+	Line.h
+	Point.h
 )
 
 # TODO: move to a Sdl.cmake

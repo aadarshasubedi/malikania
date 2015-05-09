@@ -13,6 +13,9 @@
 #endif
 
 #include "Size.h"
+#include "Line.h"
+#include "Color.h"
+#include "point.h"
 
 namespace malikania {
 
@@ -34,6 +37,7 @@ private:
 	KeyDownList m_keyDownList;
 	MouseMoveList m_mouseMoveList;
 	RefreshList m_refreshList;
+	Color m_drawingColor;
 
 	template <typename FuncList, typename... Args>
 	inline void notify(FuncList list, Args&&... args)
@@ -103,6 +107,48 @@ public:
 	inline void onMouseMove(int x, int y)
 	{
 		notify(m_mouseMoveList, x, y);
+	}
+
+	inline Color drawingColor()
+	{
+		return m_drawingColor;
+	}
+
+	inline void setDrawingColor(Color color)
+	{
+		m_drawingColor = std::move(color);
+		m_backend.setDrawingColor(color);
+	}
+
+	inline void drawLine(const Line &line)
+	{
+		m_backend.drawLine(line);
+	}
+
+	inline void drawLines(const std::vector<Point> &points)
+	{
+		m_backend.drawLines(points);
+	}
+
+	inline void drawPoint(const Point &point)
+	{
+		m_backend.drawPoint(point);
+	}
+
+	inline void drawPoints(const std::vector<Point> &points)
+	{
+		m_backend.drawPoints(points);
+	}
+
+	inline void drawRectangle(const Rectangle &rectangle, bool filled = false, Color fillColor = {255, 255, 255, 255})
+	{
+		m_backend.drawRectangle(rectangle, filled, fillColor);
+	}
+
+	inline void drawRectangles(const std::vector<Rectangle> &rectangles, bool filled = false
+		, std::vector<Color> fillColors = {{255, 255, 255, 255}})
+	{
+		m_backend.drawRectangles(rectangles, filled, fillColors);
 	}
 };
 

@@ -8,7 +8,7 @@
 namespace malikania {
 
 class Image;
-class Position;
+class Point;
 class Window;
 
 using TextureHandle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
@@ -25,7 +25,7 @@ public:
 		return m_texture.get();
 	}
 
-	void draw(Window &window, const Position &position);
+	void draw(Window &window, const Point &position);
 
 };
 

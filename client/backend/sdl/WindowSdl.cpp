@@ -91,7 +91,106 @@ Size WindowSdl::resolution()
 		}
 	}
 
-	return Size(width, height);
+	return Size({width, height});
+}
+
+void WindowSdl::setDrawingColor(const Color &color)
+{
+	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red, color.green, color.blue, color.alpha);
+	if (error != 0) {
+		throw std::runtime_error("Couldn't set drawing color" + std::string(SDL_GetError()));
+	}
+}
+
+void WindowSdl::drawLine(const Line &line)
+{
+	int error = SDL_RenderDrawLine(m_renderer.get(), line.startX, line.startY, line.endX, line.endY);
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw line" + std::string(SDL_GetError()));
+	}
+}
+
+void WindowSdl::drawLines(const std::vector<Point> &points)
+{
+	SDL_Point sdlPoints[points.size()];
+
+	int i = 0;
+	for (const Point &point : points) {
+		sdlPoints[i++] = {point.x, point.y};
+	}
+
+	int error = SDL_RenderDrawLines(m_renderer.get(), sdlPoints, points.size());
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw lines" + std::string(SDL_GetError()));
+	}
+}
+
+void WindowSdl::drawPoint(const Point &point)
+{
+	int error = SDL_RenderDrawPoint(m_renderer.get(), point.x, point.y);
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw point" + std::string(SDL_GetError()));
+	}
+}
+
+void WindowSdl::drawPoints(const std::vector<Point> &points)
+{
+	SDL_Point sdlPoints[points.size()];
+
+	int i = 0;
+	for (const Point &point : points) {
+		sdlPoints[i++] = {point.x, point.y};
+	}
+
+	int error = SDL_RenderDrawPoints(m_renderer.get(), sdlPoints, points.size());
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw points" + std::string(SDL_GetError()));
+	}
+}
+
+void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor)
+{
+	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+	int error = SDL_RenderDrawRect(m_renderer.get(), &rect);
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw rectangle" + std::string(SDL_GetError()));
+	}
+	if (filled) {
+		this->setDrawingColor(fillColor);
+		error = SDL_RenderFillRect(m_renderer.get(), &rect);
+		if (error != 0) {
+			throw std::runtime_error("Couldn't fill rectangle" + std::string(SDL_GetError()));
+		}
+	}
+}
+
+void WindowSdl::drawRectangles(const std::vector<Rectangle> &rectangles, bool filled, std::vector<Color> fillColors)
+{
+	SDL_Rect sdlRects[rectangles.size()];
+
+	int i = 0;
+	for (const Rectangle &rectangle : rectangles) {
+		sdlRects[i++] = {rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+	}
+
+	int error = SDL_RenderDrawRects(m_renderer.get(), sdlRects, rectangles.size());
+	if (error != 0) {
+		throw std::runtime_error("Couldn't draw rectangles" + std::string(SDL_GetError()));
+	}
+
+	if (filled) {
+		if (rectangles.size() != fillColors.size()) {
+			throw std::runtime_error("Couldn't fill rectangles, rectangles size and fillColors size are not the same");
+		}
+		int j = 0;
+		for (Color fillColor : fillColors) {
+			this->setDrawingColor(fillColor);
+			error = SDL_RenderFillRect(m_renderer.get(), &sdlRects[j++]);
+			if (error != 0) {
+				throw std::runtime_error("Couldn't fill rectangle" + std::string(SDL_GetError()));
+			}
+		}
+	}
 }
 
 void WindowSdl::close()

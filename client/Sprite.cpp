@@ -101,7 +101,7 @@ Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space,
 Sprite Sprite::fromJson(Window &window, const JsonObject &jsonSprite)
 {
 	Sprite::checkJSONFormat(jsonSprite);
-	Size cell(jsonSprite["cell"].toArray()[0].toInteger(), jsonSprite["cell"].toArray()[1].toInteger());
+	Size cell({jsonSprite["cell"].toArray()[0].toInteger(), jsonSprite["cell"].toArray()[1].toInteger()});
 
 	int width = 0;
 	int height = 0;
@@ -120,22 +120,22 @@ Sprite Sprite::fromJson(Window &window, const JsonObject &jsonSprite)
 		SDL_QueryTexture(image.backend().texture(), nullptr, nullptr, &width, &height);
 	}
 #endif
-	image.setSize(Size(width, height));
+	image.setSize(Size({width, height}));
 
 	Size space;
 	if (jsonSprite.contains("space")) {
-		space.setWidth(jsonSprite["space"].toArray()[0].toInteger());
-		space.setHeight(jsonSprite["space"].toArray()[1].toInteger());
+		space.width = jsonSprite["space"].toArray()[0].toInteger();
+		space.height = jsonSprite["space"].toArray()[1].toInteger();
 	}
 
 	Size margin;
 	if (jsonSprite.contains("margin")) {
-		margin.setWidth(jsonSprite["margin"].toArray()[0].toInteger());
-		margin.setHeight(jsonSprite["margin"].toArray()[1].toInteger());
+		margin.width = jsonSprite["margin"].toArray()[0].toInteger();
+		margin.height = jsonSprite["margin"].toArray()[1].toInteger();
 	}
 
 	return Sprite(std::move(image), jsonSprite["alias"].toString(), std::move(cell)
-			, Size(width, height), std::move(space), std::move(margin));
+			, Size({width, height}), std::move(space), std::move(margin));
 }
 
 void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
@@ -143,25 +143,25 @@ void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
 	std::string prependErrorMessage = "Couldn't draw image from Sprite " + m_name + ": ";
 
 	// Check if number of image by line is correct
-	if ((m_size.width() - m_margin.width()) % (m_cell.width() + m_space.width()) != 0) {
+	if ((m_size.width - m_margin.width) % (m_cell.width + m_space.width) != 0) {
 		throw std::runtime_error(prependErrorMessage + "cell, margin and space don't fit the global sprite width correctly");
 	}
 
-	int numberOfImageByLine = (m_size.width() - m_margin.width()) / (m_cell.width() + m_space.width());
+	int numberOfImageByLine = (m_size.width - m_margin.width) / (m_cell.width + m_space.width);
 	int verticalIndex = index / numberOfImageByLine;
 	int horizontalIndex = index % numberOfImageByLine;
 
 	// First, take margin width and height
-	int leftPosition = m_margin.width();
-	int topPosition = m_margin.height();
+	int leftPosition = m_margin.width;
+	int topPosition = m_margin.height;
 
 	// Second, take cell width and height
-	leftPosition += (m_cell.height() * horizontalIndex);
-	topPosition += (m_cell.width() * verticalIndex);
+	leftPosition += (m_cell.height * horizontalIndex);
+	topPosition += (m_cell.width * verticalIndex);
 
 	// Third, take space (padding) between cells width and height
-	leftPosition += (m_space.height() * horizontalIndex);
-	topPosition += (m_space.width() * verticalIndex);
+	leftPosition += (m_space.height * horizontalIndex);
+	topPosition += (m_space.width * verticalIndex);
 
 	m_backend.render(*this, window, leftPosition, topPosition, rectangle);
 }

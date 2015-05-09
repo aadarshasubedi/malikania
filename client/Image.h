@@ -10,7 +10,8 @@
 #  include "backend/sdl/ImageSdl.h"
 #endif
 
-#include "Rectangle.h"
+#include "Point.h"
+#include "Size.h"
 
 namespace malikania {
 
@@ -32,7 +33,7 @@ public:
 		return m_backend;
 	}
 
-	inline void draw(Window &window, const Position &position = {0, 0})
+	inline void draw(Window &window, const Point &position = {0, 0})
 	{
 		m_backend.draw(window, position);
 	}

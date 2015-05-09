@@ -25,6 +25,7 @@
 #include "Size.h"
 #include "Sprite.h"
 #include "Image.h"
+#include "Point.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -35,8 +36,8 @@ const int mokoSize = 300;
 
 void bounce(malikania::Window& window, int &x, int &y) {
 	malikania::Size resolution = window.getWindowResolution();
-	int width = resolution.width();
-	int height = resolution.height();
+	int width = resolution.width;
+	int height = resolution.height;
 	if (y < 10) {
 		goDown = true;
 		y += 1;
@@ -132,23 +133,6 @@ int main(void)
 		}
 	});
 
-	malikania::Size spriteSize(1200, 900);
-	malikania::Size cellSize(300, 300);
-	std::map<std::string, malikania::Position> mokoCellMap;
-	mokoCellMap.emplace("default", malikania::Position(0, 600));
-	mokoCellMap.emplace("left1", malikania::Position(0, 0));
-	mokoCellMap.emplace("left2", malikania::Position(300, 0));
-	mokoCellMap.emplace("left3", malikania::Position(600, 0));
-	mokoCellMap.emplace("left4", malikania::Position(900, 0));
-	mokoCellMap.emplace("right1", malikania::Position(0, 300));
-	mokoCellMap.emplace("right2", malikania::Position(300, 300));
-	mokoCellMap.emplace("right3", malikania::Position(600, 300));
-	mokoCellMap.emplace("right4", malikania::Position(900, 300));
-	mokoCellMap.emplace("down1", malikania::Position(0, 600));
-	mokoCellMap.emplace("down2", malikania::Position(300, 600));
-	mokoCellMap.emplace("down3", malikania::Position(600, 600));
-	mokoCellMap.emplace("down4", malikania::Position(900, 600));
-
 	malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
 		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
 	).toObject());
@@ -161,13 +145,45 @@ int main(void)
 		}
 
 		mainWindow.processEvent();
+		mainWindow.setDrawingColor({255, 255, 255, 255});
 		mainWindow.clear();
 		mainWindow.update();
 
-		testSprite.draw(mainWindow, 0, malikania::Rectangle(0, 0, 300, 300));
-		testSprite.draw(mainWindow, 1, malikania::Rectangle(200, 200, 300, 300));
-		testSprite.draw(mainWindow, 2, malikania::Rectangle(400, 400, 300, 300));
-		testSprite.draw(mainWindow, 11, malikania::Rectangle(600, 400, 300, 300));
+		testSprite.draw(mainWindow, 0, {0, 0, 300, 300});
+		testSprite.draw(mainWindow, 1, {200, 200, 300, 300});
+		testSprite.draw(mainWindow, 2, {400, 400, 300, 300});
+		testSprite.draw(mainWindow, 11, {600, 400, 300, 300});
+
+		Color c{255, 50, 40, 255};
+		mainWindow.setDrawingColor(c);
+		mainWindow.drawLine({0, 0, 300, 300});
+
+		std::vector<malikania::Point> points{{20, 20}, {30, 50}, {100, 200}, {30, 60}, {20, 300}, {100, 20}};
+		mainWindow.drawLines(points);
+
+		mainWindow.setDrawingColor({200, 50, 200, 255});
+		mainWindow.drawPoint({400, 400});
+		mainWindow.drawPoint({400, 402});
+		mainWindow.drawPoint({400, 405});
+		mainWindow.drawPoint({400, 407});
+		mainWindow.drawPoint({400, 410});
+
+		mainWindow.setDrawingColor({0, 0, 0, 255});
+		mainWindow.drawPoints(points);
+
+		mainWindow.setDrawingColor({30, 30, 30, 255});
+		mainWindow.drawRectangle({500, 500, 200, 100});
+
+		mainWindow.setDrawingColor({130, 30, 30, 255});
+		mainWindow.drawRectangles({{800, 800, 200, 100}, {700, 700, 200, 100}, {750, 750, 200, 100}});
+
+		mainWindow.drawRectangle({600, 200, 200, 100}, true, {0, 255, 0, 255});
+
+		mainWindow.drawRectangles(
+			{{800, 400, 200, 100}, {700, 450, 200, 100}, {750, 500, 200, 100}},
+			true,
+			{{255,0,0,255},{0,255,0,255},{0,0,255,255}}
+		);
 
 		mainWindow.present();
 
