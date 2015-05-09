@@ -1,0 +1,42 @@
+## Sprites
+
+The sprites are definitions of graphical libraries.
+
+An image can store multiple frames of a sprite and then the game can select one
+of this frame. It is useful to store the different images sprites of characters,
+object for example.
+
+Each sprite requires one JSON file.
+
+### JSON description
+
+````json
+{
+  "image": "jack.png",
+  "alias": "Jack",
+  "cell": [ 16, 16 ],
+  "size": [ 100, 100 ],
+  "space": [ 0, 0 ],
+  "margin": [ 0, 0 ]
+}
+````
+
+- **alias**: the sprite alias that will be used to retrieve in the registry
+- **image**: the relative path to the image
+- **cell**: each cell size
+- **size**: Optional, the full size of the image, if not set determined at compilation
+- **space**: Optional, space between cells
+- **margin**: Optional, space before the first cell horizontally and vertically
+
+### Margin and padding
+
+Padding and margin are allowed before and between cells.
+
+![Optional padding, margin and space](GameData/images/format.png)\
+
+
+On that image, you can see:
+
+* a margin of 8x8 pixels (in blue)
+* a padding of 4x4 pixels between cells (in red)
+* the cell size of 32x32 pixels (in green)

@@ -1,0 +1,16 @@
+### character-select
+
+Select a character.
+
+#### Synopsis
+
+````json
+{
+  "command": "character-select",
+  "id": "character id"
+}
+````
+
+#### Fields
+
+- **id**: the character id
