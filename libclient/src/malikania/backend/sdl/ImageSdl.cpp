@@ -2,7 +2,7 @@
 
 #include <Window.h>
 
-#include "ImageSdl.h"
+#include <malikania/backend/sdl/ImageSdl.h>
 
 using namespace std::string_literals;
 
@@ -18,7 +18,7 @@ ImageSdl::ImageSdl(Image &image, Window &window, const std::string &path)
 	);
 
 	if (m_texture == nullptr) {
-		throw std::runtime_error("failed to load texture: "s + std::string(SDL_GetError()));
+		throw std::runtime_error("failed to load texture: " + std::string(SDL_GetError()));
 	}
 }
 

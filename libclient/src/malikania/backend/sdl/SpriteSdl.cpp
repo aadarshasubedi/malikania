@@ -1,4 +1,4 @@
-#include "SpriteSdl.h"
+#include <malikania/backend/sdl/SpriteSdl.h>
 
 #include "Sprite.h"
 #include "Window.h"

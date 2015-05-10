@@ -21,11 +21,11 @@
 #include <thread>
 #include <map>
 #include <malikania/Json.h>
-#include "Window.h"
-#include "Size.h"
-#include "Sprite.h"
-#include "Image.h"
-#include "Point.h"
+#include <malikania/Window.h>
+#include <malikania/Size.h>
+#include <malikania/Sprite.h>
+#include <malikania/Image.h>
+#include <malikania/Point.h>
 
 using namespace std::literals::chrono_literals;
 

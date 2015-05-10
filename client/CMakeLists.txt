@@ -21,32 +21,7 @@ project(client)
 set(
 	FILES
 	main.cpp
-	Window.h
-	Window.cpp
-	Image.h
-	Image.cpp
-	Rectangle.h
-	Size.h
-	Sprite.h
-	Sprite.cpp
-	Color.h
-	Line.h
-	Point.h
 )
-
-# TODO: move to a Sdl.cmake
-if (WITH_BACKEND_SDL)
-	list(
-		APPEND
-		FILES
-		backend/sdl/ImageSdl.cpp
-		backend/sdl/ImageSdl.h
-		backend/sdl/WindowSdl.cpp
-		backend/sdl/WindowSdl.h
-		backend/sdl/SpriteSdl.h
-		backend/sdl/SpriteSdl.cpp
-	)
-endif ()
 
 add_executable(client ${FILES})
 
@@ -54,15 +29,12 @@ target_include_directories(
 	client
 	PRIVATE
 	${client_SOURCE_DIR}
-	${SDL2_INCLUDE_DIR}
-	${SDL2_IMAGE_INCLUDE_DIR}
 )
 
 target_link_libraries(
 	client
 	libcommon
-	${SDL2_LIBRARY}
-	${SDL2_IMAGE_LIBRARY}
+	libclient
 )
 
 add_custom_command(

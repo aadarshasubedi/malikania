@@ -7,11 +7,11 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 
-#include <Size.h>
-#include <Color.h>
-#include <Line.h>
-#include <Point.h>
-#include <Rectangle.h>
+#include <malikania/Size.h>
+#include <malikania/Color.h>
+#include <malikania/Line.h>
+#include <malikania/Point.h>
+#include <malikania/Rectangle.h>
 
 namespace malikania {
 

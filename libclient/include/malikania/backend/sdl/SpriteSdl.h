@@ -3,8 +3,8 @@
 
 #include <malikania/Json.h>
 
-#include "Rectangle.h"
-#include "Size.h"
+#include <malikania/Rectangle.h>
+#include <malikania/Size.h>
 
 namespace malikania {
 
