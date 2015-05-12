@@ -61,7 +61,7 @@ public:
 
 	inline Size &size()
 	{
-		m_size = m_size.height() > 0 && m_size.width() > 0 ? m_size : m_backend.size(*this);
+		m_size = m_size.height > 0 && m_size.width > 0 ? m_size : m_backend.size(*this);
 		return m_size;
 	}
 
