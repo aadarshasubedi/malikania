@@ -18,12 +18,11 @@
 
 #include <iostream>
 
-#include <malikania/ServerLoaderDirectory.h>
+#include <mongoc.h>
+#include <bson.h>
 #include <malikania/ServerApplication.h>
 
-using namespace malikania;
-
-int main(int argc, char **argv)
+int main(void)
 {
 	ServerLoaderDirectory loader("/home/markand/mygame");
 	ServerApplication application(argc, argv);

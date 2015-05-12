@@ -20,7 +20,6 @@ set(
 	HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Id.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkClient.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkConnection.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkManager.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApplication.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoaderDirectory.h
