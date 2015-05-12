@@ -23,6 +23,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/GameSettings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Hash.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/LoaderDirectory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkUtil.h
@@ -39,6 +40,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Directory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ElapsedTimer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Hash.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Js.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/LoaderDirectory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkUtil.cpp

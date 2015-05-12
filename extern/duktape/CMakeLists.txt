@@ -21,3 +21,7 @@ project(duktape)
 add_library(duktape STATIC duktape.c duktape.h)
 
 target_include_directories(duktape PUBLIC ${duktape_SOURCE_DIR})
+set_target_properties(
+	duktape
+	PROPERTIES POSITION_INDEPENDENT_CODE TRUE
+)
