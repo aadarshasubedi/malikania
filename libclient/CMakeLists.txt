@@ -40,15 +40,18 @@ if (WITH_BACKEND_SDL)
 	list(
 		APPEND
 		HEADERS
-		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/ImageSdl.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
+			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/ImageSdl.h
+			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
+			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
 		SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/ImageSdl.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/SpriteSdl.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/ImageSdl.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/SpriteSdl.cpp
 	)
 endif ()
+
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
 
 malikania_create_library(
 	PROJECT libclient
@@ -58,13 +61,10 @@ malikania_create_library(
 		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania
 	PUBLIC_INCLUDES
 		${CMAKE_CURRENT_SOURCE_DIR}/include
-		${SDL2_INCLUDE_DIR}
-		${SDL2_IMAGE_INCLUDE_DIR}
+		${SDL2_INCLUDE_DIRS}
+		${SDL2_IMAGE_INCLUDE_DIRS}
 	LIBRARIES
 		libcommon
-		${SDL2_LIBRARY}
-		${SDL2_IMAGE_LIBRARY}
+		${SDL2_LIBRARIES}
+		${SDL2_IMAGE_LIBRARIES}
 )
-
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)

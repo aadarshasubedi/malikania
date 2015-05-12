@@ -15,7 +15,7 @@
 #include "Size.h"
 #include "Line.h"
 #include "Color.h"
-#include "point.h"
+#include "Point.h"
 
 namespace malikania {
 
