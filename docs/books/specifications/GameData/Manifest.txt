@@ -1,0 +1,25 @@
+## Manifest
+
+The manifest file tells the engine how many files for each component are
+available.
+
+It is mandatory to list all of the game data.
+
+### JSON description
+
+The file is named `manifest.json` and is installed in the root game directory.
+
+````json
+{
+  "images": [
+    "images/wood.png",
+    "images/cat.png"
+  ],
+  "spells": [
+    "spells/fire.js"
+  ]
+}
+````
+
+You can use the [malikania-bundle][] tool to create manifest files
+automatically.

@@ -1,0 +1,4 @@
+# Gameplay
+
+This section details the characteristics of a game created with Malikania
+Engine.

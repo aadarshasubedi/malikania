@@ -1,0 +1,214 @@
+---
+title: Mercurial
+author:
+  - David Demelier <markand@malikania.fr>
+  - Renaud Jenny <renox0@malikania.fr>
+  - Alexis Dörr <nanahara@malikania.fr>
+date: February 11, 2015
+abstract: Beginner guide to Mercurial SCM
+---
+
+# Introduction
+
+This document targets those who are unfamiliar with Mercurial or with DVCS
+tools.
+
+If you are familiar with Git, you will understand Mercurial easily.
+
+## What is a DVCS
+
+A Distributed Revision Control System (DRCS) is a tool used to develop and
+control the version of a project. In contrast to a RCS, the distributed one
+can work offline.
+
+Note: DVCS is a synonym.
+
+# Mercurial
+
+[Mercurial](http://mercurial.selenic.com/) is a popular cross-platform SCM.
+
+## Why Mercurial
+
+Why mercurial and not other?
+
+The Mercurial choise is almost an historical reason, it was first chosen for
+various reasons where other SCM were not options.
+
+On the other hand, Mercurial has several benefits:
+
+- Portable, this feature is mandatory in the project goal
+- Easy, creating and starting using a Mercurial repository is very easy
+- Beautiful, TortoiseHg and its dedicated workbench is a very convenient tool
+
+# Mercurial commands
+
+## clone
+
+Used to copy an existing repository locally.
+
+**Syntax**
+
+	hg clone <scheme><path> [destination]
+
+**Example**
+
+	hg clone http://hg.foo.org/repository
+
+![Clone.png](images/Clone.png)
+
+## pull
+
+Pull updates (without applying) from a repository.
+
+**Syntax**
+
+	hg pull [source]
+
+**Example**
+
+	hg pull
+	hg pull http://hg.foo.org/repo
+
+![Pull](images/Pull-context.png)
+
+![Pull](images/Pull-window.png)
+
+## update
+
+Update the content of a repository. This command let you update the repository to any revision (older or newer). It is commonly used after a pull.
+
+**Syntax**
+
+	hg update [args...]
+
+**Example**
+
+	hg up
+	hg up -r 234        # update to revision 234
+
+![Update](images/Update-context.png)
+
+![Update](images/Update-window.png)
+
+## merge
+
+This action allows you to merge different branches / revisions / bookmarks. It will try to resolve conflict by itself and may ask you to resolve them if not possible.
+
+**Syntax**
+
+	hg merge [args...]
+
+**Example**
+
+	hg merge                   # merge with the default next head
+	hg merge -r 123            # merge with revision 123
+
+![Merge](images/Merge-context.png)
+
+## add
+
+Add files or directories.
+
+**Syntax**
+
+	hg add files...
+
+**Example**
+
+	hg add myfile.cpp
+	hg add myfile1.cpp myfile2.cpp
+	hg add mydirectory
+
+![Add](images/Add-context.png)
+
+![Add](images/Add-window.png)
+
+## remove
+
+Remove tracked files.
+
+**Syntax**
+
+	hg remove files...
+
+**Example**
+
+	hg remove myfile.cpp
+	hg remove myfile1.cpp myfile2.cpp
+	hg remove mydirectory
+
+![Remove](images/Remove-context.png)
+
+![Remove](images/Remove-window.png)
+
+## commit
+
+Commit validates and create a new changeset locally. Thanks to the DRCS nature of Mercurial, it is completely possible to rollback. You may commit multiple times before pushing.
+
+**Syntax**
+
+	hg commit [args...] [files]
+
+**Example**
+
+	hg ci -m "test"
+	hg ci a.cpp
+
+![Commit](images/Commit-context.png)
+
+![Commit](images/Commit-window.png)
+
+## push
+
+Push every local changesets to the destination.
+
+**Syntax**
+
+	hg push [args...] [destination]
+
+**Example**
+
+	hg push
+
+![Push](images/Push-context.png)
+
+![Push](images/Push-window.png)
+
+## diff
+
+Shows the difference between revisions.
+
+**Syntax**
+
+	hg diff [-r r1 [-r r2]]
+	hg diff [-c r]
+
+**Example**
+
+	hg diff
+	hg diff -r 124
+	hg diff -r 1 -r 2
+
+![Diff](images/Diff-context.png)
+
+![Diff](images/Diff-window.png)
+
+## heads
+
+Show the different heads available.
+
+**Syntax**
+
+	hg heads [args...]
+
+**Example**
+
+	hg heads
+
+**Possible output**
+
+changeset:   237:370dccb35ac9
+tag:         tip
+user:        David Demelier <markand@malikania.fr>
+date:        Sat Jul 05 09:06:39 2014 +0200
+summary:     OptionParser: add more tests
