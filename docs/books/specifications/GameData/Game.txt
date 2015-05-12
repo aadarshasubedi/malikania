@@ -1,0 +1,42 @@
+## Game
+
+The game definition is mandatory and MUST be present in the both server and
+client bundle.
+
+It is defined in the file **game.json**
+
+### JSON description
+
+````json
+{
+  "name": "Short game name",
+  "authors": [ "Name LastName <email>" ],
+  "version": "Game version",
+  "requires": "Engine version format",
+  "license": "License acronym"
+}
+````
+
+- **name**: the game name,
+- **authors**: the game authors (at least one),
+- **version**: the game version as string, can be arbitrary,
+- **requires**: the required version of Malikania Engine, see below
+- **license**: (Optional) the license,
+
+**About the version**
+
+There is no specific format for the **requires** field, you just specify a
+version (at least major).
+
+Because Malikania Engine is backward compatible only with minor versions (as
+specified in the semver specification) the game is automatically disabled
+if tried to be ran from an incompatible Malikania Engine version.
+
+**Example**
+
+1. You have developed your game using Malikania Engine 1.3.2, then set **requires**
+to "1.3.2", It will be compatible with any version greater or equal to 1.3.2 but
+not with version greater or equal to 2.0.0.
+
+2. You have developed your game using Malikania Engine 1.0, you can just set
+**requires** to "1".

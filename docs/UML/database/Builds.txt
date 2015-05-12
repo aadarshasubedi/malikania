@@ -1,0 +1,57 @@
+'
+' Buildings.txt -- database diagram for in game buildings
+'
+' Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
+'
+' Permission to use, copy, modify, and/or distribute this software for any
+' purpose with or without fee is hereby granted, provided that the above
+' copyright notice and this permission notice appear in all copies.
+'
+' THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+' WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+' MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+' ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+' ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+' OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+'
+
+@startuml
+
+class build {
+	bd_id : int
+	bd_ac_id : int #
+	bd_position : int [2]
+	bd_title : varchar [32]
+	bd_password : varchar [25]
+	bd_kind : varchar [32]
+}
+
+class chest {
+	ch_id : int
+	ch_bd_id : int #
+	ch_name : varchar [32]
+}
+
+class chest_object {
+	cho_id : int
+	cho_ch_id : int #
+	cho_name : varchar [32]
+	cho_count : int16_t
+}
+
+hide build methods
+hide chest methods
+hide chest_object methods
+
+build "1" -- "1" chest
+chest "1" -- "0..*" chest_object
+
+skinparam defaultFontName DejaVu Sans Mono
+skinparam defaultFontSize 10
+
+skinparam classBorderColor #C67C37
+skinparam classBackgroundColor FFC48D
+skinparam classArrowColor #C67C37
+
+@enduml

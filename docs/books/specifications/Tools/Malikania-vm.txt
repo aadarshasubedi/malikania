@@ -1,0 +1,98 @@
+## malikania-vm
+
+The `malikania-vm` tool is the most important tool within the Malikania Engine
+framework.
+
+Because Malikania Engine is backward compatible only with minor versions (as
+specified by semver), it is sometimes necessary to install multiple major
+versions of the Malikania Engine.
+
+To facilitate the launch of the games, the malikania-vm tool will use the
+appropriate version of the engine according to the game requirements.
+
+Because of that, this tool is built as a completely separate project and MUST
+be present before installation of any engine.
+
+The malikania-vm provides all the wrappers for every other Malikania Engine
+tools.
+
+### Installing new Malikania Engine version
+
+When a Malikania Engine version is installed, it also register itself to a small
+file kept by malikania-vm.
+
+This can be done from the Malikania Engine install target or by hand with the
+malikania-vm utility directly.
+
+**Note**: because Malikania Engine is backward compatible with minor versions,
+it does not make sense to install two versions from the same major version.
+
+Bad example:
+
+- 1.0.6
+- 1.2.4
+
+Correct example:
+
+- 1.4.0
+- 2.7
+
+### The Malikania-VM JSON description file
+
+The malikania-vm stores all engines installed into a JSON file. It is installed
+by default in:
+
+- **PREFIX/etc/malikania/vm.json**
+
+````json
+[
+  {
+    "version": "1.0.6",
+    "prefix": "/usr/local",
+    "execdir": "libexec/malikania/1.0.6",
+    "libdir": "lib",
+    "dbdir": "lib/malikania/1.0.6",
+    "datadir": "share/malikania/1.0.6",
+    "docdir": "doc/malikania/1.0.6",
+    "etcdir": "etc/malikania/1.0.6"
+  }
+]
+````
+
+- **version**: the engine version
+- **prefix**: Optional, the prefix where installed (if set, MUST be absolute)
+- **execdir**: Optional, the directory where to store Malikania Engine binaries
+- **libdir**: Optional, the directory where Malikania Engine public libraries are stored
+- **dbdir**: Optional, the directory where database backends are stored
+- **datadir**: Optional, the directory where Malikania Engine data are stored
+- **docdir**: Optional, the directory where Malikania Engine documentation are stored
+- **etcdir**: Optional, the directory where Malikania Engine configuration are stored
+
+**Note**: If any of **execdir**, **libdir**, **dbdir**, **datadir**, **docdir**,
+**etcdir** is not absolute, then it is relative to the prefix (recommended).
+
+### Command line usage
+
+(@) `malikania-vm list`
+(@) `malikania-vm unregister version`
+(@) `malikania-vm register version [-p prefix] [-e execdir] [-l libdir] [-d dbdir]
+[-s datadir] [-D docdir] [-c etcdir]`
+
+**Signature (1)**
+
+List all Malikania Engine installations.
+
+**Signature (2)**
+
+Remove the specified Malikania Engine version from the registry (not from the
+disk).
+
+**Signature (3)**
+
+Add a new Malikania Engine version to the Malikania VM registry.
+
+### CMake module
+
+The malikania-vm tool installs **MalikaniaVMConfig.cmake**, the Malikania Engine
+can set `MALIKANIA_VM_NO_REGISTER` before including the file so that the install
+target does not register itself to the malikania-vm (not recommended).
