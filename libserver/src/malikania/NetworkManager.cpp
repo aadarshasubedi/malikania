@@ -42,48 +42,6 @@ void NetworkManager::acceptStandard(SocketTcp &sc)
 
 	SocketTcp client = sc.accept();
 	client.setBlockMode(false);
-
-	m_listener.set(sc, SocketListener::Read);
-	m_anon.emplace(client, Anonymous(client));
-}
-
-void NetworkManager::acceptSsl(SocketSsl &sc)
-{
-	assert(sc == m_masterSsl);
-
-	std::string rstring;
-	std::random_device device;
-	std::mt19937 rng(device());
-	std::uniform_int_distribution<int> distribution('A', 'Z');
-
-	rstring.resize(32);
-
-	std::generate(rstring.begin(), rstring.end(), [&] () {
-		return distribution(rng);
-	});
-
-	SocketSsl clientSsl = sc.accept();
-	AnonymousSsl anon(std::move(clientSsl), rstring, Id::next());
-
-	clientSsl.setBlockMode(false);
-	anon.append(
-		"{"
-		"\"command\":\"identify-req\","
-		"\"id\":" + std::to_string(anon.id()) + ","
-		"\"hash\":\"" + rstring + "\""
-		"}"
-	);
-
-	m_listener.set(sc, SocketListener::Write);
-	m_anonSsl.emplace(clientSsl, std::move(anon));
-}
-
-void NetworkManager::accept(Socket &sc)
-{
-	assert(sc == m_master);
-
-	SocketTcp client = sc.accept();
-	client.setBlockMode(false);
 	client.set(IPPROTO_TCP, TCP_NODELAY, 1);
 
 	printf("network: <- unidentified client connected\n");
@@ -179,7 +137,6 @@ void NetworkManager::flushUnidentifiedStandard(Socket &sc, int flags)
 
 		if (it != m_anonSsl.end()) {
 			printf("network: <- client successfully identified!\n");
-
 			// TODO: logger debug, found client
 			m_listener.remove(sc);
 			m_listener.remove(it->second.socket());
@@ -189,32 +146,7 @@ void NetworkManager::flushUnidentifiedStandard(Socket &sc, int flags)
 			m_anon.erase(sc);
 			m_anonSsl.erase(it);
 		}
-
-void NetworkManager::flushAnonymousSsl(Socket &sc, int flags)
-{
-	assert(isAnonymousSsl(sc));
-
-	/* Only write is needed for anonymous SSL */
-	if (flags & SocketListener::Write) {
-		if (m_anonSsl.at(sc).hasOutput()) {
-			m_anonSsl.at(sc).send();
-		} 
-
-		/* No more data to send? */
-		if (!m_anonSsl.at(sc).hasOutput()) {
-			m_listener.unset(sc, SocketListener::Write);
-		}
 	}
-}
-
-void NetworkManager::flushStandard(Socket &sc, int)
-{
-	assert(isStandard(sc));
-}
-
-void NetworkManager::flushSsl(Socket &sc, int)
-{
-	assert(isSsl(sc));
 }
 
 void NetworkManager::flushUnidentifiedSsl(Socket &sc, int flags)
@@ -268,13 +200,6 @@ void NetworkManager::flush(Socket &sc, int flags)
 		// TODO: logger
 		printf("error: %s\n", ex.what());
 	}
-
-	if (isStandard(sc))
-		flushStandard(sc, flags);
-	else if (isSsl(sc))
-		flushSsl(sc, flags);
-	else
-		throw std::runtime_error("unknown socket selected");
 }
 
 bool NetworkManager::isUnidentifiedStandard(const Socket &sc) const noexcept
@@ -302,14 +227,12 @@ bool NetworkManager::isMaster(const Socket &sc) const noexcept
 	return sc == m_master || sc == m_masterSsl;
 }
 
-bool NetworkManager::isMaster(const Socket &sc) const noexcept
+void NetworkManager::run()
 {
 	m_listener.clear();
 	m_listener.set(m_master, SocketListener::Read);
 	m_listener.set(m_masterSsl, SocketListener::Read);
 
-void NetworkManager::run()
-{
 	while (m_running) {
 		/* Clean zombies */
 		cleanUnidentified(m_anon);
@@ -323,8 +246,6 @@ void NetworkManager::run()
 			} else {
 				flush(status.socket, status.flags);
 			}
-
-			// TODO: kick, zombies
 		} catch (const SocketError &ex) {
 			// TODO: logger
 			if (ex.code() != SocketError::Timeout)
@@ -356,8 +277,8 @@ NetworkManager::~NetworkManager()
 	}
 
 	/* Close all clients */
-	closeUnidentified(m_anon);
-	closeUnidentified(m_anonSsl);
+	cleanUnidentified(m_anon);
+	cleanUnidentified(m_anonSsl);
 
 	// TODO: same for authenticated
 }
