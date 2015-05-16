@@ -24,10 +24,12 @@
 
 int main(void)
 {
+#if 0
 	ServerLoaderDirectory loader("/home/markand/mygame");
 	ServerApplication application(argc, argv);
 
 	application.run(loader);
+#endif
 
 	return 0;
 }

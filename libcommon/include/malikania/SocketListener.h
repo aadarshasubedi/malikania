@@ -345,7 +345,7 @@ public:
 	 *
 	 * @return the iterator
 	 */
-	inline auto begin() const noexcept
+	inline SocketTable::const_iterator begin() const noexcept
 	{
 		return m_table.begin();
 	}
@@ -355,7 +355,7 @@ public:
 	 *
 	 * @return the iterator
 	 */
-	inline auto cbegin() const noexcept
+	inline SocketTable::const_iterator cbegin() const noexcept
 	{
 		return m_table.cbegin();
 	}
@@ -365,7 +365,7 @@ public:
 	 *
 	 * @return the iterator
 	 */
-	inline auto end() const noexcept
+	inline SocketTable::const_iterator end() const noexcept
 	{
 		return m_table.end();
 	}
@@ -375,7 +375,7 @@ public:
 	 *
 	 * @return the iterator
 	 */
-	inline auto cend() const noexcept
+	inline SocketTable::const_iterator cend() const noexcept
 	{
 		return m_table.cend();
 	}
@@ -432,7 +432,7 @@ public:
 	/**
 	 * Get the number of sockets in the listener.
 	 */
-	inline auto size() const noexcept
+	inline SocketTable::size_type size() const noexcept
 	{
 		return m_table.size();
 	}
