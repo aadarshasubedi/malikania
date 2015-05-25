@@ -24,6 +24,7 @@
  * @brief JavaScript support in Malikania Engine and Duktape wrappers
  */
 
+#include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
@@ -58,6 +59,27 @@ public:
 		return get();
 	}
 };
+
+#if !defined(NDEBUG)
+#define dukx_assert_begin(ctx)						\
+	int _topstack = duk_get_top(ctx)
+#else
+#define dukx_assert_begin(ctx)
+#endif
+
+#if !defined(NDEBUG)
+#define dukx_assert_equals(ctx)						\
+	assert(_topstack == duk_get_top(ctx))
+#else
+#define dukx_assert_equals(ctx)
+#endif
+
+#if !defined(NDEBUG)
+#define dukx_assert_end(ctx, count)					\
+	assert(_topstack == (duk_get_top(ctx) - count))
+#else
+#define dukx_assert_end(ctx, count)
+#endif
 
 /**
  * Push a boolean value.
@@ -263,43 +285,6 @@ inline void dukx_require(duk_context *ctx, duk_idx_t index, double &value)
 	value = duk_require_number(ctx, index);
 }
 
-/*
- * Private helpers.
- */
-namespace {
-
-inline duk_ret_t dukx_push_wrap(duk_context *, duk_ret_t count) noexcept
-{
-	return count;
-}
-
-template <typename T, typename... Args>
-inline duk_ret_t dukx_push_wrap(duk_context *ctx, duk_ret_t count, T &&value, Args&&... args)
-{
-	dukx_push(ctx, std::forward<T>(value));
-
-	return dukx_push_wrap(ctx, count + 1, std::forward<Args>(args)...);
-}
-
-} // !namespace
-
-/**
- * Convenient variadic dukx_push function. This function takes at least
- * two values to avoid be called when calling dukx_push with only
- * one argument (plus the context).
- *
- * @param ctx the Duktape context
- * @param value1 the first value
- * @param value2 the second value
- * @param args the next arguments
- * @return the number of arguments pushed
- */
-template <typename T1, typename T2, typename... Args>
-inline duk_ret_t dukx_push(duk_context *ctx, T1 &&value1, T2 &&value2, Args&&... args)
-{
-	return dukx_push_wrap(ctx, 0, std::forward<T1>(value1), std::forward<T2>(value2), std::forward<Args>(args)...);
-}
-
 /**
  * Convenient template dukx_get wrapper.
  *
@@ -333,6 +318,32 @@ inline T dukx_require(duk_context *ctx, duk_idx_t index)
 
 	return value;
 }
+
+/**
+ * Reference the object at the top of stack into the registry.
+ *
+ * @param ctx the context
+ * @return the reference
+ * @see dukx_unref
+ * @see dukx_refget
+ */
+unsigned dukx_ref(duk_context *ctx);
+
+/**
+ * Get a referenced object. May throw a JavaScript exception.
+ *
+ * @param ctx the context
+ * @param ref the reference
+ */
+void dukx_refget(duk_context *ctx, unsigned ref);
+
+/**
+ *
+ * @param ctx
+ * @param arrayIndex
+ * @param ref
+ */
+void dukx_unref(duk_context *ctx, unsigned ref);
 
 } // !malikania
 

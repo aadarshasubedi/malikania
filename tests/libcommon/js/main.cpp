@@ -87,26 +87,6 @@ TEST_F(TestJs, pushUndefined)
 	ASSERT_EQ(DUK_TYPE_UNDEFINED, duk_get_type(m_js, -1));
 }
 
-TEST_F(TestJs, pushVar2)
-{
-	ASSERT_EQ(2, dukx_push(m_js, 123, true));
-	ASSERT_EQ(DUK_TYPE_BOOLEAN, duk_get_type(m_js, -1));
-	ASSERT_EQ(DUK_TYPE_NUMBER, duk_get_type(m_js, -2));
-	ASSERT_TRUE(duk_get_boolean(m_js, -1));
-	ASSERT_EQ(123, duk_to_int(m_js, -2));
-}
-
-TEST_F(TestJs, pushVar3)
-{
-	ASSERT_EQ(3, dukx_push(m_js, 123, true, "hello"));
-	ASSERT_EQ(DUK_TYPE_STRING, duk_get_type(m_js, -1));
-	ASSERT_EQ(DUK_TYPE_BOOLEAN, duk_get_type(m_js, -2));
-	ASSERT_EQ(DUK_TYPE_NUMBER, duk_get_type(m_js, -3));
-	ASSERT_STREQ("hello", duk_to_string(m_js, -1));
-	ASSERT_TRUE(duk_get_boolean(m_js, -2));
-	ASSERT_EQ(123, duk_to_int(m_js, -3));
-}
-
 /* --------------------------------------------------------
  * get
  * -------------------------------------------------------- */
@@ -161,6 +141,76 @@ TEST_F(TestJs, requireReal)
 {
 	dukx_push(m_js, 8.0);
 	ASSERT_EQ(8.0, dukx_require<double>(m_js, -1));
+}
+
+/* --------------------------------------------------------
+ * ref
+ * -------------------------------------------------------- */
+
+TEST_F(TestJs, refSimple)
+{
+	// Push
+	dukx_push(m_js, 123);
+	auto top = duk_get_top(m_js);
+	auto ref = dukx_ref(m_js);
+	ASSERT_EQ(0U, ref);
+	ASSERT_EQ(top - 1, duk_get_top(m_js));
+
+	// Get
+	dukx_refget(m_js, ref);
+	ASSERT_EQ(123, duk_to_int(m_js, -1));
+}
+
+TEST_F(TestJs, refDouble)
+{
+	// Push one
+	dukx_push(m_js, 1);
+	unsigned ref1 = dukx_ref(m_js);
+
+	// Push second
+	dukx_push(m_js, 2);
+	unsigned ref2 = dukx_ref(m_js);
+
+	ASSERT_EQ(0U, ref1);
+	ASSERT_EQ(1U, ref2);
+
+	// Now get back
+	dukx_refget(m_js, ref1);
+	ASSERT_EQ(1, duk_to_int(m_js, -1));
+	dukx_refget(m_js, ref2);
+	ASSERT_EQ(2, duk_to_int(m_js, -1));
+}
+
+TEST_F(TestJs, refMiddle)
+{
+	/*
+	 * Push 1.
+	 * Push 2.
+	 * Remove 2
+	 * Push 3.
+	 *
+	 * Normally, 3 will have reference 1 (the second value).
+	 */
+	dukx_push(m_js, 1);
+	unsigned ref1 = dukx_ref(m_js);
+
+	dukx_push(m_js, 2);
+	unsigned ref2 = dukx_ref(m_js);
+
+	dukx_unref(m_js, ref2);
+	dukx_push(m_js, 3);
+	unsigned ref3 = dukx_ref(m_js);
+
+	ASSERT_EQ(0U, ref1);
+	ASSERT_EQ(1U, ref2);
+	ASSERT_EQ(1U, ref3);
+
+	// Be sure values are correct
+	dukx_refget(m_js, ref1);
+	ASSERT_EQ(1, duk_to_int(m_js, -1));
+
+	dukx_refget(m_js, ref3);
+	ASSERT_EQ(3, duk_to_int(m_js, -1));
 }
 
 int main(int argc, char **argv)
