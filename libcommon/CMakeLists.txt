@@ -19,6 +19,7 @@
 set(
 	HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Application.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Command.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Directory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/GameSettings.h
