@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -57,6 +58,86 @@ public:
 	inline operator duk_context *() const noexcept
 	{
 		return get();
+	}
+};
+
+/**
+ * @class JsRef
+ * @brief Store a reference and release it when needed.
+ *
+ * This class wraps the dukx_unref automatically so you don't need to remember
+ * when to release references.
+ *
+ * It is assignable by move semantics but is not copiable because the destructor
+ * automatically remove the reference.
+ */
+class JsRef {
+private:
+	duk_context *m_context{nullptr};
+	int m_reference{-1};
+
+	JsRef(const JsRef &) = delete;
+	JsRef &operator=(const JsRef &) = delete;
+
+public:
+	/**
+	 * Default constructor. No reference.
+	 */
+	JsRef() = default;
+
+	/**
+	 * Construct an assigned reference.
+	 *
+	 * @param ctx
+	 * @param reference
+	 */
+	inline JsRef(duk_context *ctx, int reference) noexcept
+		: m_context(ctx)
+		, m_reference(reference)
+	{
+	}
+
+	/**
+	 * Move constructor. The other value is being null.
+	 *
+	 * @param other the other value
+	 */
+	JsRef(JsRef &&other) noexcept;
+
+	/**
+	 * Move assigment. The other value is being null.
+	 *
+	 * @param other the other value
+	 * @return *this
+	 */
+	JsRef &operator=(JsRef &&other) noexcept;
+
+	/**
+	 * Destroy the value and unref it.
+	 */
+	~JsRef();
+
+	/**
+	 * Check if the reference is valid.
+	 *
+	 * @return true if valid
+	 */
+	inline operator bool() const noexcept
+	{
+		return m_context != nullptr && m_reference != -1;
+	}
+	/**
+	 * Get the reference as an implicit cast.
+	 *
+	 * @throw std::invalid_argument if the reference is null
+	 */
+	operator int() const
+	{
+		if (m_reference < 0) {
+			throw std::invalid_argument("attempt to get null JavaScript reference");
+		}
+
+		return m_reference;
 	}
 };
 
@@ -327,7 +408,7 @@ inline T dukx_require(duk_context *ctx, duk_idx_t index)
  * @see dukx_unref
  * @see dukx_refget
  */
-unsigned dukx_ref(duk_context *ctx);
+int dukx_ref(duk_context *ctx);
 
 /**
  * Get a referenced object. May throw a JavaScript exception.
@@ -335,7 +416,7 @@ unsigned dukx_ref(duk_context *ctx);
  * @param ctx the context
  * @param ref the reference
  */
-void dukx_refget(duk_context *ctx, unsigned ref);
+void dukx_refget(duk_context *ctx, int ref);
 
 /**
  *
@@ -343,7 +424,7 @@ void dukx_refget(duk_context *ctx, unsigned ref);
  * @param arrayIndex
  * @param ref
  */
-void dukx_unref(duk_context *ctx, unsigned ref);
+void dukx_unref(duk_context *ctx, int ref);
 
 } // !malikania
 

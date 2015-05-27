@@ -31,15 +31,42 @@ Js::Js()
 	duk_put_global_string(get(), "\xff""\xff""references-current");
 }
 
+JsRef::~JsRef()
+{
+	dukx_unref(m_context, m_reference);
+
+	m_context = nullptr;
+	m_reference = -1;
+}
+
+JsRef::JsRef(JsRef &&other) noexcept
+	: m_context(other.m_context)
+	, m_reference(other.m_reference)
+{
+	other.m_context = nullptr;
+	other.m_reference = -1;
+}
+
+JsRef &JsRef::operator=(JsRef &&other) noexcept
+{
+	m_context = other.m_context;
+	m_reference = other.m_reference;
+
+	other.m_context = nullptr;
+	other.m_reference = -1;
+
+	return *this;
+}
+
 /*
  * This reference any value into the internal global property "references".
  *
  * First, we check in the references-stack field if an old reference was removed and we reuse
  * this reference instead of pushing a new one.
  */
-unsigned dukx_ref(duk_context *ctx)
+int dukx_ref(duk_context *ctx)
 {
-	unsigned ref;
+	int ref;
 
 	/*
 	 * 1. Check for "released" references.
@@ -72,7 +99,7 @@ unsigned dukx_ref(duk_context *ctx)
 	return ref;
 }
 
-void dukx_refget(duk_context *ctx, unsigned ref)
+void dukx_refget(duk_context *ctx, int ref)
 {
 	dukx_assert_begin(ctx);
 	duk_get_global_string(ctx, "\xff""\xff""references");
@@ -81,9 +108,12 @@ void dukx_refget(duk_context *ctx, unsigned ref)
 	dukx_assert_end(ctx, 1);
 }
 
-void dukx_unref(duk_context *ctx, unsigned ref)
+void dukx_unref(duk_context *ctx, int ref)
 {
 	dukx_assert_begin(ctx);
+	duk_get_global_string(ctx, "\xff""\xff""references");
+	duk_del_prop_index(ctx, -1, ref);
+	duk_pop(ctx);
 	duk_get_global_string(ctx, "\xff""\xff""references-stack");
 	duk_push_int(ctx, ref);
 	duk_put_prop_index(ctx, -2, 0);

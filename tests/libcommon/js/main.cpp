@@ -153,7 +153,7 @@ TEST_F(TestJs, refSimple)
 	dukx_push(m_js, 123);
 	auto top = duk_get_top(m_js);
 	auto ref = dukx_ref(m_js);
-	ASSERT_EQ(0U, ref);
+	ASSERT_EQ(0, ref);
 	ASSERT_EQ(top - 1, duk_get_top(m_js));
 
 	// Get
@@ -165,14 +165,14 @@ TEST_F(TestJs, refDouble)
 {
 	// Push one
 	dukx_push(m_js, 1);
-	unsigned ref1 = dukx_ref(m_js);
+	int ref1 = dukx_ref(m_js);
 
 	// Push second
 	dukx_push(m_js, 2);
-	unsigned ref2 = dukx_ref(m_js);
+	int ref2 = dukx_ref(m_js);
 
-	ASSERT_EQ(0U, ref1);
-	ASSERT_EQ(1U, ref2);
+	ASSERT_EQ(0, ref1);
+	ASSERT_EQ(1, ref2);
 
 	// Now get back
 	dukx_refget(m_js, ref1);
@@ -192,18 +192,18 @@ TEST_F(TestJs, refMiddle)
 	 * Normally, 3 will have reference 1 (the second value).
 	 */
 	dukx_push(m_js, 1);
-	unsigned ref1 = dukx_ref(m_js);
+	int ref1 = dukx_ref(m_js);
 
 	dukx_push(m_js, 2);
-	unsigned ref2 = dukx_ref(m_js);
+	int ref2 = dukx_ref(m_js);
 
 	dukx_unref(m_js, ref2);
 	dukx_push(m_js, 3);
-	unsigned ref3 = dukx_ref(m_js);
+	int ref3 = dukx_ref(m_js);
 
-	ASSERT_EQ(0U, ref1);
-	ASSERT_EQ(1U, ref2);
-	ASSERT_EQ(1U, ref3);
+	ASSERT_EQ(0, ref1);
+	ASSERT_EQ(1, ref2);
+	ASSERT_EQ(1, ref3);
 
 	// Be sure values are correct
 	dukx_refget(m_js, ref1);
@@ -211,6 +211,25 @@ TEST_F(TestJs, refMiddle)
 
 	dukx_refget(m_js, ref3);
 	ASSERT_EQ(3, duk_to_int(m_js, -1));
+}
+
+TEST_F(TestJs, jsRef)
+{
+	{
+		dukx_push(m_js, 123);
+		JsRef ref{m_js, dukx_ref(m_js)};
+
+		dukx_refget(m_js, ref);
+
+		ASSERT_EQ(0, static_cast<int>(ref));
+		ASSERT_EQ(DUK_TYPE_NUMBER, duk_get_type(m_js, -1));
+		ASSERT_EQ(123, duk_to_int(m_js, -1));
+	}
+
+	// Here does not exists
+	dukx_refget(m_js, 0);
+
+	ASSERT_EQ(DUK_TYPE_UNDEFINED, duk_get_type(m_js, -1));
 }
 
 int main(int argc, char **argv)
