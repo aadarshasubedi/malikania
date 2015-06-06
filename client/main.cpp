@@ -17,85 +17,180 @@
  */
 
 #include <iostream>
-
+#include <chrono>
+#include <thread>
+#include <map>
 #include <malikania/Json.h>
-#include <malikania/Hash.h>
-#include <malikania/SocketAddress.h>
-#include <malikania/SocketSsl.h>
-#include <malikania/SocketTcp.h>
-#include <malikania/SocketListener.h>
+#include <malikania/Window.h>
+#include <malikania/Size.h>
+#include <malikania/Sprite.h>
+#include <malikania/Image.h>
+#include <malikania/Point.h>
 
-using namespace malikania;
+using namespace std::literals::chrono_literals;
 
-class IdentifyParams {
-public:
-	int id;
-	std::string hash;
-};
+// TODO delete this... just for fun
+bool goRight = true;
+bool goDown = true;
+const int mokoSize = 300;
 
-IdentifyParams step1(SocketSsl &sc)
-{
-	sc.connect(address::Internet("localhost", 24010, AF_INET));
-
-	SocketListener listener{
-		{ sc, SocketListener::Read }
-	};
-
-	std::string input;
-	while (input.find("\r\n\r\n") == std::string::npos) {
-		listener.wait(30000);
-
-		input += sc.recv(512);
+void bounce(malikania::Window& window, int &x, int &y) {
+	malikania::Size resolution = window.getWindowResolution();
+	int width = resolution.width;
+	int height = resolution.height;
+	if (y < 10) {
+		goDown = true;
+		y += 1;
+	}
+	if (goDown && y < height - mokoSize) {
+		// Moko falls
+		y += 0.2 * y;
+	} else {
+		// Moko will bounce!!!
+		goDown = false;
+	}
+	if (!goDown && y > 0) {
+		y -= 0.1 * y;
+	} else {
+		goDown = true;
 	}
 
-	JsonObject object = JsonDocument(input).toObject();
-
-	if (!object.contains("command") || object["command"].toString() != "identify-req") {
-		throw std::invalid_argument("invalid message received");
+	if (goRight && x < width - mokoSize) {
+		x += 4;
+	} else {
+		goRight = false;
 	}
-	if (!object.contains("id")) {
-		throw std::invalid_argument("missing id");
+	if (!goRight && x > 0) {
+		x -= 4;
+	} else {
+		goRight = true;
 	}
-	if (!object.contains("hash")) {
-		throw std::invalid_argument("missing hash");
-	}
-
-	return IdentifyParams{
-		object["id"].toInteger(),
-		object["hash"].toString()
-	};
 }
 
-void step2(SocketTcp &sc, const std::string &str)
-{
-	sc.connect(address::Internet("localhost", 24000, AF_INET));
-	sc.send(str);
-}
+// End TODO
 
 int main(void)
 {
-	try {
-		SocketSsl socketSsl(AF_INET, 0);
-		SocketTcp socketTcp(AF_INET, 0);
+	malikania::Window mainWindow;
 
-		puts("Step 1 begins");
-		auto params = step1(socketSsl);
-		puts("Step 1 ends");
-		printf("  - id: %d\n", params.id);
-		printf("  - hash: %s\n", params.hash.c_str());
+	bool isBouncing = false;
 
-		std::ostringstream oss;
-		puts("Step 2 begins");
-		oss << "{"
-		    << "\"command\":\"identify-req\","
-		    << "\"result\":\"" << Hash::sha256(params.hash + std::to_string(params.id)) << "\""
-		    << "}\r\n\r\n";
-		step2(socketTcp, oss.str());
-		puts("Step 2 ends");
-		puts("Successfully connected!");
-	} catch (const std::exception &ex) {
-		std::cerr << ex.what() << std::endl;
+	int mokoPositionX = 0;
+	int mokoPositionY = 0;
+
+	std::map<int, bool> keyPressed = { {SDLK_UP, false}, {SDLK_DOWN, false}, {SDLK_RIGHT, false}, {SDLK_LEFT, false} };
+
+	mainWindow.setOnKeyDown([&mainWindow, &mokoPositionX, &mokoPositionY, &isBouncing, &keyPressed](int sdlKey) {
+		switch (sdlKey) {
+		case SDLK_ESCAPE:
+			mainWindow.close();
+			break;
+		case SDLK_UP:
+			keyPressed[SDLK_UP] = true;
+			break;
+		case SDLK_DOWN:
+			keyPressed[SDLK_DOWN] = true;
+			break;
+		case SDLK_RIGHT:
+			keyPressed[SDLK_RIGHT] = true;
+			break;
+		case SDLK_LEFT:
+			keyPressed[SDLK_LEFT] = true;
+			break;
+		case SDLK_m:
+			isBouncing = !isBouncing;
+			break;
+		}
+	});
+
+	mainWindow.setOnKeyUp([&keyPressed](int sdlKey) {
+		switch (sdlKey) {
+		case SDLK_UP:
+			keyPressed[SDLK_UP] = false;
+			break;
+		case SDLK_DOWN:
+			keyPressed[SDLK_DOWN] = false;
+			break;
+		case SDLK_RIGHT:
+			keyPressed[SDLK_RIGHT] = false;
+			break;
+		case SDLK_LEFT:
+			keyPressed[SDLK_LEFT] = false;
+			break;
+		}
+	});
+
+	int animationStep = 1;
+	mainWindow.setOnRefresh([&mainWindow, &keyPressed, &animationStep](){
+		if (keyPressed[SDLK_LEFT]) {
+			std::string animationState = "left" + std::to_string(animationStep > 4 ? 4 : animationStep++);
+		} else if (keyPressed[SDLK_RIGHT]) {
+			std::string animationState = "right" + std::to_string(animationStep > 4 ? 4 : animationStep++);
+		} else if (keyPressed[SDLK_DOWN]) {
+			std::string animationState = "down" + std::to_string(animationStep > 4 ? 4 : animationStep++);
+		} else {
+			animationStep = 1;
+		}
+	});
+
+	malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
+		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
+	).toObject());
+
+	while (mainWindow.isOpen()) {
+
+		// TODO delete this, just for fun...
+		if (isBouncing) {
+			bounce(mainWindow, mokoPositionX, mokoPositionY);
+		}
+
+		mainWindow.processEvent();
+		mainWindow.setDrawingColor({255, 255, 255, 255});
+		mainWindow.clear();
+		mainWindow.update();
+
+		testSprite.draw(mainWindow, 0, {0, 0, 300, 300});
+		testSprite.draw(mainWindow, 1, {200, 200, 300, 300});
+		testSprite.draw(mainWindow, 2, {400, 400, 300, 300});
+		testSprite.draw(mainWindow, 11, {600, 400, 300, 300});
+
+		Color c{255, 50, 40, 255};
+		mainWindow.setDrawingColor(c);
+		mainWindow.drawLine({0, 0, 300, 300});
+
+		std::vector<malikania::Point> points{{20, 20}, {30, 50}, {100, 200}, {30, 60}, {20, 300}, {100, 20}};
+		mainWindow.drawLines(points);
+
+		mainWindow.setDrawingColor({200, 50, 200, 255});
+		mainWindow.drawPoint({400, 400});
+		mainWindow.drawPoint({400, 402});
+		mainWindow.drawPoint({400, 405});
+		mainWindow.drawPoint({400, 407});
+		mainWindow.drawPoint({400, 410});
+
+		mainWindow.setDrawingColor({0, 0, 0, 255});
+		mainWindow.drawPoints(points);
+
+		mainWindow.setDrawingColor({30, 30, 30, 255});
+		mainWindow.drawRectangle({500, 500, 200, 100});
+
+		mainWindow.setDrawingColor({130, 30, 30, 255});
+		mainWindow.drawRectangles({{800, 800, 200, 100}, {700, 700, 200, 100}, {750, 750, 200, 100}});
+
+		mainWindow.drawRectangle({600, 200, 200, 100}, true, {0, 255, 0, 255});
+
+		mainWindow.drawRectangles(
+			{{800, 400, 200, 100}, {700, 450, 200, 100}, {750, 500, 200, 100}},
+			true,
+			{{255,0,0,255},{0,255,0,255},{0,0,255,255}}
+		);
+
+		mainWindow.present();
+
+		std::this_thread::sleep_for(5ms);
 	}
+
+	//malikania::Window::quit();
 
 	return 0;
 }
