@@ -81,9 +81,11 @@ include(CMakeParseArguments)
 #	NAME			Test name (must be lowercase)
 #	SOURCES			Test sources files
 #	LIBRARIES		(Optional) Libraries to link to
+#	RESOURCES		(Optional) Resources files to copy verbatim
 # )
 #
-# This will generate a target named test-<name> where name is the parameter NAME.
+# This will generate a target named test-<name> where name is the parameter NAME. The test is created
+# under CMAKE_BINARY_DIR/test/<NAME> and resources are copied there with the same hierarchy.
 #
 # setg
 # ----
@@ -222,19 +224,50 @@ endfunction()
 
 function(malikania_create_test)
 	set(singleArgs NAME)
-	set(multiArgs LIBRARIES SOURCES)
+	set(multiArgs LIBRARIES SOURCES RESOURCES)
 
 	set(mandatory NAME SOURCES)
 
 	cmake_parse_arguments(TEST "" "${singleArgs}" "${multiArgs}" ${ARGN})
 	check_args(TEST ${mandatory})
 
-	add_executable(test-${TEST_NAME} ${TEST_SOURCES})
-	add_test(${TEST_NAME} test-${TEST_NAME})
+	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/test/${TEST_NAME})
 
 	if (UNIX)
 		list(APPEND TEST_LIBRARIES pthread)
 	endif ()
+
+	# Resources files added before as custom output
+	foreach (f ${TEST_RESOURCES})
+		get_filename_component(absolute ${f} ABSOLUTE)
+		file(RELATIVE_PATH basename ${CMAKE_CURRENT_SOURCE_DIR} ${absolute})
+		set(output ${CMAKE_BINARY_DIR}/test/${TEST_NAME}/${basename})
+
+		add_custom_command(
+			OUTPUT ${output}
+			COMMAND ${CMAKE_COMMAND} -E copy ${absolute} ${output}
+			DEPENDS ${absolute}
+		)
+
+		list(APPEND TEST_SOURCES ${absolute})
+		list(APPEND outputs ${output})
+	endforeach ()
+
+	add_executable(test-${TEST_NAME} ${TEST_SOURCES} ${outputs})
+	source_group(private\\Resources FILES ${outputs})
+	set_target_properties(
+		test-${TEST_NAME}
+		PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
+			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
+			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
+	)
+	add_test(
+		${TEST_NAME}
+		test-${TEST_NAME}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
+	)
 
 	target_link_libraries(
 		test-${TEST_NAME}
