@@ -23,13 +23,13 @@
 #  include <netinet/tcp.h>
 #endif
 
+#include <malikania/Id.h>
 #include <malikania/Json.h>
 #include <malikania/SocketAddress.h>
 #include <malikania/SocketListener.h>
 
 #include "NetworkClient.h"
 #include "NetworkManager.h"
-#include "Id.h"
 #include "ServerSettings.h"
 
 using namespace std::string_literals;
@@ -72,7 +72,7 @@ void NetworkManager::acceptSsl(SocketSsl &sc)
 
 	printf("network: <- unidentified SSL client connected\n");
 
-	UnidentifiedClientSsl client(std::move(clientSock), rstring, Id::next());
+	UnidentifiedClientSsl client(std::move(clientSock), rstring, m_idgen.next());
 	client.append(
 		"{"
 		"\"command\":\"identify-req\","

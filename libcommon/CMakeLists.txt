@@ -23,6 +23,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/GameSettings.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Hash.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Id.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/LoaderDirectory.h

@@ -28,6 +28,7 @@
 
 #include <malikania/ElapsedTimer.h>
 #include <malikania/Hash.h>
+#include <malikania/Id.h>
 #include <malikania/NetworkUtil.h>
 #include <malikania/SocketListener.h>
 #include <malikania/SocketSsl.h>
@@ -111,6 +112,9 @@ private:
 	using UnidentifiedClient = UnidentifiedClientBase<NetworkConnection>;
 
 private:
+	/* Id generator for players */
+	IdGen<unsigned> m_idgen;
+
 	/* Master sockets */
 	SocketListener m_listener;
 	SocketTcp m_master;

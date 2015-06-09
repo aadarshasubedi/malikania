@@ -16,6 +16,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <cstdint>
 #include <thread>
 
 #include <gtest/gtest.h>
@@ -24,56 +25,64 @@
 
 using namespace malikania;
 
+/* --------------------------------------------------------
+ * Basic use case
+ * -------------------------------------------------------- */
+
 class TestId : public testing::Test {
+protected:
+	IdGen<unsigned> m_idgen;
+
 public:
 	~TestId()
 	{
-		Id::reset();
+		m_idgen.reset();
 	}
 };
 
 TEST_F(TestId, simple)
 {
-	ASSERT_EQ(0U, Id::next());
-	ASSERT_EQ(1U, Id::next());
-	ASSERT_EQ(2U, Id::next());
-	ASSERT_EQ(3U, Id::next());
-	ASSERT_EQ(4U, Id::next());
+	ASSERT_EQ(0U, m_idgen.next());
+	ASSERT_EQ(1U, m_idgen.next());
+	ASSERT_EQ(2U, m_idgen.next());
+	ASSERT_EQ(3U, m_idgen.next());
+	ASSERT_EQ(4U, m_idgen.next());
 }
 
 TEST_F(TestId, reset)
 {
-	Id::next();
-	Id::next();
-	Id::next();
+	m_idgen.next();
+	m_idgen.next();
+	m_idgen.next();
 
-	Id::reset();
+	m_idgen.reset();
 
-	ASSERT_EQ(0U, Id::next());
+	ASSERT_EQ(0U, m_idgen.next());
 }
 
 TEST_F(TestId, release1)
 {
-	Id::next();	// 0
-	Id::next();	// 1
-	Id::next();	// 2
-	Id::release(1);
+	m_idgen.next();	// 0
+	m_idgen.next();	// 1
+	m_idgen.next();	// 2
+	m_idgen.release(1);
 
 	/*
 	 * 0 and 2 are currently in use.
 	 *
 	 * The next id must be 1 and then 3.
 	 */
-	ASSERT_EQ(1U, Id::next());
-	ASSERT_EQ(3U, Id::next());
+	ASSERT_EQ(1U, m_idgen.next());
+	ASSERT_EQ(3U, m_idgen.next());
 }
+
 TEST_F(TestId, release2)
 {
-	Id::next();	// 0
-	Id::next();	// 1
-	Id::next();	// 2
-	Id::release(1);
-	Id::release(0);
+	m_idgen.next();	// 0
+	m_idgen.next();	// 1
+	m_idgen.next();	// 2
+	m_idgen.release(1);
+	m_idgen.release(0);
 
 	/*
 	 * Only 2 is in use, next id must be:
@@ -82,9 +91,46 @@ TEST_F(TestId, release2)
 	 * - 0
 	 * - 3
 	 */
-	ASSERT_EQ(1U, Id::next());
-	ASSERT_EQ(0U, Id::next());
-	ASSERT_EQ(3U, Id::next());
+	ASSERT_EQ(1U, m_idgen.next());
+	ASSERT_EQ(0U, m_idgen.next());
+	ASSERT_EQ(3U, m_idgen.next());
+}
+
+/* --------------------------------------------------------
+ * Limit test
+ * -------------------------------------------------------- */
+
+TEST(Limits, max)
+{
+	IdGen<int8_t> m_idgen;
+	int8_t last;
+
+	try {
+		for (int i = 0; i < 127; ++i) {
+			last = m_idgen.next();
+		}
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
+	}
+
+	ASSERT_EQ(126, last);
+}
+
+TEST(Limits, fail)
+{
+	IdGen<int8_t> m_idgen;
+	int8_t last;
+
+	try {
+		for (int i = 0; i < 200; ++i) {
+			last = m_idgen.next();
+		}
+
+		FAIL() << "Exception expected";
+	} catch (const std::exception &ex) {
+	}
+
+	ASSERT_EQ(126, last);
 }
 
 int main(int argc, char **argv)
