@@ -27,3 +27,11 @@ target_include_directories(
 	PRIVATE
 		${GoogleTest_SOURCE_DIR}
 )
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set_target_properties(
+		gtest
+		PROPERTIES
+		COMPILE_FLAGS -Wno-missing-field-initializers
+	)
+endif ()
