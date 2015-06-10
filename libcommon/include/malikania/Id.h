@@ -31,7 +31,7 @@
 namespace malikania {
 
 /**
- * @class Id
+ * @class IdGen
  * @brief Integer id generator
  *
  * This class helps generating and release unique integer id that can be used anywhere. The ids are generated in a
@@ -83,8 +83,9 @@ T IdGen<T>::next()
 		id = m_reusable.top();
 		m_reusable.pop();
 	} else {
-		if (m_current == std::numeric_limits<T>::max())
+		if (m_current == std::numeric_limits<T>::max()) {
 			throw std::out_of_range("no id available");
+		}
 
 		id = m_current++;
 	}
@@ -101,6 +102,74 @@ void IdGen<T>::reset() noexcept
 		m_reusable.pop();
 	}
 }
+
+/**
+ * @class Id
+ * @brief RAII based id owner
+ *
+ * This class is similar to a std::lock_guard or std::unique_lock in a way that the id is acquired
+ * when the object is instanciated and released when destroyed.
+ *
+ * This class does not take ownership of the IdGen so it must still exists when the Id is destroyed.
+ */
+template <typename T>
+class Id {
+private:
+	IdGen<T> &m_gen;
+	T m_id;
+
+public:
+	/**
+	 * Construct a new Id and take the next number.
+	 *
+	 * @param gen the generator
+	 * @throw any exception if IdGen fails to give an id.
+	 */
+	inline Id(IdGen<T> &gen)
+		: m_gen(gen)
+		, m_id(m_gen.next())
+	{
+	}
+
+	/**
+	 * Construct an Id with an already taken number.
+	 *
+	 * @param gen the generator
+	 * @param id the id
+	 * @warning be sure that the id was taken from this generator
+	 */
+	Id(IdGen<T> &gen, T id)
+		: m_gen(gen)
+		, m_id(id)
+	{
+	}
+
+	/**
+	 * Destroy the id and release the number.
+	 */
+	~Id() noexcept
+	{
+		m_gen.release(m_id);
+	}
+
+	/**
+	 * Get the number id.
+	 *
+	 * @return the id
+	 */
+	inline T value() const noexcept
+	{
+		return m_id;
+	}
+
+	/**
+	 * Convert the id to the number.
+	 */
+	inline operator T() const noexcept
+	{
+		return m_id;
+	}
+};
 
 } // !malikania
 

@@ -97,17 +97,47 @@ TEST_F(TestId, release2)
 }
 
 /* --------------------------------------------------------
+ * Id RAII class
+ * -------------------------------------------------------- */
+
+TEST(IdLocker, basic)
+{
+	IdGen<int8_t> gen;
+	Id<int8_t> id(gen);
+
+	ASSERT_EQ(0, id);
+}
+
+TEST(IdLocker, two)
+{
+	IdGen<int8_t> gen;
+	Id<int8_t> id(gen);
+	Id<int8_t> id2(gen);
+
+	ASSERT_EQ(0, id);
+	ASSERT_EQ(1, id2);
+}
+
+TEST(IdLocker, already)
+{
+	IdGen<int8_t> gen;
+	Id<int8_t> id(gen, gen.next());
+
+	ASSERT_EQ(0, id);
+}
+
+/* --------------------------------------------------------
  * Limit test
  * -------------------------------------------------------- */
 
 TEST(Limits, max)
 {
-	IdGen<int8_t> m_idgen;
+	IdGen<int8_t> idgen;
 	int8_t last;
 
 	try {
 		for (int i = 0; i < 127; ++i) {
-			last = m_idgen.next();
+			last = idgen.next();
 		}
 	} catch (const std::exception &ex) {
 		FAIL() << ex.what();
@@ -118,12 +148,12 @@ TEST(Limits, max)
 
 TEST(Limits, fail)
 {
-	IdGen<int8_t> m_idgen;
+	IdGen<int8_t> idgen;
 	int8_t last;
 
 	try {
 		for (int i = 0; i < 200; ++i) {
-			last = m_idgen.next();
+			last = idgen.next();
 		}
 
 		FAIL() << "Exception expected";
