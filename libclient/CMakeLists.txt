@@ -43,6 +43,9 @@ if (WITH_BACKEND_SDL)
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/ImageSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
+	)
+	list(
+		APPEND
 		SOURCES
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/ImageSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp

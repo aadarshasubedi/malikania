@@ -16,16 +16,11 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(test)
-
-#
-# Meta target to build all tests.
-#
-add_custom_target(
-	tests
-	COMMENT "Building tests"
+malikania_create_test(
+	NAME sprite
+	LIBRARIES libclient
+	SOURCES main.cpp
+	RESOURCES
+		resources/images/mokodemo.png
 )
 
-add_subdirectory(libclient)
-add_subdirectory(libcommon)
-add_subdirectory(libserver)

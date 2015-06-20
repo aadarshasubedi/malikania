@@ -7,38 +7,38 @@ void Sprite::checkJSONFormat(const JsonObject& json)
 {
 	std::string prependErrorMessage = "Couldn't parse JSON Sprite object: ";
 
-	if (!json.isObject()) {
+	if (json.isObject()) {
 
 		// Check required keys
 		if (!json.contains("image")) {
-			throw std::runtime_error(prependErrorMessage + " it doesn't contains the \"image\" required key");
+			throw std::runtime_error(prependErrorMessage + "it doesn't contains the \"image\" required key");
 		}
 		if (!json.contains("alias")) {
-			throw std::runtime_error(prependErrorMessage + " it doesn't contains \"alias\" required key");
+			throw std::runtime_error(prependErrorMessage + "it doesn't contains \"alias\" required key");
 		}
 		if (!json.contains("cell")) {
-			throw std::runtime_error(prependErrorMessage + " it doesn't contains \"cell\" required key");
+			throw std::runtime_error(prependErrorMessage + "it doesn't contains \"cell\" required key");
 		}
 
 		// Check values types
 		JsonValue image = json["image"];
 		if (!image.isString()) {
-			throw std::runtime_error(prependErrorMessage + " \"image\" must be a valid String");
+			throw std::runtime_error(prependErrorMessage + "\"image\" must be a valid String");
 		}
 		JsonValue alias = json["alias"];
 		if (!alias.isString()) {
-			throw std::runtime_error(prependErrorMessage + " \"alias\" must be a valid String");
+			throw std::runtime_error(prependErrorMessage + "\"alias\" must be a valid String");
 		}
 		JsonValue cell = json["cell"];
 		if (!cell.isArray()) {
-			throw std::runtime_error(prependErrorMessage + " \"cell\" must be a valid Array");
+			throw std::runtime_error(prependErrorMessage + "\"cell\" must be a valid Array");
 		}
 		if (cell.toArray().size() != 2) {
-			throw std::runtime_error(prependErrorMessage + " \"cell\" must have 2 values");
+			throw std::runtime_error(prependErrorMessage + "\"cell\" must have 2 values");
 		}
 		for (JsonValue cellValue : cell.toArray()) {
 			if (!cellValue.isInteger()) {
-				throw std::runtime_error(prependErrorMessage + " \"cell\" values have to be valid Integer");
+				throw std::runtime_error(prependErrorMessage + "\"cell\" values have to be valid Integer");
 			}
 		}
 
@@ -46,45 +46,47 @@ void Sprite::checkJSONFormat(const JsonObject& json)
 		if (json.contains("size")) {
 			JsonValue size = json["size"];
 			if (!size.isArray()) {
-				throw std::runtime_error(prependErrorMessage + " \"size\" must be a valid Array");
+				throw std::runtime_error(prependErrorMessage + "\"size\" must be a valid Array");
 			}
 			if (size.toArray().size() != 2) {
-				throw std::runtime_error(prependErrorMessage + " \"size\" must have 2 values");
+				throw std::runtime_error(prependErrorMessage + "\"size\" must have 2 values");
 			}
 			for (JsonValue sizeValue : size.toArray()) {
 				if (!sizeValue.isInteger()) {
-					throw std::runtime_error(prependErrorMessage + " \"size\" values have to be valid Integer");
+					throw std::runtime_error(prependErrorMessage + "\"size\" values have to be valid Integer");
 				}
 			}
 		}
 		if (json.contains("space")) {
 			JsonValue space = json["space"];
 			if (!space.isArray()) {
-				throw std::runtime_error(prependErrorMessage + " \"space\" must be a valid Array");
+				throw std::runtime_error(prependErrorMessage + "\"space\" must be a valid Array");
 			}
 			if (space.toArray().size() != 2) {
-				throw std::runtime_error(prependErrorMessage + " \"space\" must have 2 values");
+				throw std::runtime_error(prependErrorMessage + "\"space\" must have 2 values");
 			}
 			for (JsonValue spaceValue : space.toArray()) {
 				if (!spaceValue.isInteger()) {
-					throw std::runtime_error(prependErrorMessage + " \"space\" values have to be valid Integer");
+					throw std::runtime_error(prependErrorMessage + "\"space\" values have to be valid Integer");
 				}
 			}
 		}
 		if (json.contains("margin")) {
 			JsonValue margin = json["margin"];
 			if (!margin.isArray()) {
-				throw std::runtime_error(prependErrorMessage + " \"margin\" must be a valid Array");
+				throw std::runtime_error(prependErrorMessage + "\"margin\" must be a valid Array");
 			}
 			if (margin.toArray().size() != 2) {
-				throw std::runtime_error(prependErrorMessage + " \"margin\" must have 2 values");
+				throw std::runtime_error(prependErrorMessage + "\"margin\" must have 2 values");
 			}
 			for (JsonValue marginValue : margin.toArray()) {
 				if (!marginValue.isInteger()) {
-					throw std::runtime_error(prependErrorMessage + " \"margin\" values have to be valid Integer");
+					throw std::runtime_error(prependErrorMessage + "\"margin\" values have to be valid Integer");
 				}
 			}
 		}
+	} else {
+		throw std::runtime_error(prependErrorMessage + "passed JSON is not an object");
 	}
 }
 

@@ -16,16 +16,4 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-project(test)
-
-#
-# Meta target to build all tests.
-#
-add_custom_target(
-	tests
-	COMMENT "Building tests"
-)
-
-add_subdirectory(libclient)
-add_subdirectory(libcommon)
-add_subdirectory(libserver)
+add_subdirectory(sprite)
