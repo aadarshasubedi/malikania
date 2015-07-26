@@ -55,6 +55,7 @@ endif ()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
 malikania_create_library(
 	PROJECT libclient
@@ -66,8 +67,10 @@ malikania_create_library(
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${SDL2_INCLUDE_DIRS}
 		${SDL2_IMAGE_INCLUDE_DIRS}
+		${SDL2_TTF_INCLUDE_DIRS}
 	LIBRARIES
 		libcommon
 		${SDL2_LIBRARIES}
 		${SDL2_IMAGE_LIBRARIES}
+		${SDL2_TTF_LIBRARIES}
 )
