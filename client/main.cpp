@@ -185,6 +185,9 @@ int main(void)
 			{{255,0,0,255},{0,255,0,255},{0,0,255,255}}
 		);
 
+		malikania::Font font("resources/fonts/DejaVuSans.ttf", 42);
+		mainWindow.drawText("Malikania FTW!", font, malikania::Point{400, 100});
+
 		mainWindow.present();
 
 		std::this_thread::sleep_for(5ms);
