@@ -34,6 +34,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Point.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Rectangle.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Size.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp

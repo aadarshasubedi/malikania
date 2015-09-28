@@ -1,5 +1,5 @@
 /*
- * Rectangle.h -- describe a rectangle
+ * Rectangle.cpp -- describe a rectangle
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,36 +16,31 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_RECTANGLE_H_
-#define _MALIKANIA_RECTANGLE_H_
-
-#include <malikania/Js.h>
+#include "Rectangle.h"
 
 namespace malikania {
 
-/**
- * @class Rectangle
- * @brief Describe a rectangle
- */
-class Rectangle {
-public:
-	int x{0};		//!< Position in X
-	int y{0};		//!< Position in Y
-	int width{0};		//!< The width
-	int height{0};		//!< The height
-};
-
 namespace js {
 
-template <>
-class TypeInfo<Rectangle> {
-public:
-	static void push(Context &ctx, const Rectangle &rect);
-	static Rectangle get(Context &ctx, duk_idx_t index);
-};
+void TypeInfo<Rectangle>::push(Context &ctx, const Rectangle &rect)
+{
+	ctx.push(Object{});
+	ctx.setObject(-1, "x", rect.x);
+	ctx.setObject(-1, "y", rect.y);
+	ctx.setObject(-1, "width", rect.width);
+	ctx.setObject(-1, "height", rect.height);
+}
+
+Rectangle TypeInfo<Rectangle>::get(Context &ctx, duk_idx_t index)
+{
+	return Rectangle{
+		ctx.getObject<int>(index, "x"),
+		ctx.getObject<int>(index, "y"),
+		ctx.getObject<int>(index, "width"),
+		ctx.getObject<int>(index, "height")
+	};
+}
 
 } // !js
 
 } // !malikania
-
-#endif // !_MALIKANIA_RECTANGLE_H_

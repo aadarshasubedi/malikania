@@ -16,7 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(sprite)
-add_subdirectory(js-size)
-add_subdirectory(js-point)
-add_subdirectory(js-rectangle)
+malikania_create_test(
+	NAME js-rectangle
+	LIBRARIES libclient
+	SOURCES main.cpp
+)
