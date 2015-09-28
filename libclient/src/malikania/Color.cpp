@@ -1,5 +1,5 @@
 /*
- * Color.h -- color description in RGB format
+ * Color.cpp -- color description in RGB format
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,52 +16,31 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_COLOR_H_
-#define _MALIKANIA_COLOR_H_
-
-#include <cstdint>
-
-#include <malikania/Js.h>
+#include "Color.h"
 
 namespace malikania {
 
-/**
- * @class Color
- * @brief Color description in RGB format
- */
-class Color {
-public:
-	uint8_t red{0};
-	uint8_t green{0};
-	uint8_t blue{0};
-	uint8_t alpha{255};
-};
-
 namespace js {
 
-template <>
-class TypeInfo<Color> {
-public:
-	/**
-	 * Push the color as an object.
-	 *
-	 * @param ctx the context
-	 * @param color the color
-	 */
-	static void push(Context &ctx, const Color &color);
+void TypeInfo<Color>::push(Context &ctx, const Color &color)
+{
+	ctx.push(Object{});
+	ctx.setObject(-1, "red", static_cast<int>(color.red));
+	ctx.setObject(-1, "green", static_cast<int>(color.green));
+	ctx.setObject(-1, "blue", static_cast<int>(color.blue));
+	ctx.setObject(-1, "alpha", static_cast<int>(color.alpha));
+}
 
-	/**
-	 * Get the color, all fields are set to 0 if not specified.
-	 *
-	 * @param ctx the context
-	 * @param index the value index
-	 * @return the color
-	 */
-	static Color get(Context &ctx, duk_idx_t index);
-};
+Color TypeInfo<Color>::get(Context &ctx, duk_idx_t index)
+{
+	return Color{
+		static_cast<uint8_t>(ctx.getObject<int>(index, "red")),
+		static_cast<uint8_t>(ctx.getObject<int>(index, "green")),
+		static_cast<uint8_t>(ctx.getObject<int>(index, "blue")),
+		static_cast<uint8_t>(ctx.getObject<int>(index, "alpha"))
+	};
+}
 
 } // !js
 
 } // !malikania
-
-#endif // !_MALIKANIA_COLOR_H_

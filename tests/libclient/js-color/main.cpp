@@ -1,5 +1,5 @@
 /*
- * main.cpp -- test JavaScript Rectangle
+ * main.cpp -- test JavaScript Color
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -18,32 +18,32 @@
 
 #include <gtest/gtest.h>
 
-#include <malikania/Rectangle.h>
+#include <malikania/Color.h>
 
 using namespace malikania;
 
-TEST(RectangleTest, simple)
+TEST(ColorTest, simple)
 {
 	js::Context ctx;
 
-	ctx.push(Rectangle{10, 20, 640, 480});
+	ctx.push(Color{10, 20, 30, 40});
 
-	ASSERT_EQ(10, ctx.get<Rectangle>(-1).x);
-	ASSERT_EQ(20, ctx.get<Rectangle>(-1).y);
-	ASSERT_EQ(640, ctx.get<Rectangle>(-1).width);
-	ASSERT_EQ(480, ctx.get<Rectangle>(-1).height);
+	ASSERT_EQ(10, ctx.get<Color>(-1).red);
+	ASSERT_EQ(20, ctx.get<Color>(-1).green);
+	ASSERT_EQ(30, ctx.get<Color>(-1).blue);
+	ASSERT_EQ(40, ctx.get<Color>(-1).alpha);
 }
 
-TEST(RectangleTest, fromScriptFull)
+TEST(ColorTest, fromScriptFull)
 {
 	js::Context ctx;
 
-	ctx.evalString("rect = { x: -45, y: -80, width: 640, height: 480 };");
+	ctx.evalString("color = { red: 10, green: 20, blue: 30, alpha: 40 }");
 
-	ASSERT_EQ(-45, ctx.getGlobal<Rectangle>("rect").x);
-	ASSERT_EQ(-80, ctx.getGlobal<Rectangle>("rect").y);
-	ASSERT_EQ(640, ctx.getGlobal<Rectangle>("rect").width);
-	ASSERT_EQ(480, ctx.getGlobal<Rectangle>("rect").height);
+	ASSERT_EQ(10, ctx.getGlobal<Color>("color").red);
+	ASSERT_EQ(20, ctx.getGlobal<Color>("color").green);
+	ASSERT_EQ(30, ctx.getGlobal<Color>("color").blue);
+	ASSERT_EQ(40, ctx.getGlobal<Color>("color").alpha);
 }
 
 int main(int argc, char **argv)
@@ -52,3 +52,4 @@ int main(int argc, char **argv)
 
 	return RUN_ALL_TESTS();
 }
+

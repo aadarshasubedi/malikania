@@ -31,6 +31,7 @@ set(
 
 set(
 	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Point.cpp
