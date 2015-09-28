@@ -1,5 +1,5 @@
 /*
- * Point.h -- describe a 2D coordinate point
+ * main.cpp -- test JavaScript Point
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,35 +16,35 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_POINT_H_
-#define _MALIKANIA_POINT_H_
+#include <gtest/gtest.h>
 
-#include <malikania/Js.h>
+#include <malikania/Point.h>
 
-namespace malikania {
+using namespace malikania;
 
-/**
- * @class Point
- * @brief 2D coordinates
- */
-class Point {
-public:
-	int x{0};	//!< Position in X
-	int y{0};	//!< Position in y
-};
+TEST(PointTest, simple)
+{
+	js::Context ctx;
 
-namespace js {
+	ctx.push(Point{10, 20});
 
-template <>
-class TypeInfo<Point> {
-public:
-	static void push(Context &ctx, const Point &point);
-	static Point get(Context &ctx, duk_idx_t index);
-};
+	ASSERT_EQ(10, ctx.get<Point>(-1).x);
+	ASSERT_EQ(20, ctx.get<Point>(-1).y);
+}
 
-} // !js
+TEST(PointTest, fromScriptFull)
+{
+	js::Context ctx;
 
-} // !malikania
+	ctx.evalString("point = { x: 1000, y: 2000 };");
 
-#endif // !_MALIKANIA_POINT_H_
+	ASSERT_EQ(1000, ctx.getGlobal<Point>("point").x);
+	ASSERT_EQ(2000, ctx.getGlobal<Point>("point").y);
+}
 
+int main(int argc, char **argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+
+	return RUN_ALL_TESTS();
+}

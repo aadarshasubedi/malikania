@@ -1,5 +1,5 @@
 /*
- * Point.h -- describe a 2D coordinate point
+ * Size.cpp -- object size description
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,35 +16,33 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_POINT_H_
-#define _MALIKANIA_POINT_H_
-
-#include <malikania/Js.h>
+#include "Size.h"
 
 namespace malikania {
 
-/**
- * @class Point
- * @brief 2D coordinates
- */
-class Point {
-public:
-	int x{0};	//!< Position in X
-	int y{0};	//!< Position in y
-};
-
 namespace js {
 
-template <>
-class TypeInfo<Point> {
-public:
-	static void push(Context &ctx, const Point &point);
-	static Point get(Context &ctx, duk_idx_t index);
-};
+void TypeInfo<Size>::push(Context &ctx, const Size &size)
+{
+	ctx.push(Object{});
+	ctx.setObject(-1, "width", size.width);
+	ctx.setObject(-1, "height", size.height);
+}
+
+Size TypeInfo<Size>::get(Context &ctx, duk_idx_t index)
+{
+	return Size{
+		ctx.getObject<int>(index, "width"),
+		ctx.getObject<int>(index, "height")
+	};
+}
+
+Size TypeInfo<Size>::require(Context &ctx, duk_idx_t index)
+{
+	// TODO: more checks
+	return get(ctx, index);
+}
 
 } // !js
 
 } // !malikania
-
-#endif // !_MALIKANIA_POINT_H_
-

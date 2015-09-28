@@ -18,23 +18,25 @@
 
 set(
 	HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Window.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Image.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Line.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Point.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Rectangle.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sprite.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Line.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Point.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Window.h
 )
 
 set(
 	SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Point.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Size.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 )
 
 # TODO: move to a Sdl.cmake
@@ -74,6 +76,7 @@ malikania_create_library(
 		${SDL2_TTF_INCLUDE_DIRS}
 	LIBRARIES
 		libcommon
+		duktape
 		${SDL2_LIBRARIES}
 		${SDL2_IMAGE_LIBRARIES}
 		${SDL2_TTF_LIBRARIES}

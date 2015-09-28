@@ -16,6 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(sprite)
-add_subdirectory(js-size)
-add_subdirectory(js-point)
+malikania_create_test(
+	NAME js-size
+	LIBRARIES libclient
+	SOURCES main.cpp
+)

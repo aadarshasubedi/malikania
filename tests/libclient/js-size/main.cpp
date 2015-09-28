@@ -1,5 +1,5 @@
 /*
- * Point.h -- describe a 2D coordinate point
+ * main.cpp -- test JavaScript Size
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,35 +16,35 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_POINT_H_
-#define _MALIKANIA_POINT_H_
+#include <gtest/gtest.h>
 
-#include <malikania/Js.h>
+#include <malikania/Size.h>
 
-namespace malikania {
+using namespace malikania;
 
-/**
- * @class Point
- * @brief 2D coordinates
- */
-class Point {
-public:
-	int x{0};	//!< Position in X
-	int y{0};	//!< Position in y
-};
+TEST(SizeTest, simple)
+{
+	js::Context ctx;
 
-namespace js {
+	ctx.push(Size{200, 100});
 
-template <>
-class TypeInfo<Point> {
-public:
-	static void push(Context &ctx, const Point &point);
-	static Point get(Context &ctx, duk_idx_t index);
-};
+	ASSERT_EQ(200, ctx.get<Size>(-1).width);
+	ASSERT_EQ(100, ctx.get<Size>(-1).height);
+}
 
-} // !js
+TEST(SizeTest, fromScriptFull)
+{
+	js::Context ctx;
 
-} // !malikania
+	ctx.evalString("size = { width: 640, height: 480 };");
 
-#endif // !_MALIKANIA_POINT_H_
+	ASSERT_EQ(640, ctx.getGlobal<Size>("size").width);
+	ASSERT_EQ(480, ctx.getGlobal<Size>("size").height);
+}
 
+int main(int argc, char **argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+
+	return RUN_ALL_TESTS();
+}

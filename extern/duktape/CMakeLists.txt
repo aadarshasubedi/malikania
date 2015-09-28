@@ -18,7 +18,7 @@
 
 project(duktape)
 
-add_library(duktape STATIC duktape.c duktape.h)
+add_library(duktape STATIC duktape.c duktape.h duk_config.h)
 
 target_include_directories(duktape PUBLIC ${duktape_SOURCE_DIR})
 set_target_properties(

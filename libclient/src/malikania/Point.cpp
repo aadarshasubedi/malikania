@@ -1,5 +1,5 @@
 /*
- * Point.h -- describe a 2D coordinate point
+ * Point.cpp -- describe a 2D coordinate point
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,35 +16,27 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_POINT_H_
-#define _MALIKANIA_POINT_H_
-
-#include <malikania/Js.h>
+#include "Point.h"
 
 namespace malikania {
 
-/**
- * @class Point
- * @brief 2D coordinates
- */
-class Point {
-public:
-	int x{0};	//!< Position in X
-	int y{0};	//!< Position in y
-};
-
 namespace js {
 
-template <>
-class TypeInfo<Point> {
-public:
-	static void push(Context &ctx, const Point &point);
-	static Point get(Context &ctx, duk_idx_t index);
-};
+void TypeInfo<Point>::push(Context &ctx, const Point &point)
+{
+	ctx.push(Object{});
+	ctx.setObject(-1, "x", point.x);
+	ctx.setObject(-1, "y", point.y);
+}
+
+Point TypeInfo<Point>::get(Context &ctx, duk_idx_t index)
+{
+	return Point{
+		ctx.getObject<int>(index, "x"),
+		ctx.getObject<int>(index, "y")
+	};
+}
 
 } // !js
 
 } // !malikania
-
-#endif // !_MALIKANIA_POINT_H_
-

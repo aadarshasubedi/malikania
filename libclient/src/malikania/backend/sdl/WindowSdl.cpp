@@ -116,6 +116,7 @@ void WindowSdl::drawLine(const Line &line)
 
 void WindowSdl::drawLines(const std::vector<Point> &points)
 {
+	// TODO: use std::vector please.
 	SDL_Point sdlPoints[points.size()];
 
 	int i = 0;
