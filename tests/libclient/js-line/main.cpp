@@ -1,5 +1,5 @@
 /*
- * Line.h -- describe a 2D line
+ * main.cpp -- test JavaScript Line
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,36 +16,39 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LINE_H_
-#define _MALIKANIA_LINE_H_
+#include <gtest/gtest.h>
 
-#include <malikania/Js.h>
+#include <malikania/Line.h>
 
-namespace malikania {
+using namespace malikania;
 
-/**
- * @class Line
- * @brief 2D line
- */
-class Line {
-public:
-	int x1{0};	//!< First position in X
-	int y1{0};	//!< First position in Y
-	int x2{0};	//!< Second position in X
-	int y2{0};	//!< Second position in Y
-};
+TEST(LineTest, simple)
+{
+	js::Context ctx;
 
-namespace js {
+	ctx.push(Line{-10, -20, 10, 20});
 
-template <>
-class TypeInfo<Line> {
-public:
-	static void push(Context &ctx, const Line &line);
-	static Line get(Context &ctx, duk_idx_t index);
-};
+	ASSERT_EQ(-10, ctx.get<Line>(-1).x1);
+	ASSERT_EQ(-20, ctx.get<Line>(-1).y1);
+	ASSERT_EQ( 10, ctx.get<Line>(-1).x2);
+	ASSERT_EQ( 20, ctx.get<Line>(-1).y2);
+}
 
-} // !js
+TEST(LineTest, fromScriptFull)
+{
+	js::Context ctx;
 
-} // !malikania
+	ctx.evalString("line = { x1: -10, y1: -20, x2: 10, y2: 20 }");
 
-#endif // LINE_H
+	ASSERT_EQ(-10, ctx.getGlobal<Line>("line").x1);
+	ASSERT_EQ(-20, ctx.getGlobal<Line>("line").y1);
+	ASSERT_EQ( 10, ctx.getGlobal<Line>("line").x2);
+	ASSERT_EQ( 20, ctx.getGlobal<Line>("line").y2);
+}
+
+int main(int argc, char **argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+
+	return RUN_ALL_TESTS();
+}

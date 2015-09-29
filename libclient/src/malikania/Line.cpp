@@ -1,5 +1,5 @@
 /*
- * Line.h -- describe a 2D line
+ * Line.cpp -- describe a 2D line
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,36 +16,31 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LINE_H_
-#define _MALIKANIA_LINE_H_
-
-#include <malikania/Js.h>
+#include "Line.h"
 
 namespace malikania {
 
-/**
- * @class Line
- * @brief 2D line
- */
-class Line {
-public:
-	int x1{0};	//!< First position in X
-	int y1{0};	//!< First position in Y
-	int x2{0};	//!< Second position in X
-	int y2{0};	//!< Second position in Y
-};
-
 namespace js {
 
-template <>
-class TypeInfo<Line> {
-public:
-	static void push(Context &ctx, const Line &line);
-	static Line get(Context &ctx, duk_idx_t index);
-};
+void TypeInfo<Line>::push(Context &ctx, const Line &line)
+{
+	ctx.push(Object{});
+	ctx.setObject(-1, "x1", line.x1);
+	ctx.setObject(-1, "y1", line.y1);
+	ctx.setObject(-1, "x2", line.x2);
+	ctx.setObject(-1, "y2", line.y2);
+}
+
+Line TypeInfo<Line>::get(Context &ctx, duk_idx_t index)
+{
+	return Line{
+		ctx.getObject<int>(index, "x1"),
+		ctx.getObject<int>(index, "y1"),
+		ctx.getObject<int>(index, "x2"),
+		ctx.getObject<int>(index, "y2")
+	};
+}
 
 } // !js
 
 } // !malikania
-
-#endif // LINE_H

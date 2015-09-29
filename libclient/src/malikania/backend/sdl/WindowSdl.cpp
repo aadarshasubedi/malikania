@@ -108,7 +108,7 @@ void WindowSdl::setDrawingColor(const Color &color)
 
 void WindowSdl::drawLine(const Line &line)
 {
-	int error = SDL_RenderDrawLine(m_renderer.get(), line.startX, line.startY, line.endX, line.endY);
+	int error = SDL_RenderDrawLine(m_renderer.get(), line.x1, line.y1, line.x2, line.y2);
 	if (error != 0) {
 		throw std::runtime_error("Couldn't draw line" + std::string(SDL_GetError()));
 	}

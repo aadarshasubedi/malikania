@@ -151,11 +151,19 @@ private:
 
 
 public:
+	/**
+	 * Create default context.
+	 */
 	inline Context()
 		: m_handle{duk_create_heap_default(), duk_destroy_heap}
 	{
 	}
 
+	/**
+	 * Create borrowed context that will not be deleted.
+	 *
+	 * @param ctx the pointer to duk_context
+	 */
 	inline Context(ContextPtr ctx) noexcept
 		: m_handle{ctx, [] (ContextPtr) {}}
 	{
@@ -185,6 +193,11 @@ public:
 	 * Push / Get / Require
 	 * ---------------------------------------------------------- */
 
+	/**
+	 * Push a value into the stack. Calls TypeInfo<T>::push(*this, value);
+	 *
+	 * @param value the value to forward
+	 */
 	template <typename Type>
 	inline void push(Type &&value)
 	{
@@ -198,13 +211,13 @@ public:
 	 * @return the value
 	 */
 	template <typename Type>
-	inline Type get(duk_idx_t index)
+	inline auto get(duk_idx_t index) -> decltype(TypeInfo<Type>::get(*this, 0))
 	{
 		return TypeInfo<Type>::get(*this, index);
 	}
 
 	template <typename Type>
-	inline Type require(duk_idx_t index)
+	inline auto require(duk_idx_t index) -> decltype(TypeInfo<Type>::require(*this, 0))
 	{
 		return TypeInfo<Type>::require(*this, index);
 	}
@@ -214,11 +227,11 @@ public:
 	 * -------------------------------------------------------- */
 
 	template <typename Type>
-	inline Type getObject(duk_idx_t index, const std::string &name)
+	inline auto getObject(duk_idx_t index, const std::string &name) -> decltype(get<Type>(0))
 	{
 		assertBegin(m_handle.get());
 		duk_get_prop_string(m_handle.get(), index, name.c_str());
-		Type value = get<Type>(-1);
+		auto &&value = get<Type>(-1);
 		duk_pop(m_handle.get());
 		assertEquals(m_handle.get());
 
@@ -391,11 +404,11 @@ public:
 	 * @return the value
 	 */
 	template <typename Type>
-	inline Type getGlobal(const std::string &name)
+	inline auto getGlobal(const std::string &name) -> decltype(get<Type>(0))
 	{
 		assertBegin(m_handle.get());
 		duk_get_global_string(m_handle.get(), name.c_str());
-		Type value = get<Type>(-1);
+		auto &&value = get<Type>(-1);
 		duk_pop(m_handle.get());
 		assertEquals(m_handle.get());
 
@@ -432,6 +445,16 @@ public:
 		duk_push_string(m_handle.get(), ex.name().c_str());
 		duk_put_prop_string(m_handle.get(), -2, "name");
 		duk_throw(m_handle.get());
+	}
+
+	template <typename T>
+	inline auto self() -> decltype(TypeInfo<T>::get(*this, 0))
+	{
+		duk_push_this(m_handle.get());
+		auto &&value = TypeInfo<T>::get(*this, -1);
+		duk_pop(m_handle.get());
+
+		return value;
 	}
 };
 
@@ -637,6 +660,53 @@ public:
 		duk_push_array(ctx);
 	}
 };
+
+/* ------------------------------------------------------------------
+ * Helpers for pointers and std::shared_ptr
+ * ------------------------------------------------------------------ */
+
+/**
+ * @class TypeInfoShared
+ * @brief Generates push / get / require for std::shared_ptr<T>
+ *
+ * Specialize TypeInfo<std::shared_ptr<T>> and inherits from this class to implement the push(),
+ * get() and require() functions.
+ *
+ * You only need to implement `static void prototype(Context &ctx)` which must push the prototype
+ * to use for the underlying object.
+ */
+template <typename T>
+class TypeInfoShared {
+public:
+	static void push(Context &ctx, std::shared_ptr<T> value);
+	static std::shared_ptr<T> get(Context &ctx, duk_idx_t index);
+};
+
+template <typename T>
+void TypeInfoShared<T>::push(Context &ctx, std::shared_ptr<T> value)
+{
+	duk_push_object(ctx);
+	duk_push_boolean(ctx, false);
+	duk_put_prop_string(ctx, -2, "\xff""\xff""js-deleted");
+	duk_push_pointer(ctx, new std::shared_ptr<T>(value));
+	duk_put_prop_string(ctx, -2, "\xff""\xff""js-shared-ptr");
+
+	TypeInfo<std::shared_ptr<T>>::prototype(ctx);
+
+	// TODO: set deleter
+
+	duk_set_prototype(ctx, -2);
+}
+
+template <typename T>
+std::shared_ptr<T> TypeInfoShared<T>::get(Context &ctx, duk_idx_t index)
+{
+	duk_get_prop_string(ctx, index, "\xff""\xff""js-shared-ptr");
+	std::shared_ptr<T> value = *static_cast<std::shared_ptr<T> *>(duk_to_pointer(ctx, -1));
+	duk_pop(ctx);
+
+	return value;
+}
 
 } // !js
 
