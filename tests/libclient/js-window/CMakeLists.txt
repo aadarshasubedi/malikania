@@ -16,10 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(js-color)
-add_subdirectory(js-line)
-add_subdirectory(js-point)
-add_subdirectory(js-rectangle)
-add_subdirectory(js-size)
-add_subdirectory(js-window)
-add_subdirectory(sprite)
+malikania_create_test(
+	NAME js-window
+	LIBRARIES libclient
+	SOURCES main.cpp
+)

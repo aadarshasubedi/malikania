@@ -456,6 +456,12 @@ public:
 
 		return value;
 	}
+
+	template <typename T>
+	inline void construct(T &&value)
+	{
+		TypeInfo<std::remove_reference_t<T>>::construct(*this, std::forward<T>(value));
+	}
 };
 
 /* ------------------------------------------------------------------
@@ -677,25 +683,41 @@ public:
  */
 template <typename T>
 class TypeInfoShared {
+private:
+	static void apply(Context &ctx, std::shared_ptr<T> value);
+
 public:
+	static void construct(Context &ctx, std::shared_ptr<T> value);
 	static void push(Context &ctx, std::shared_ptr<T> value);
 	static std::shared_ptr<T> get(Context &ctx, duk_idx_t index);
 };
 
 template <typename T>
-void TypeInfoShared<T>::push(Context &ctx, std::shared_ptr<T> value)
+void TypeInfoShared<T>::apply(Context &ctx, std::shared_ptr<T> value)
 {
-	duk_push_object(ctx);
 	duk_push_boolean(ctx, false);
 	duk_put_prop_string(ctx, -2, "\xff""\xff""js-deleted");
 	duk_push_pointer(ctx, new std::shared_ptr<T>(value));
 	duk_put_prop_string(ctx, -2, "\xff""\xff""js-shared-ptr");
 
 	TypeInfo<std::shared_ptr<T>>::prototype(ctx);
+	duk_set_prototype(ctx, -2);
 
 	// TODO: set deleter
+}
 
-	duk_set_prototype(ctx, -2);
+template <typename T>
+void TypeInfoShared<T>::construct(Context &ctx, std::shared_ptr<T> value)
+{
+	duk_push_this(ctx);
+	apply(ctx, std::move(value));
+}
+
+template <typename T>
+void TypeInfoShared<T>::push(Context &ctx, std::shared_ptr<T> value)
+{
+	duk_push_object(ctx);
+	apply(ctx, std::move(value));
 }
 
 template <typename T>

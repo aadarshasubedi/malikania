@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef _MALIKANIA_WINDOW_H_
+#define _MALIKANIA_WINDOW_H_
 
 #include <functional>
 #include <vector>
@@ -7,6 +7,8 @@
 #include <map>
 
 #include <Config.h>
+
+#include <malikania/Js.h>
 
 #if defined(WITH_BACKEND_SDL)
 #  include "backend/sdl/WindowSdl.h"
@@ -162,6 +164,20 @@ public:
 	}
 };
 
-}// !malikania
+namespace js {
 
-#endif // WINDOW_H
+template <>
+class TypeInfo<std::shared_ptr<Window>> : public TypeInfoShared<Window> {
+public:
+	static void prototype(Context &ctx);
+};
+
+// TODO: temporary also
+
+void registerWindow(Context &ctx);
+
+} // !js
+
+} // !malikania
+
+#endif // !_MALIKANIA_WINDOW_H_
