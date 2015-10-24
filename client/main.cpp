@@ -26,6 +26,7 @@
 #include <malikania/Sprite.h>
 #include <malikania/Image.h>
 #include <malikania/Point.h>
+#include <malikania/Label.h>
 
 using namespace std::literals::chrono_literals;
 
@@ -137,6 +138,9 @@ int main(void)
 		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
 	).toObject());
 
+	std::shared_ptr<malikania::Font> font = std::make_shared<malikania::Font>("resources/fonts/DejaVuSans.ttf", 48);
+	malikania::Label testLabel("Malikania !!! Youpi !", font, {0, 0, 100, 50});
+
 	while (mainWindow.isOpen()) {
 
 		// TODO delete this, just for fun...
@@ -185,8 +189,7 @@ int main(void)
 			{{255,0,0,255},{0,255,0,255},{0,0,255,255}}
 		);
 
-		malikania::Font font("resources/fonts/DejaVuSans.ttf", 42);
-		mainWindow.drawText("Malikania FTW!", font, malikania::Point{400, 100});
+		testLabel.draw(mainWindow, {300, 300, 200, 50});
 
 		mainWindow.present();
 
