@@ -1,5 +1,5 @@
 /*
- * ServerApplication.h -- server application
+ * Loader.h -- wrapper to load directories
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,48 +16,46 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_SERVER_APPLICATION_H_
-#define _MALIKANIA_SERVER_APPLICATION_H_
-
-/**
- * @file ServerApplication.h
- * @brief Load the server
- */
-
-#include <memory>
-#include <type_traits>
-
-#include <malikania/Application.h>
+#ifndef _MALIKANIA_LOADER_H_
+#define _MALIKANIA_LOADER_H_
 
 namespace malikania {
 
-class GameSettings;
-class ServerSettings;
+namespace json {
+
+class Document;
+
+} // !json
 
 /**
- * @class ServerApplication
- * @brief Class to start the server
+ * @class LoaderDirectory
+ * @brief Load a game from a directory.
  */
-class ServerApplication : public Application {
+class LoaderDirectory {
 private:
-	void run(const GameSettings &, const ServerSettings &);
+	std::string m_path;
 
 public:
-	using Application::Application;
+	/**
+	 * Load the game from the directory.
+	 *
+	 * @param path the base directory
+	 */
+	inline LoaderDirectory(std::string path) noexcept
+		: m_path{std::move(path)}
+	{
+	}
 
 	/**
-	 * Load the server with the specified loader.
+	 * Get the game metadata.
 	 *
-	 * @param loader the loader
+	 * @return the metadata
+	 * @throw any exception on failures
 	 */
-	template <typename Loader>
-	void run(Loader &&loader)
-	{
-		run(loader.gameSettings(), loader.serverSettings());
-	}
+	json::Document metadata() const;
 };
 
 } // !malikania
 
-#endif // !_MALIKANIA_SERVER_APPLICATION_H_
+#endif // !_MALIKANIA_LOADER_H_
 

@@ -18,19 +18,12 @@
 
 set(
 	HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkClient.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkManager.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApplication.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerLoaderDirectory.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerSettings.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApp.h
 )
 
 set(
 	SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkClient.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkManager.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApplication.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerLoaderDirectory.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApp.cpp
 )
 
 malikania_create_library(

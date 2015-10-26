@@ -1,7 +1,7 @@
 /*
- * Json.cpp -- jansson C++11 wrapper
+ * Json.cpp -- C++14 JSON manipulation using jansson parser
  *
- * Copyright (c) 2013, 2014 David Demelier <markand@malikania.fr>
+ * Copyright (c) 2013-2015 David Demelier <markand@malikania.fr>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,147 +16,203 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdexcept>
-
 #include "Json.h"
+
+#include <jansson.h>
 
 namespace malikania {
 
-/* --------------------------------------------------------
- * JsonObject
- * -------------------------------------------------------- */
+namespace json {
 
-JsonObject JsonValue::toObject() const noexcept
+namespace {
+
+void readObject(Value &parent, json_t *object);
+void readArray(Value &parent, json_t *array);
+
+Value readValue(json_t *v)
 {
-	json_incref(m_handle.get());
+	if (json_is_null(v)) {
+		return Value{nullptr};
+	}
+	if (json_is_string(v)) {
+		return Value{json_string_value(v)};
+	}
+	if (json_is_real(v)) {
+		return Value{json_number_value(v)};
+	}
+	if (json_is_integer(v)) {
+		return Value{static_cast<int>(json_integer_value(v))};
+	}
+	if (json_is_boolean(v)) {
+		return Value{json_boolean_value(v)};
+	}
+	if (json_is_object(v)) {
+		Object object;
 
-	return JsonObject(m_handle.get());
+		readObject(object, v);
+
+		return object;
+	}
+	if (json_is_array(v)) {
+		Array array;
+
+		readArray(array, v);
+
+		return array;
+	}
+
+	return Value{};
 }
 
-JsonArray JsonValue::toArray() const noexcept
+void readObject(Value &parent, json_t *object)
 {
-	json_incref(m_handle.get());
+	const char *key;
+	json_t *value;
 
-	return JsonArray(m_handle.get());
+	json_object_foreach(object, key, value) {
+		static_cast<Object &>(parent).insert(key, readValue(value));
+	}
 }
 
-/* --------------------------------------------------------
- * JsonArray
- * -------------------------------------------------------- */
-
-JsonValue JsonArray::at(int index) const
+void readArray(Value &parent, json_t *array)
 {
-	auto value = json_array_get(m_handle.get(), index);
+	size_t index;
+	json_t *value;
 
-	if (value == nullptr)
-		throw JsonError("index out of bounds");
-
-	json_incref(value);
-
-	return JsonValue{value};
+	json_array_foreach(array, index, value) {
+		static_cast<Array &>(parent).append(readValue(value));
+	}
 }
 
-JsonValue JsonArray::operator[](int index) const noexcept
-{
-	auto value = json_array_get(m_handle.get(), index);
-
-	if (value == nullptr)
-		return JsonValue();
-
-	json_incref(value);
-
-	return JsonValue(value);
-}
-
-JsonArray::Ref JsonArray::operator[](int index) noexcept
-{
-	auto value = json_array_get(m_handle.get(), index);
-
-	if (value == nullptr)
-		value = json_null();
-	else
-		json_incref(value);
-
-	return Ref(value, *this, index);
-}
-
-/* --------------------------------------------------------
- * JsonObject
- * -------------------------------------------------------- */
-
-JsonObject::Ref JsonObject::operator[](const std::string &name)
-{
-	if (typeOf() != JsonType::Object)
-		return Ref(JsonValue(), *this, name);
-
-	auto value = json_object_get(m_handle.get(), name.c_str());
-
-	json_incref(value);
-
-	return Ref(value, *this, name);
-}
-
-JsonValue JsonObject::operator[](const std::string &name) const
-{
-	if (typeOf() != JsonType::Object)
-		return JsonValue();
-
-	auto value = json_object_get(m_handle.get(), name.c_str());
-
-	if (value == nullptr)
-		return JsonValue();
-
-	json_incref(value);
-
-	return JsonValue(value);
-}
-
-/* --------------------------------------------------------
- * JsonDocument
- * -------------------------------------------------------- */
-
-JsonValue JsonDocument::read(std::string content, int flags) const
+template <typename Func, typename... Args>
+Value convert(Func fn, Args&&... args)
 {
 	json_error_t error;
-	json_t *json = json_loads(content.c_str(), flags, &error);
+	json_t *json = fn(std::forward<Args>(args)..., &error);
 
-	if (json == nullptr)
-		throw JsonError(error);
+	if (json == nullptr) {
+		throw Error{error.text, error.source, error.line, error.column, error.position};
+	}
 
-	return JsonValue(json);
+	Value value;
+
+	if (json_is_object(json)) {
+		value = Object{};
+		readObject(value, json);
+	} else {
+		value = Array{};
+		readArray(value, json);
+	}
+
+	json_decref(json);
+
+	return value;
 }
 
-JsonValue JsonDocument::read(std::ifstream &stream, int flags) const
+} // !namespace
+
+bool Value::toBool() const noexcept
 {
-	if (!stream.is_open())
-		throw JsonError("File not opened");
+	if (m_type != Type::Boolean) {
+		return false;
+	}
 
-	stream.seekg(0, stream.end);
-	auto length = stream.tellg();
-	stream.seekg(0, stream.beg);
-
-	std::string buffer;
-	buffer.resize(length, ' ');
-
-	stream.read(&buffer[0], length);
-	stream.close();
-
-	return read(std::move(buffer), flags);
+	return m_boolean;
 }
 
-JsonDocument::JsonDocument(std::ifstream &stream, int flags)
+double Value::toReal() const noexcept
 {
-	m_value = read(stream, flags);
+	if (m_type != Type::Real) {
+		return 0;
+	}
+
+	return m_number;
 }
 
-JsonDocument::JsonDocument(std::ifstream &&stream, int flags)
+int Value::toInt() const noexcept
 {
-	m_value = read(stream, flags);
+	if (m_type != Type::Int) {
+		return 0;
+	}
+
+	return m_integer;
 }
 
-JsonDocument::JsonDocument(std::string content, int flags)
+std::string Value::toString() const noexcept
 {
-	m_value = read(std::move(content), flags);
+	if (m_type != Type::String) {
+		return "";
+	}
+
+	return m_string;
 }
+
+Object Value::toObject() const noexcept
+{
+	if (m_type != Type::Object) {
+		return Object{};
+	}
+
+	return Object(*this);
+}
+
+Array Value::toArray() const noexcept
+{
+	if (m_type != Type::Array) {
+		return Array{};
+	}
+
+	return Array(*this);
+}
+
+Document::Document(Buffer buffer)
+{
+	m_value = convert(json_loads, buffer.text.c_str(), 0);
+}
+
+Document::Document(File file)
+{
+	m_value = convert(json_load_file, file.path.c_str(), 0);
+}
+
+std::string escape(std::string value) noexcept
+{
+	for (auto it = value.begin(); it != value.end(); ++it) {
+		switch (*it) {
+		case '\\':
+		case '/':
+		case '"':
+			it = value.insert(it, '\\');
+			it++;
+			break;
+		case '\b':
+			value.replace(it, it + 1, "\\b");
+			it += 1;
+			break;
+		case '\f':
+			value.replace(it, it + 1, "\\f");
+			it += 1;
+			break;
+		case '\n':
+			value.replace(it, it + 1, "\\n");
+			it += 1;
+			break;
+		case '\r':
+			value.replace(it, it + 1, "\\r");
+			it += 1;
+			break;
+		case '\t':
+			value.replace(it, it + 1, "\\t");
+			it += 1;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return value;
+}
+
+} // !json
 
 } // !malikania
