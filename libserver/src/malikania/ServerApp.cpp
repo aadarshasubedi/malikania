@@ -1,7 +1,7 @@
 /*
- * ServerLoaderDirectory.h -- load a server from a directory
+ * ServerApp.cpp -- main class for creating a server application
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2015 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,34 +16,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _SERVER_LOADER_DIRECTORY_H_
-#define _SERVER_LOADER_DIRECTORY_H_
+#include <malikania/Game.h>
+#include <malikania/Json.h>
 
-/**
- * @file ServerLoaderDirectory.h
- * @brief Load a server game from a directory
- */
-
-#include <malikania/LoaderDirectory.h>
-
-#include "ServerSettings.h"
+#include "ServerApp.h"
 
 namespace malikania {
 
-/**
- * @class ServerDirectoryLoader
- * @brief Load a server game from a directory
- */
-class ServerLoaderDirectory : public LoaderDirectory {
-public:
-	using LoaderDirectory::LoaderDirectory;
-
-	/**
-	 * @copydoc ServerLoader::serverSettings
-	 */
-	ServerSettings serverSettings();
-};
+ServerApp::ServerApp(const LoaderDirectory &directory)
+	: Game{directory.metadata()}
+{
+}
 
 } // !malikania
-
-#endif // !_SERVER_LOADER_DIRECTORY_H_

@@ -18,18 +18,19 @@
 
 #include <iostream>
 
-#include <mongoc.h>
-#include <bson.h>
-#include <malikania/ServerApplication.h>
+#include <malikania/ServerApp.h>
 
-int main(void)
+using namespace malikania;
+
+int main(int, char **)
 {
-#if 0
-	ServerLoaderDirectory loader("/home/markand/mygame");
-	ServerApplication application(argc, argv);
+	try {
+		ServerApp application{LoaderDirectory{"kingdom"}};
 
-	application.run(loader);
-#endif
+		std::cout << "game name: " << application.name() << std::endl;
+	} catch (const std::exception &ex) {
+		std::cerr << ex.what() << std::endl;
+	}
 
 	return 0;
 }

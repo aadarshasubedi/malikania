@@ -1,5 +1,5 @@
 /*
- * NetworkClient.cpp -- authenticated network client
+ * LoaderDirectory.cpp -- wrapper to load directories
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,8 +16,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "NetworkClient.h"
+#include "Json.h"
+#include "Loader.h"
 
 namespace malikania {
+
+json::Document LoaderDirectory::metadata() const
+{
+	return json::Document{json::File{m_path + "/game.json"}};
+}
 
 } // !malikania

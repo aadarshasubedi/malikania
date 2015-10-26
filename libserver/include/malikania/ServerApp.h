@@ -1,7 +1,7 @@
 /*
- * ServerApplication.cpp -- server application
+ * ServerApp.h -- main class for creating a server application
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2015 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,33 +16,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef _SERVER_APP_H_
+#define _SERVER_APP_H_
 
-#include <malikania/GameSettings.h>
-#include <malikania/NetworkManager.h>
-
-#include "ServerApplication.h"
-#include "ServerSettings.h"
+#include <malikania/Game.h>
+#include <malikania/Loader.h>
 
 namespace malikania {
 
-void ServerApplication::run(const GameSettings &gs, const ServerSettings &ss)
-{
-	std::cout << "Game information:" << std::endl;
-	std::cout << "  Name: " << gs.name << std::endl;
-	std::cout << "  Version: " << gs.version << std::endl;
-
-	std::cout << "Server information:" << std::endl;
-	std::cout << "  Port: " << ss.network.port << std::endl;
-	std::cout << "  Port SSL: " << ss.ssl.port << std::endl;
-
-	NetworkManager manager(ss);
-
-	manager.start();
-
-	while (true) {
-		sleep(1);
-	}
-}
+/**
+ * @class ServerApp
+ * @brief Create a server application
+ */
+class ServerApp : public Game {
+public:
+	/**
+	 * Create a server application.
+	 *
+	 * @param directory the directory
+	 */
+	ServerApp(const LoaderDirectory &directory);
+};
 
 } // !malikania
+
+#endif // !_SERVER_APP_H_
