@@ -17,5 +17,4 @@
 #
 
 add_subdirectory(elapsed-timer)
-add_subdirectory(js)
 add_subdirectory(network-util)
