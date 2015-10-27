@@ -1,5 +1,5 @@
-#ifndef SIZE_H
-#define SIZE_H
+#ifndef _MALIKANIA_SIZE_H_
+#define _MALIKANIA_SIZE_H_
 
 namespace malikania {
 
@@ -22,4 +22,4 @@ inline bool operator!=(const Size &lhs, const Size &rhs)
 
 }// !malikania
 
-#endif // SIZE_H
+#endif // !_MALIKANIA_SIZE_H_

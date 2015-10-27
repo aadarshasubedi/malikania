@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef _MALIKANIA_COLOR_H_
+#define _MALIKANIA_COLOR_H_
 
 
 class Color
@@ -11,4 +11,4 @@ public:
 	int alpha = 255;
 };
 
-#endif // COLOR_H
+#endif // !_MALIKANIA_COLOR_H_

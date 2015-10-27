@@ -1,5 +1,5 @@
-#ifndef FONT_H
-#define FONT_H
+#ifndef _MALIKANIA_FONT_H_
+#define _MALIKANIA_FONT_H_
 
 #include <string>
 
@@ -34,4 +34,4 @@ public:
 
 }
 
-#endif // FONT_H
+#endif // _MALIKANIA_FONT_H_

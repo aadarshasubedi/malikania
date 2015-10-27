@@ -1,5 +1,5 @@
-#ifndef SPRITE_H
-#define SPRITE_H
+#ifndef _MALIKANIA_SPRITE_H_
+#define _MALIKANIA_SPRITE_H_
 
 #include <malikania/Json.h>
 
@@ -87,4 +87,4 @@ public:
 
 }// !malikania
 
-#endif // SPRITE_H
+#endif // !_MALIKANIA_SPRITE_H_

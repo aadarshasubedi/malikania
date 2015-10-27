@@ -1,5 +1,5 @@
-#ifndef SPRITESDL_H
-#define SPRITESDL_H
+#ifndef _MALIKANIA_SPRITESDL_H_
+#define _MALIKANIA_SPRITESDL_H_
 
 #include <malikania/Json.h>
 
@@ -35,4 +35,4 @@ using BackendSprite = SpriteSdl;
 
 }// !malikania
 
-#endif // SPRITESDL_H
+#endif // !_MALIKANIA_SPRITESDL_H_

@@ -1,5 +1,5 @@
-#ifndef LINE_H
-#define LINE_H
+#ifndef _MALIKANIA_LINE_H_
+#define _MALIKANIA_LINE_H_
 
 namespace malikania {
 
@@ -14,4 +14,4 @@ public:
 
 }// !malikania
 
-#endif // LINE_H
+#endif // !_MALIKANIA_LINE_H_
