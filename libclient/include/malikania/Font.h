@@ -11,10 +11,10 @@
 
 namespace malikania {
 
-class Font
-{
+class Font {
 private:
 	BackendFont m_backend;
+
 public:
 	inline Font(std::string path, int size)
 		: m_backend(path, size)
@@ -32,6 +32,6 @@ public:
 	}
 };
 
-}
+} // !malikania
 
 #endif // _MALIKANIA_FONT_H_

@@ -3,8 +3,7 @@
 
 namespace malikania {
 
-class Line
-{
+class Line {
 public:
 	int startX{0};
 	int startY{0};

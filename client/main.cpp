@@ -158,7 +158,7 @@ int main(void)
 		testSprite.draw(mainWindow, 2, {400, 400, 300, 300});
 		testSprite.draw(mainWindow, 11, {600, 400, 300, 300});
 
-		Color c{255, 50, 40, 255};
+		malikania::Color c{255, 50, 40, 255};
 		mainWindow.setDrawingColor(c);
 		mainWindow.drawLine({0, 0, 300, 300});
 

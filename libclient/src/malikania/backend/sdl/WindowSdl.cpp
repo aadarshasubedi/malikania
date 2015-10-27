@@ -152,7 +152,7 @@ void WindowSdl::drawPoints(const std::vector<Point> &points)
 	}
 }
 
-void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor)
+void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, const malikania::Color &fillColor)
 {
 	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
 	int error = SDL_RenderDrawRect(m_renderer.get(), &rect);
