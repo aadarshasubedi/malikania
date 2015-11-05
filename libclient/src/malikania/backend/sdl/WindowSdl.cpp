@@ -100,7 +100,7 @@ Size WindowSdl::resolution()
 
 void WindowSdl::setDrawingColor(const Color &color)
 {
-	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red, color.green, color.blue, color.alpha);
+	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red(), color.green(), color.blue(), color.alpha());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't set drawing color" + std::string(SDL_GetError()));
 	}
