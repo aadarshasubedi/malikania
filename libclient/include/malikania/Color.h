@@ -70,10 +70,12 @@ public:
 	}
 
 	/**
-	 * Construct a color from SVG list. See http://www.december.com/html/spec/colorsvg.html.
+	 * Construct a color from #rrggbb or name.
+	 *
+	 * See the SVG this [list](http://www.december.com/html/spec/colorsvg.html) for supported names.
 	 *
 	 * @param name the color name
-	 * @throw std::invalid_argument if the color does not exist
+	 * @throw std::invalid_argument if the color does not exist or is invalid
 	 */
 	Color(const std::string &name);
 

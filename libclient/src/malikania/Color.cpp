@@ -24,12 +24,32 @@ namespace malikania {
 
 namespace {
 
-constexpr unsigned rgb(int r, int g, int b) noexcept
+constexpr unsigned rgb(uint8_t r, uint8_t g, uint8_t b) noexcept
 {
 	return (0xff000000 | (r << 16) | (g << 8) | b);
 }
 
-std::unordered_map<std::string, uint32_t> colors{
+/*
+ * Convert hexadecimal value to the correct number.
+ */
+uint8_t value(char digit)
+{
+	if (std::isdigit(digit)) {
+		return digit - '0';
+	}
+	if ((digit = std::toupper(digit)) < 'A' || digit > 'F') {
+		throw std::invalid_argument{"invalid hexadecimal value: " + digit};
+	}
+
+	return digit - 55;
+}
+
+inline uint8_t value(char digit1, char digit2)
+{
+	return ((value(digit1) << 4) & 0xf0) | value(digit2);
+}
+
+const std::unordered_map<std::string, uint32_t> colors{
 	{ "aliceblue",		rgb(240, 248, 255)	},
 	{ "antiquewhite",	rgb(250, 235, 215)	},
 	{ "aqua",		rgb( 0, 255, 255)	},
@@ -184,14 +204,32 @@ std::unordered_map<std::string, uint32_t> colors{
 
 Color::Color(const std::string &name)
 {
-	auto it = colors.find(name);
+	if (!name.empty()) {
+		/* Parse #rrggbb or #rgb */
+		if (name[0] == '#') {
+			if (name.length() == 7) {
+				m_red   = value(name[1], name[2]);
+				m_green = value(name[3], name[4]);
+				m_blue  = value(name[5], name[6]);
+			} else if (name.length() == 4) {
+				m_red   = value(name[1], name[1]);
+				m_green = value(name[2], name[2]);
+				m_blue  = value(name[3], name[3]);
+			} else {
+				throw std::invalid_argument{"invalid format"};
+			}
+		} else {
+			/* Name lookup */
+			auto it = colors.find(name);
 
-	if (it == colors.end()) {
-		throw std::invalid_argument{name + " is not a valid color"};
+			if (it == colors.end()) {
+				throw std::invalid_argument{name + " is not a valid color"};
+			}
+
+			/* Assign the color to *this */
+			*this = it->second;
+		}
 	}
-
-	/* Assign the color to *this */
-	*this = it->second;
 }
 
 } // !malikania

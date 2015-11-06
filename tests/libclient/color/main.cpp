@@ -199,6 +199,150 @@ TEST(Named, wrong)
 	}
 }
 
+/*
+ * #rrggbb
+ * ------------------------------------------------------------------
+ *
+ * Test most famous.
+ */
+
+TEST(FullRgb, black)
+{
+	Color c{"#000000"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(FullRgb, white)
+{
+	Color c{"#ffffff"};
+
+	ASSERT_EQ(255, c.red());
+	ASSERT_EQ(255, c.green());
+	ASSERT_EQ(255, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(FullRgb, red)
+{
+	Color c{"#ff0000"};
+
+	ASSERT_EQ(255, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(FullRgb, green)
+{
+	Color c{"#00ff00"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(255, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(FullRgb, blue)
+{
+	Color c{"#0000ff"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(255, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(FullRgb, wrong)
+{
+	try {
+		Color c{"#ghijkl"};
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
+	}
+}
+
+/*
+ * #rgb
+ * ------------------------------------------------------------------
+ *
+ * Test most famous.
+ */
+
+TEST(ShortRgb, black)
+{
+	Color c{"#000"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, white)
+{
+	Color c{"#fff"};
+
+	ASSERT_EQ(255, c.red());
+	ASSERT_EQ(255, c.green());
+	ASSERT_EQ(255, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, red)
+{
+	Color c{"#f00"};
+
+	ASSERT_EQ(255, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, green)
+{
+	Color c{"#0f0"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(255, c.green());
+	ASSERT_EQ(0, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, blue)
+{
+	Color c{"#00f"};
+
+	ASSERT_EQ(0, c.red());
+	ASSERT_EQ(0, c.green());
+	ASSERT_EQ(255, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, combination)
+{
+	Color c{"#123"};
+
+	ASSERT_EQ(17, c.red());
+	ASSERT_EQ(34, c.green());
+	ASSERT_EQ(51, c.blue());
+	ASSERT_EQ(255, c.alpha());
+}
+
+TEST(ShortRgb, wrong)
+{
+	try {
+		Color c{"#ghi"};
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
+	}
+}
+
 int main(int argc, char **argv)
 {
 	testing::InitGoogleTest(&argc, argv);
