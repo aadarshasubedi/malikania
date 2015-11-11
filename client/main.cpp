@@ -27,6 +27,7 @@
 #include <malikania/Image.h>
 #include <malikania/Point.h>
 #include <malikania/Label.h>
+#include <malikania/Animation.h>
 
 using namespace std::literals::chrono_literals;
 
@@ -141,6 +142,20 @@ int main(void)
 	std::shared_ptr<malikania::Font> font = std::make_shared<malikania::Font>("resources/fonts/DejaVuSans.ttf", 48);
 	malikania::Label testLabel("Malikania !!! Youpi !", font, {0, 0, 100, 50});
 
+	malikania::Animation testAnimation = malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
+		std::string("{\"sprite\": \"no-working-yet.json\", \"alias\": \"testAnimation\", \"frames\": [")
+		+ "{ \"delay\": 200, \"cell\": 0 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 10, \"cell\": 2 }, { \"delay\": 200, \"cell\": 3 },"
+		+ "{ \"delay\": 10, \"cell\": 1 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 200, \"cell\": 4 }, { \"delay\": 10, \"cell\": 5 },"
+		+ "{ \"delay\": 10, \"cell\": 6 }, { \"delay\": 200, \"cell\": 7 },"
+		+ "{ \"delay\": 10, \"cell\": 6 }, { \"delay\": 10, \"cell\": 5 },"
+		+ "{ \"delay\": 200, \"cell\": 8 }, { \"delay\": 10, \"cell\": 9 },"
+		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 200, \"cell\": 11 },"
+		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 10, \"cell\": 9 }"
+		+ "]}"
+	).toObject());
+
 	while (mainWindow.isOpen()) {
 
 		// TODO delete this, just for fun...
@@ -190,6 +205,8 @@ int main(void)
 		);
 
 		testLabel.draw(mainWindow, {300, 300, 200, 50});
+
+		testAnimation.draw(mainWindow, {1000, 0, 300, 300});
 
 		mainWindow.present();
 

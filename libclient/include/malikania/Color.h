@@ -20,6 +20,7 @@
 #define _MALIKANIA_COLOR_H_
 
 #include <cstdint>
+#include <string>
 
 namespace malikania {
 

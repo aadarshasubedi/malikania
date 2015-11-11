@@ -17,6 +17,7 @@
  */
 
 #include <unordered_map>
+#include <cctype>
 
 #include "Color.h"
 
