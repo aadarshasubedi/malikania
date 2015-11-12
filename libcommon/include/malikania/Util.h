@@ -1,5 +1,5 @@
 /*
- * NetworkUtil.h -- networking utilities
+ * Util.h -- utilities
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,8 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _NETWORK_UTIL_H_
-#define _NETWORK_UTIL_H_
+#ifndef _UTIL_H_
+#define _UTIL_H_
 
 /**
  * @file NetworkUtil.h
@@ -30,20 +30,19 @@
 namespace malikania {
 
 /**
- * @class NetworkUtil
- * @brief Some utilities for network
+ * Various utilities.
  */
-class NetworkUtil {
-public:
-	/**
-	 * Split the network message buffer by \r\n\r\n and update the
-	 * buffer in-place.
-	 *
-	 * @param input the buffer to split and update
-	 * @return the list of received message or empty if not ready
-	 */
-	static std::vector<std::string> split(std::string &input);
-};
+namespace util {
+
+/**
+ * Split the network message buffer by \r\n\r\n and update it in-place.
+ *
+ * @param input the buffer to split and update
+ * @return the list of received message or empty if not ready
+ */
+std::vector<std::string> netsplit(std::string &input);
+
+} // !util
 
 } // !malikania
 

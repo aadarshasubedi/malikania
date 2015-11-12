@@ -1,5 +1,5 @@
 /*
- * NetworkUtil.cpp -- networking utilities
+ * Util.cpp -- utilities
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,11 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <malikania/NetworkUtil.h>
+#include "Util.h"
 
 namespace malikania {
 
-std::vector<std::string> NetworkUtil::split(std::string &input)
+namespace util {
+
+std::vector<std::string> netsplit(std::string &input)
 {
 	std::vector<std::string> ret;
 	std::string::size_type pos;
@@ -32,5 +34,7 @@ std::vector<std::string> NetworkUtil::split(std::string &input)
 
 	return ret;
 }
+
+} // !util
 
 } // !malikania

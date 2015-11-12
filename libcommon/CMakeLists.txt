@@ -27,12 +27,8 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Loader.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkUtil.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Socket.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketAddress.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketListener.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketSsl.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/SocketTcp.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sockets.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Util.h
 )
 
 set(
@@ -45,12 +41,8 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Js.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Loader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkUtil.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Socket.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketAddress.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketListener.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketSsl.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/SocketTcp.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sockets.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Util.cpp
 )
 
 if (WIN32)

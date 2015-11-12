@@ -1,5 +1,5 @@
 /*
- * main.cpp -- test NetworkUtil
+ * main.cpp -- test util
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -18,14 +18,14 @@
 
 #include <gtest/gtest.h>
 
-#include <malikania/NetworkUtil.h>
+#include <malikania/Util.h>
 
 using namespace malikania;
 
 TEST(Basic, simple)
 {
 	std::string input = "hello world\r\n\r\n";
-	std::vector<std::string> messages = NetworkUtil::split(input);
+	std::vector<std::string> messages = util::netsplit(input);
 
 	ASSERT_EQ(1U, messages.size());
 	ASSERT_EQ("hello world", messages[0]);
@@ -35,7 +35,7 @@ TEST(Basic, simple)
 TEST(Basic, two)
 {
 	std::string input = "hello world\r\n\r\nhow are you?\r\n\r\n";
-	std::vector<std::string> messages = NetworkUtil::split(input);
+	std::vector<std::string> messages = util::netsplit(input);
 
 	ASSERT_EQ(2U, messages.size());
 	ASSERT_EQ("hello world", messages[0]);
@@ -46,7 +46,7 @@ TEST(Basic, two)
 TEST(Basic, imcomplete)
 {
 	std::string input = "hello world\r\n";
-	std::vector<std::string> messages = NetworkUtil::split(input);
+	std::vector<std::string> messages = util::netsplit(input);
 
 	ASSERT_EQ(0U, messages.size());
 	ASSERT_EQ("hello world\r\n", input);
@@ -55,7 +55,7 @@ TEST(Basic, imcomplete)
 TEST(Basic, empty)
 {
 	std::string input = "hello world\r\n\r\n\r\n\r\nhow are you?\r\n\r\n";
-	std::vector<std::string> messages = NetworkUtil::split(input);
+	std::vector<std::string> messages = util::netsplit(input);
 
 	ASSERT_EQ(3U, messages.size());
 	ASSERT_EQ("hello world", messages[0]);
