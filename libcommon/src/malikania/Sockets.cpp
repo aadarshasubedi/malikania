@@ -25,6 +25,8 @@
 
 #include "Sockets.h"
 
+namespace malikania {
+
 namespace net {
 
 /*
@@ -707,3 +709,5 @@ std::vector<ListenerStatus> Kqueue::wait(const ListenerTable &, int ms)
 /* }}} */
 
 } // !net
+
+} // !malikania

@@ -170,6 +170,8 @@
 #include <string>
 #include <vector>
 
+namespace malikania {
+
 /**
  * General network namespace.
  */
@@ -4059,5 +4061,7 @@ public:
 /* }}} */
 
 } // !net
+
+} // !malikania
 
 #endif // !_SOCKETS_H_
