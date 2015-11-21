@@ -19,6 +19,7 @@
 set(
 	HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Animation.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Animator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Image.h
@@ -34,6 +35,7 @@ set(
 set(
 	SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp

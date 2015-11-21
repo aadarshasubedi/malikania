@@ -20,8 +20,6 @@ private:
 	Sprite m_sprite;
 	std::string m_name;
 	std::vector<std::map<std::string, int>> m_frames;
-	int m_spendedTime = 0;
-	int m_currentFrame = 0;
 	static void checkJSONFormat(const JsonObject& json);
 
 public:
@@ -37,9 +35,19 @@ public:
 		return m_sprite;
 	}
 
+	inline const std::vector<std::map<std::string, int>> &frames() const noexcept
+	{
+		return m_frames;
+	}
+
+	inline std::vector<std::map<std::string, int>> &frames() noexcept
+	{
+		return m_frames;
+	}
+
 	static Animation fromJson(Window &window, const JsonObject &jsonAnimation);
 
-	void draw(Window &window, const Rectangle &rectangle);
+//	void draw(Window &window, const Rectangle &rectangle);
 };
 
 }// !malikania

@@ -28,6 +28,7 @@
 #include <malikania/Point.h>
 #include <malikania/Label.h>
 #include <malikania/Animation.h>
+#include <malikania/Animator.h>
 
 using namespace std::literals::chrono_literals;
 
@@ -142,7 +143,7 @@ int main(void)
 	std::shared_ptr<malikania::Font> font = std::make_shared<malikania::Font>("resources/fonts/DejaVuSans.ttf", 48);
 	malikania::Label testLabel("Malikania !!! Youpi !", font, {0, 0, 100, 50});
 
-	malikania::Animation testAnimation = malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
+	std::shared_ptr<malikania::Animation> testAnimation = std::make_shared<malikania::Animation>(malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
 		std::string("{\"sprite\": \"no-working-yet.json\", \"alias\": \"testAnimation\", \"frames\": [")
 		+ "{ \"delay\": 200, \"cell\": 0 }, { \"delay\": 10, \"cell\": 1 },"
 		+ "{ \"delay\": 10, \"cell\": 2 }, { \"delay\": 200, \"cell\": 3 },"
@@ -154,7 +155,19 @@ int main(void)
 		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 200, \"cell\": 11 },"
 		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 10, \"cell\": 9 }"
 		+ "]}"
-	).toObject());
+	).toObject()));
+
+	std::shared_ptr<malikania::Animation> testAnimation2 =  std::make_shared<malikania::Animation>(malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
+		std::string("{\"sprite\": \"no-working-yet.json\", \"alias\": \"testAnimation\", \"frames\": [")
+		+ "{ \"delay\": 2000, \"cell\": 0 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 10, \"cell\": 2 }, { \"delay\": 2000, \"cell\": 3 },"
+		+ "{ \"delay\": 10, \"cell\": 1 }, { \"delay\": 10, \"cell\": 1 }"
+		+ "]}"
+	).toObject()));
+
+	malikania::Animator testAnimator1 = malikania::Animator(testAnimation);
+	malikania::Animator testAnimator2 = malikania::Animator(std::move(testAnimation));
+	malikania::Animator testAnimator3 = malikania::Animator(std::move(testAnimation2));
 
 	while (mainWindow.isOpen()) {
 
@@ -206,7 +219,9 @@ int main(void)
 
 		testLabel.draw(mainWindow, {300, 300, 200, 50});
 
-		testAnimation.draw(mainWindow, {1000, 0, 300, 300});
+		testAnimator1.draw(mainWindow, {1000, 0, 300, 300});
+		testAnimator2.draw(mainWindow, {100, 600, 300, 300});
+		testAnimator3.draw(mainWindow, {400, 600, 300, 300});
 
 		mainWindow.present();
 

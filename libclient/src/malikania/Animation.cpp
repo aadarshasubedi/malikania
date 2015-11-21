@@ -86,21 +86,4 @@ Animation Animation::fromJson(Window &window, const JsonObject &jsonAnimation)
 	return Animation(std::move(sprite), jsonAnimation["alias"].toString(), std::move(frames));
 }
 
-void Animation::draw(Window &window, const Rectangle &rectangle)
-{
-	std::map<std::string, int> frame = m_frames.at(m_currentFrame);
-
-	m_sprite.draw(window, frame["cell"], rectangle);
-	// TODO replace hard coded 5ms by the real refresh time
-	m_spendedTime += 5;
-	if (m_spendedTime > frame["delay"]) {
-		m_currentFrame++;
-		m_spendedTime = 0;
-		// loop the animation
-		if (m_currentFrame > (m_frames.size() - 1)) {
-			m_currentFrame = 0;
-		}
-	}
-}
-
 }// !malikania
