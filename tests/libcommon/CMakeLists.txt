@@ -17,4 +17,4 @@
 #
 
 add_subdirectory(elapsed-timer)
-add_subdirectory(network-util)
+add_subdirectory(util)
