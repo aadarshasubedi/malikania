@@ -26,6 +26,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Line.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Point.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
 )
 
 set(
@@ -33,6 +34,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
 )
 
 # TODO: move to a Sdl.cmake
@@ -43,15 +45,21 @@ if (WITH_BACKEND_SDL)
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/ImageSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
+			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/FontSdl.h
+	)
+	list(
+		APPEND
 		SOURCES
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/ImageSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/SpriteSdl.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/FontSdl.cpp
 	)
 endif ()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
 malikania_create_library(
 	PROJECT libclient
@@ -63,8 +71,10 @@ malikania_create_library(
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${SDL2_INCLUDE_DIRS}
 		${SDL2_IMAGE_INCLUDE_DIRS}
+		${SDL2_TTF_INCLUDE_DIRS}
 	LIBRARIES
 		libcommon
 		${SDL2_LIBRARIES}
 		${SDL2_IMAGE_LIBRARIES}
+		${SDL2_TTF_LIBRARIES}
 )

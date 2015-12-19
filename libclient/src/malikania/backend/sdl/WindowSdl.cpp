@@ -30,6 +30,10 @@ WindowSdl::WindowSdl()
 	if (m_renderer == nullptr) {
 		throw std::runtime_error("Couldn't create a renderer");
 	}
+
+	if (TTF_Init() == -1) {
+		throw std::runtime_error(std::string("Couldn't initialize TTF library: ") + TTF_GetError());
+	}
 }
 
 void WindowSdl::processEvents(Window &window)
@@ -191,6 +195,44 @@ void WindowSdl::drawRectangles(const std::vector<Rectangle> &rectangles, bool fi
 			}
 		}
 	}
+}
+
+/**
+ * TODO Add color in parameters
+ * @brief WindowSdl::drawText
+ * @param text
+ * @param size
+ */
+void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &rectangle)
+{
+	SDL_Color textColor = {0, 0, 0, 255};
+	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
+	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+	Size screenSize = resolution();
+	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
+
+	SDL_FreeSurface(message);
+}
+
+/**
+ * TODO Add color in parameters
+ * @brief WindowSdl::drawText
+ * @param text
+ * @param size
+ */
+void WindowSdl::drawText(const std::string &text, Font &font, const Point &point)
+{
+	SDL_Color textColor = {0, 0, 0, 255};
+	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
+	SDL_Rect rect{point.x, point.y, message->w, message->h};
+	Size screenSize = resolution();
+	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
+
+	SDL_FreeSurface(message);
 }
 
 void WindowSdl::close()

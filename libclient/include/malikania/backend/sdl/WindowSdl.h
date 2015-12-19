@@ -12,6 +12,7 @@
 #include <malikania/Line.h>
 #include <malikania/Point.h>
 #include <malikania/Rectangle.h>
+#include <malikania/Font.h>
 
 namespace malikania {
 
@@ -43,6 +44,8 @@ public:
 	void drawPoints(const std::vector<Point> &points);
 	void drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor);
 	void drawRectangles(const std::vector<Rectangle> &rectangles, bool filled, std::vector<Color> fillColors);
+	void drawText(const std::string &text, Font &font, const Rectangle &rectangle);
+	void drawText(const std::string &text, Font &font, const Point &point);
 
 	inline SDL_Renderer *renderer() noexcept
 	{

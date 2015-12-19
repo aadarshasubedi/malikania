@@ -150,6 +150,16 @@ public:
 	{
 		m_backend.drawRectangles(rectangles, filled, fillColors);
 	}
+
+	inline void drawText(const std::string &text, Font &font, const Rectangle &rectangle)
+	{
+		m_backend.drawText(text, font, rectangle);
+	}
+
+	inline void drawText(const std::string &text, Font &font, const Point &point)
+	{
+		m_backend.drawText(text, font, point);
+	}
 };
 
 }// !malikania
