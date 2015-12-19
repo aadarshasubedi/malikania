@@ -1,5 +1,5 @@
 /*
- * main.cpp -- main server executable file
+ * Account.cpp -- class to manage database in mongodb
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,22 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#include "Account.h"
 
-#include "malikania/Database.h"
-using namespace malikania;
+namespace malikania {
 
-int main(void)
-{
-	DatabaseInfo infosDB;
-	infosDB.host = "localhost";
-	infosDB.database = "malikania";
-	infosDB.collection = "account";
-
-	Database db(infosDB);
-
-	db.insert();
-
-	Database::cleanup();
-	return 0;
-}
+} // !malikania

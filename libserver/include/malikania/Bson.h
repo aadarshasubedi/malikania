@@ -1,5 +1,5 @@
 /*
- * main.cpp -- main server executable file
+ * Bson.h -- class to manage database in mongodb
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,22 +16,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef _MALIKIANIA_BSON_H_
+#define _MALIKIANIA_BSON_H_
 
-#include "malikania/Database.h"
-using namespace malikania;
+#include <bson.h>
 
-int main(void)
-{
-	DatabaseInfo infosDB;
-	infosDB.host = "localhost";
-	infosDB.database = "malikania";
-	infosDB.collection = "account";
+class Bson {
 
-	Database db(infosDB);
 
-	db.insert();
+};
 
-	Database::cleanup();
-	return 0;
-}
+#endif // BSON_H
+

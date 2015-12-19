@@ -1,5 +1,5 @@
 /*
- * main.cpp -- main server executable file
+ * DAO.h -- class to manage database in mongodb
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,22 +16,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef DAO_H
+#define DAO_H
 
-#include "malikania/Database.h"
-using namespace malikania;
+namespace malikania {
 
-int main(void)
-{
-	DatabaseInfo infosDB;
-	infosDB.host = "localhost";
-	infosDB.database = "malikania";
-	infosDB.collection = "account";
+class DAO {
+public :
+	virtual void ToBson() = 0;
+};
 
-	Database db(infosDB);
+} // !malikania
 
-	db.insert();
+#endif // DAO_H
 
-	Database::cleanup();
-	return 0;
-}

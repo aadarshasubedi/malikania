@@ -1,5 +1,5 @@
 /*
- * main.cpp -- main server executable file
+ * Account.h -- class to manage database in mongodb
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,22 +16,20 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <iostream>
+#ifndef _MALIKIANIA_ACCOUNT_H
+#define _MALIKIANIA_ACCOUNT_H
 
-#include "malikania/Database.h"
-using namespace malikania;
+#include "DAO.h"
 
-int main(void)
-{
-	DatabaseInfo infosDB;
-	infosDB.host = "localhost";
-	infosDB.database = "malikania";
-	infosDB.collection = "account";
+namespace malikania {
 
-	Database db(infosDB);
+class Account : public DAO {
+public :
+	void ToBson(){}
 
-	db.insert();
+};
 
-	Database::cleanup();
-	return 0;
-}
+} // !malikania
+
+#endif // _MALIKIANIA_ACCOUNT_H
+

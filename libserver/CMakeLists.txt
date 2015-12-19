@@ -18,6 +18,8 @@
 
 set(
 	HEADERS
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Account.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Bson.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Database.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkClient.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/NetworkManager.h
@@ -28,6 +30,7 @@ set(
 
 set(
 	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Account.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Database.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkClient.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/NetworkManager.cpp
