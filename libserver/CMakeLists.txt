@@ -18,11 +18,13 @@
 
 set(
 	HEADERS
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Server.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApp.h
 )
 
 set(
 	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Server.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApp.cpp
 )
 

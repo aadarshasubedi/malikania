@@ -17,7 +17,7 @@
 #
 
 malikania_create_test(
-	NAME networkutil
+	NAME util
 	LIBRARIES libcommon
 	SOURCES main.cpp
 )
