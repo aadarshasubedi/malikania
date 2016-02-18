@@ -1,7 +1,7 @@
 /*
- * Json.h -- C++14 JSON manipulation using jansson parser
+ * json.h -- C++14 JSON manipulation using jansson parser
  *
- * Copyright (c) 2013-2015 David Demelier <markand@malikania.fr>
+ * Copyright (c) 2015-2016 David Demelier <markand@malikania.fr>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,20 +20,17 @@
 #define _JSON_H_
 
 /**
- * @file Json.h
+ * @file json.h
  * @brief Jansson C++14 wrapper
- *
- * These classes can be used to build or parse JSON documents using jansson library. It is designed to be safe
- * and explicit. It does not implement implicit sharing like jansson so when you access (e.g. Value::toObject) values
- * you get real copies, thus when you read big documents it can has a performance cost.
  */
 
+#include <cassert>
 #include <exception>
 #include <initializer_list>
 #include <map>
 #include <string>
 #include <utility>
-#include <deque>
+#include <vector>
 
 namespace malikania {
 
@@ -50,10 +47,10 @@ enum class Type {
 	Array,		//!< Value is an array []
 	Boolean,	//!< Value is boolean
 	Int,		//!< Value is integer
-	Real,		//!< Value is float
+	Null,		//!< Value is defined to null
 	Object,		//!< Value is object {}
-	String,		//!< Value is unicode string
-	Null		//!< Value is defined to null
+	Real,		//!< Value is float
+	String		//!< Value is unicode string
 };
 
 /**
@@ -72,41 +69,66 @@ public:
 	/**
 	 * Create the error.
 	 *
-	 * @param ptext the text message
-	 * @param psource the source (e.g. file name)
-	 * @param pline the line number
-	 * @param pcolumn the column number
-	 * @param pposition the position
+	 * @param text the text message
+	 * @param source the source (e.g. file name)
+	 * @param line the line number
+	 * @param column the column number
+	 * @param position the position
 	 */
 	inline Error(std::string text, std::string source, int line, int column, int position) noexcept
-		: m_text{std::move(text)}
-		, m_source{std::move(source)}
-		, m_line{line}
-		, m_column{column}
-		, m_position{position}
+		: m_text(std::move(text))
+		, m_source(std::move(source))
+		, m_line(line)
+		, m_column(column)
+		, m_position(position)
 	{
 	}
 
+	/**
+	 * Get the error message.
+	 *
+	 * @return the text
+	 */
 	inline const std::string &text() const noexcept
 	{
 		return m_text;
 	}
 
+	/**
+	 * Get the source (e.g. a file name).
+	 *
+	 * @return the source
+	 */
 	inline const std::string &source() const noexcept
 	{
 		return m_source;
 	}
 
+	/**
+	 * Get the line.
+	 *
+	 * @return the line
+	 */
 	inline int line() const noexcept
 	{
 		return m_line;
 	}
 
+	/**
+	 * Get the column.
+	 *
+	 * @return the column
+	 */
 	inline int column() const noexcept
 	{
 		return m_column;
 	}
 
+	/**
+	 * Get the position.
+	 *
+	 * @return the position
+	 */
 	inline int position() const noexcept
 	{
 		return m_position;
@@ -123,43 +145,236 @@ public:
 	}
 };
 
-class Array;
-class Object;
+/**
+ * @class Iterator
+ * @brief This is the base class for iterator and const_iterator
+ *
+ * This iterator works for both arrays and objects. Because of that purpose, it is only available
+ * as forward iterator.
+ *
+ * When iterator comes from an object, you can use key() otherwise you can use index().
+ */
+template <typename ValueType, typename ArrayIteratorType, typename ObjectIteratorType>
+class Iterator : public std::iterator<std::forward_iterator_tag, ValueType> {
+private:
+	friend class Value;
+
+	ValueType *m_value{nullptr};
+	ArrayIteratorType m_ita;
+	ObjectIteratorType m_itm;
+
+	inline void increment()
+	{
+		if (m_value->isObject())
+			m_itm++;
+		else
+			m_ita++;
+	}
+
+	inline Iterator(ValueType *value, ObjectIteratorType it)
+		: m_value(value)
+		, m_itm(it)
+	{
+	}
+
+	inline Iterator(ValueType *value, ArrayIteratorType it)
+		: m_value(value)
+		, m_ita(it)
+	{
+	}
+
+public:
+	/**
+	 * Default constructor.
+	 */
+	Iterator() = default;
+
+	/**
+	 * Get the iterator key (for objects).
+	 *
+	 * @pre iterator must be dereferenceable
+	 * @pre iterator must come from object
+	 * @return the key
+	 */
+	inline const std::string &key() const noexcept
+	{
+		assert(m_value);
+		assert(m_value->isObject());
+		assert(m_itm != m_value->m_object.end());
+
+		return m_itm->first;
+	}
+
+	/**
+	 * Get the iterator position (for arrays).
+	 *
+	 * @pre iterator must be dereferenceable
+	 * @pre iterator must come from arrays
+	 * @return the index
+	 */
+	inline unsigned index() const noexcept
+	{
+		assert(m_value);
+		assert(m_value->isArray());
+		assert(m_ita != m_value->m_array.end());
+
+		return std::distance(m_value->m_array.begin(), m_ita);
+	}
+
+	/**
+	 * Dereference the iterator.
+	 *
+	 * @pre iterator be dereferenceable
+	 * @return the value
+	 */
+	inline ValueType &operator*() noexcept
+	{
+		assert(m_value);
+		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
+		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+
+		return (m_value->m_type == Type::Object) ? m_itm->second : *m_ita;
+	}
+
+	/**
+	 * Dereference the iterator as a pointer.
+	 *
+	 * @pre iterator must be dereferenceable
+	 * @return the value
+	 */
+	inline ValueType *operator->() noexcept
+	{
+		assert(m_value);
+		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
+		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+
+		return (m_value->m_type == Type::Object) ? &m_itm->second : &(*m_ita);
+	}
+
+	/**
+	 * Increment the iterator. (Prefix version).
+	 *
+	 * @pre iterator must be dereferenceable
+	 * @return this;
+	 */
+	inline Iterator &operator++() noexcept
+	{
+		assert(m_value);
+		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
+		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+
+		increment();
+
+		return this;
+	}
+
+	/**
+	 * Increment the iterator. (Postfix version).
+	 *
+	 * @pre iterator must be dereferenceable
+	 * @return this;
+	 */
+	inline Iterator &operator++(int) noexcept
+	{
+		assert(m_value);
+		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
+		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+
+		increment();
+
+		return this;
+	}
+
+	/**
+	 * Compare two iterators.
+	 *
+	 * @param it1 the first iterator
+	 * @param it2 the second iterator
+	 * @return true if they are same
+	 */
+	bool operator==(const Iterator &it) const noexcept
+	{
+		if (m_value == it.m_value)
+			return true;
+		if (m_value == nullptr || it.m_value == nullptr)
+			return false;
+		if (m_value->isObject() && it.m_value->isObject())
+			return m_itm == it.m_itm;
+		if (m_value->isArray() && it.m_value->isArray())
+			return m_ita == it.m_ita;
+
+		return false;
+	}
+
+	/**
+	 * Test if the iterator is different.
+	 *
+	 * @param it the iterator
+	 * @return true if they are different
+	 */
+	inline bool operator!=(const Iterator &it) const noexcept
+	{
+		return !(this == it);
+	}
+};
 
 /**
  * @class Value
  * @brief Generic JSON value wrapper.
  */
 class Value {
-protected:
-	/**
-	 * Type of value.
-	 */
-	Type m_type;
+private:
+	Type m_type{Type::Null};
 
 	union {
 		double m_number;
 		bool m_boolean;
 		int m_integer;
 		std::string m_string;
-		std::deque<Value> m_array;
-		std::map<std::string, Value> m_map;
+		std::vector<Value> m_array;
+		std::map<std::string, Value> m_object;
 	};
 
+	void copy(const Value &);
+	void move(Value &&);
+	std::string toJson(int indent, int current) const;
+
+	friend class Iterator<Value, typename std::vector<Value>::iterator, typename std::map<std::string, Value>::iterator>;
+	friend class Iterator<const Value, typename std::vector<Value>::const_iterator, typename std::map<std::string, Value>::const_iterator>;;
+
 public:
+	/**
+	 * Forward iterator.
+	 */
+	using iterator = Iterator<Value, typename std::vector<Value>::iterator, typename std::map<std::string, Value>::iterator>;
+
+	/**
+	 * Const forward iterator.
+	 */
+	using const_iterator = Iterator<const Value, typename std::vector<Value>::const_iterator, typename std::map<std::string, Value>::const_iterator>;
+
 	/**
 	 * Construct a null value.
 	 */
 	inline Value() noexcept
-		: m_type{Type::Null}
 	{
 	}
+
+	/**
+	 * Create a value with a specified type, this is usually only needed when you want to create an object or
+	 * an array.
+	 *
+	 * For any other types, initialize with sane default value.
+	 *
+	 * @param type the type
+	 */
+	Value(Type type);
 
 	/**
 	 * Construct a null value.
 	 */
 	inline Value(std::nullptr_t) noexcept
-		: m_type{Type::Null}
+		: m_type(Type::Null)
 	{
 	}
 
@@ -169,8 +384,8 @@ public:
 	 * @param value the boolean value
 	 */
 	inline Value(bool value) noexcept
-		: m_type{Type::Boolean}
-		, m_boolean{value}
+		: m_type(Type::Boolean)
+		, m_boolean(value)
 	{
 	}
 
@@ -180,8 +395,8 @@ public:
 	 * @param value the value
 	 */
 	inline Value(int value) noexcept
-		: m_type{Type::Int}
-		, m_integer{value}
+		: m_type(Type::Int)
+		, m_integer(value)
 	{
 	}
 
@@ -191,9 +406,9 @@ public:
 	 * @param value the C-string
 	 */
 	inline Value(const char *value)
-		: m_type{Type::String}
+		: m_type(Type::String)
 	{
-		new (&m_string) std::string{value};
+		new (&m_string) std::string{value ? value : ""};
 	}
 
 	/**
@@ -202,8 +417,8 @@ public:
 	 * @param value the real value
 	 */
 	inline Value(double value) noexcept
-		: m_type{Type::Real}
-		, m_number{value}
+		: m_type(Type::Real)
+		, m_number(value)
 	{
 	}
 
@@ -213,9 +428,35 @@ public:
 	 * @param value the string
 	 */
 	inline Value(std::string value) noexcept
-		: m_type{Type::String}
+		: m_type(Type::String)
 	{
-		new (&m_string) std::string{std::move(value)};
+		new (&m_string) std::string(std::move(value));
+	}
+
+	/**
+	 * Create an object from a map.
+	 *
+	 * @param values the values
+	 * @see fromObject
+	 */
+	inline Value(std::map<std::string, Value> values)
+		: Value(Type::Object)
+	{
+		for (const auto &pair : values)
+			insert(pair.first, pair.second);
+	}
+
+	/**
+	 * Create an array from a vector.
+	 *
+	 * @param values the values
+	 * @see fromArray
+	 */
+	inline Value(std::vector<Value> values)
+		: Value(Type::Array)
+	{
+		for (Value value : values)
+			append(std::move(value));
 	}
 
 	/**
@@ -225,33 +466,7 @@ public:
 	 */
 	inline Value(Value &&other)
 	{
-		m_type = other.m_type;
-
-		switch (m_type) {
-		case Type::String:
-			new (&m_string) std::string();
-			m_string = std::move(other.m_string);
-			break;
-		case Type::Real:
-			m_number = other.m_number;
-			break;
-		case Type::Int:
-			m_integer = other.m_integer;
-			break;
-		case Type::Boolean:
-			m_boolean = other.m_boolean;
-			break;
-		case Type::Object:
-			new (&m_map) std::map<std::string, Value>();
-			m_map = std::move(other.m_map);
-			break;
-		case Type::Array:
-			new (&m_array) std::deque<Value>();
-			m_array = std::move(other.m_array);
-			break;
-		default:
-			break;
-		}
+		move(std::move(other));
 	}
 
 	/**
@@ -261,70 +476,18 @@ public:
 	 */
 	inline Value(const Value &other)
 	{
-		m_type = other.m_type;
-
-		switch (m_type) {
-		case Type::String:
-			new (&m_string) std::string();
-			m_string = other.m_string;
-			break;
-		case Type::Real:
-			m_number = other.m_number;
-			break;
-		case Type::Int:
-			m_integer = other.m_integer;
-			break;
-		case Type::Boolean:
-			m_boolean = other.m_boolean;
-			break;
-		case Type::Object:
-			new (&m_map) std::map<std::string, Value>();
-			m_map = other.m_map;
-			break;
-		case Type::Array:
-			new (&m_array) std::deque<Value>();
-			m_array = other.m_array;
-			break;
-		default:
-			break;
-		}
+		copy(other);
 	}
 
 	/**
 	 * Copy operator.
 	 *
 	 * @param other the value to copy from
-	 * @return *this
+	 * @return this
 	 */
 	inline Value &operator=(const Value &other)
 	{
-		m_type = other.m_type;
-
-		switch (m_type) {
-		case Type::String:
-			new (&m_string) std::string();
-			m_string = other.m_string;
-			break;
-		case Type::Real:
-			m_number = other.m_number;
-			break;
-		case Type::Int:
-			m_integer = other.m_integer;
-			break;
-		case Type::Boolean:
-			m_boolean = other.m_boolean;
-			break;
-		case Type::Object:
-			new (&m_map) std::map<std::string, Value>();
-			m_map = other.m_map;
-			break;
-		case Type::Array:
-			new (&m_array) std::deque<Value>();
-			m_array = other.m_array;
-			break;
-		default:
-			break;
-		}
+		copy(other);
 
 		return *this;
 	}
@@ -336,33 +499,7 @@ public:
 	 */
 	inline Value &operator=(Value &&other)
 	{
-		m_type = other.m_type;
-
-		switch (m_type) {
-		case Type::String:
-			new (&m_string) std::string();
-			m_string = std::move(other.m_string);
-			break;
-		case Type::Real:
-			m_number = other.m_number;
-			break;
-		case Type::Int:
-			m_integer = other.m_integer;
-			break;
-		case Type::Boolean:
-			m_boolean = other.m_boolean;
-			break;
-		case Type::Object:
-			new (&m_map) std::map<std::string, Value>();
-			m_map = std::move(other.m_map);
-			break;
-		case Type::Array:
-			new (&m_array) std::deque<Value>();
-			m_array = std::move(other.m_array);
-			break;
-		default:
-			break;
-		}
+		move(std::move(other));
 
 		return *this;
 	}
@@ -370,21 +507,84 @@ public:
 	/**
 	 * Destructor.
 	 */
-	inline ~Value()
+	~Value();
+
+	/**
+	 * Get an iterator to the beginning.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline iterator begin() noexcept
 	{
-		switch (m_type) {
-		case Type::String:
-			m_string.~basic_string();
-			break;
-		case Type::Object:
-			m_map.~map<std::string, Value>();
-			break;
-		case Type::Array:
-			m_array.~deque<Value>();
-			break;
-		default:
-			break;
-		}
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? iterator(this, m_object.begin()) : iterator(this, m_array.begin());
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline const_iterator begin() const noexcept
+	{
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? const_iterator(this, m_object.begin()) : const_iterator(this, m_array.begin());
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline const_iterator cbegin() const noexcept
+	{
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? const_iterator(this, m_object.cbegin()) : const_iterator(this, m_array.cbegin());
+	}
+
+	/**
+	 * Get an iterator to the end.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline iterator end() noexcept
+	{
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? iterator(nullptr, m_object.end()) : iterator(this, m_array.end());
+	}
+
+	/**
+	 * Get an iterator to the end.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline const_iterator end() const noexcept
+	{
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? const_iterator(nullptr, m_object.end()) : const_iterator(this, m_array.end());
+	}
+
+	/**
+	 * Get an iterator to the end.
+	 *
+	 * @pre must be an array or object
+	 * @return the iterator
+	 */
+	inline const_iterator cend() const noexcept
+	{
+		assert(isArray() || isObject());
+
+		return m_type == Type::Object ? const_iterator(nullptr, m_object.cend()) : const_iterator(this, m_array.cend());
 	}
 
 	/**
@@ -402,44 +602,38 @@ public:
 	 *
 	 * @return the value or false if not a boolean
 	 */
-	bool toBool() const noexcept;
+	inline bool toBool() const noexcept
+	{
+		return m_type != Type::Boolean ? false : m_boolean;
+	}
 
 	/**
 	 * Get the value as integer.
 	 *
 	 * @return the value or 0 if not a integer
 	 */
-	int toInt() const noexcept;
+	inline int toInt() const noexcept
+	{
+		return m_type != Type::Int ? 0 : m_integer;
+	}
 
 	/**
 	 * Get the value as real.
 	 *
 	 * @return the value or 0 if not a real
 	 */
-	double toReal() const noexcept;
+	inline double toReal() const noexcept
+	{
+		return m_type != Type::Real ? 0 : m_number;
+	}
 
 	/**
 	 * Get the value as string.
 	 *
-	 * @return the value or empty stirng if not a string
+	 * @param coerce set to true to coerce the value if not a string
+	 * @return the value or empty string if not a string
 	 */
-	std::string toString() const noexcept;
-
-	/**
-	 * Convert the value to object.
-	 *
-	 * @return an object or empty if not an object
-	 * @note the returned object is a copy, modifying it won't modify this value
-	 */
-	Object toObject() const noexcept;
-
-	/**
-	 * Convert the value to array.
-	 *
-	 * @return an array or empty if not an array
-	 * @note the returned array is a copy, modifying it won't modify this value
-	 */
-	Array toArray() const noexcept;
+	std::string toString(bool coerce = false) const;
 
 	/**
 	 * Check if the value is boolean type.
@@ -522,113 +716,42 @@ public:
 	{
 		return m_type == Type::String;
 	}
-};
-
-/**
- * @class Array
- * @brief Array definition.
- */
-class Array : public Value {
-public:
-	/**
-	 * Construct an empty array.
-	 */
-	inline Array()
-	{
-		m_type = Type::Array;
-		new (&m_array) std::deque<Value>();
-	}
 
 	/**
-	 * Copy constructor from value for safe casts.
+	 * Get the array or object size.
 	 *
-	 * @param v the value to copy from
+	 * @pre must be an array or object
+	 * @return the size
 	 */
-	inline Array(const Value &v)
-		: Value{v}
+	inline unsigned size() const noexcept
 	{
+		assert(isArray() || isObject());
+
+		if (m_type == Type::Object)
+			return m_object.size();
+
+		return m_array.size();
 	}
 
 	/**
-	 * Move constructor from value for safe casts.
+	 * Remove all the values.
 	 *
-	 * @param v the value to move from
+	 * @pre must be an array or an object
 	 */
-	inline Array(Value &&v)
-		: Value{std::move(v)}
+	inline void clear() noexcept
 	{
+		assert(isArray() || isObject());
+
+		if (m_type == Type::Array)
+			m_array.clear();
+		else
+			m_object.clear();
 	}
 
-	/**
-	 * Construct an array from a std::initializer_list.
-	 *
-	 * @param values the list of values
+	/*
+	 * Array functions
+	 * ----------------------------------------------------------
 	 */
-	inline Array(std::initializer_list<Value> values)
-	{
-		m_type = Type::Array;
-		new (&m_array) std::deque<Value>(values.begin(), values.end());
-	}
-
-	/**
-	 * Get non-const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto begin() noexcept
-	{
-		return m_array.begin();
-	}
-
-	/**
-	 * Get a const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto begin() const noexcept
-	{
-		return m_array.begin();
-	}
-
-	/**
-	 * Get a const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto cbegin() const noexcept
-	{
-		return m_array.cbegin();
-	}
-
-	/**
-	 * Get a non-const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto end() noexcept
-	{
-		return m_array.end();
-	}
-
-	/**
-	 * Get a const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto end() const noexcept
-	{
-		return m_array.end();
-	}
-
-	/**
-	 * Get a const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto cend() const noexcept
-	{
-		return m_array.cend();
-	}
 
 	/**
 	 * Get the value at the specified position or the defaultValue if position is out of bounds.
@@ -637,12 +760,28 @@ public:
 	 * @param defaultValue the value replacement
 	 * @return the value or defaultValue
 	 */
-	template <typename V>
-	inline Value valueOr(unsigned position, V &&defaultValue) const
+	template <typename DefaultValue>
+	inline Value valueOr(unsigned position, DefaultValue &&defaultValue) const
 	{
-		if (position >= m_array.size()) {
+		if (m_type != Type::Array || position >= m_array.size())
 			return defaultValue;
-		}
+
+		return m_array[position];
+	}
+
+	/**
+	 * Overloaded function with type check.
+	 *
+	 * @param position the position
+	 * @param type the requested type
+	 * @param defaultValue the value replacement
+	 * @return the value or defaultValue
+	 */
+	template <typename DefaultValue>
+	inline Value valueOr(unsigned position, Type type, DefaultValue &&defaultValue) const
+	{
+		if (m_type != Type::Array || position >= m_array.size() || m_array[position].typeOf() != type)
+			return defaultValue;
 
 		return m_array[position];
 	}
@@ -650,217 +789,168 @@ public:
 	/**
 	 * Get a value at the specified index.
 	 *
+	 * @pre must be an array
 	 * @param position the position
 	 * @return the value
 	 * @throw std::out_of_range if out of bounds
 	 */
 	inline const Value &at(unsigned position) const
 	{
+		assert(isArray());
+
 		return m_array.at(position);
 	}
 
 	/**
-	 * Get a value at the specified index.
+	 * Overloaded function.
 	 *
+	 * @pre must be an array
 	 * @param position the position
 	 * @return the value
 	 * @throw std::out_of_range if out of bounds
 	 */
 	inline Value &at(unsigned position)
 	{
+		assert(isArray());
+
 		return m_array.at(position);
 	}
 
 	/**
 	 * Get a value at the specified index.
 	 *
+	 * @pre must be an array
+	 * @pre position must be valid
 	 * @param position the position
 	 * @return the value
 	 */
 	inline const Value &operator[](unsigned position) const
 	{
+		assert(isArray());
+		assert(position < m_array.size());
+
 		return m_array[position];
 	}
 
 	/**
 	 * Overloaded function.
 	 *
+	 * @pre must be an array
+	 * @pre position must be valid
 	 * @param position the position
 	 * @return the value
 	 */
 	inline Value &operator[](unsigned position)
 	{
+		assert(isArray());
+		assert(position < m_array.size());
+
 		return m_array[position];
 	}
 
 	/**
 	 * Push a value to the beginning of the array.
 	 *
+	 * @pre must be an array
 	 * @param value the value to push
 	 */
-	template <typename T>
-	inline void push(T &&value)
+	inline void push(const Value &value)
 	{
-		m_array.push_front(std::forward<T>(value));
+		assert(isArray());
+
+		m_array.insert(m_array.begin(), value);
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @pre must be an array
+	 * @param value the value to push
+	 */
+	inline void push(Value &&value)
+	{
+		assert(isArray());
+
+		m_array.insert(m_array.begin(), std::move(value));
 	}
 
 	/**
 	 * Insert a value at the specified position.
 	 *
+	 * @pre must be an array
+	 * @pre position must be valid
 	 * @param position the position
 	 * @param value the value to push
 	 */
-	template <typename T>
-	inline void insert(unsigned position, T &&value)
+	inline void insert(unsigned position, const Value &value)
 	{
-		m_array.insert(m_array.begin() + position, std::forward<T>(value));
+		assert(isArray());
+		assert(position <= m_array.size());
+
+		m_array.insert(m_array.begin() + position, value);
 	}
 
 	/**
-	 * Add a new value.
+	 * Overloaded function.
 	 *
+	 * @pre must be an array
+	 * @pre position must be valid
+	 * @param position the position
+	 * @param value the value to push
+	 */
+	inline void insert(unsigned position, Value &&value)
+	{
+		assert(isArray());
+		assert(position <= m_array.size());
+
+		m_array.insert(m_array.begin() + position, std::move(value));
+	}
+
+	/**
+	 * Add a new value to the end.
+	 *
+	 * @pre must be an array
 	 * @param value the value to append
 	 */
-	template <typename T>
-	inline void append(T &&value)
+	inline void append(const Value &value)
 	{
-		m_array.push_back(std::forward<T>(value));
+		assert(isArray());
+
+		m_array.push_back(value);
 	}
 
 	/**
-	 * Get the array size.
+	 * Overloaded function.
 	 *
-	 * @return the size
+	 * @pre must be an array
+	 * @param value the value to append
 	 */
-	inline unsigned size() const noexcept
+	inline void append(Value &&value)
 	{
-		return m_array.size();
-	}
+		assert(isArray());
 
-	/**
-	 * Remove all the values.
-	 */
-	inline void clear()
-	{
-		m_array.clear();
+		m_array.push_back(std::move(value));
 	}
 
 	/**
 	 * Remove a value at the specified position.
 	 *
+	 * @pre must be an array
+	 * @pre position must be valid
 	 * @param position the position
 	 */
 	inline void erase(unsigned position)
 	{
+		assert(isArray());
+		assert(position < m_array.size());
+
 		m_array.erase(m_array.begin() + position);
 	}
-};
 
-/**
- * @class Object
- * @brief Object definition.
- */
-class Object : public Value {
-public:
-	/**
-	 * Construct an empty object.
+	/*
+	 * Object functions
+	 * ----------------------------------------------------------
 	 */
-	Object()
-	{
-		m_type = Type::Object;
-		new (&m_map) std::map<std::string, Value>();
-	}
-
-	/**
-	 * Copy constructor from value for safe casts.
-	 *
-	 * @param v the value to copy from
-	 */
-	Object(const Value &v)
-		: Value{v}
-	{
-	}
-
-	/**
-	 * Move constructor from value for safe casts.
-	 *
-	 * @param v the value to move from
-	 */
-	Object(Value &&v)
-		: Value{std::move(v)}
-	{
-	}
-
-	/**
-	 * Create an object from the initializer_list of key-value pairs.
-	 *
-	 * @param values the values
-	 */
-	Object(std::initializer_list<std::pair<std::string, Value>> values)
-	{
-		m_type = Type::Object;
-		new (&m_map) std::map<std::string, Value>(values.begin(), values.end());
-	}
-
-	/**
-	 * Get non-const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto begin() noexcept
-	{
-		return m_map.begin();
-	}
-
-	/**
-	 * Get a const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto begin() const noexcept
-	{
-		return m_map.begin();
-	}
-
-	/**
-	 * Get a const iterator to the beginning.
-	 *
-	 * @return the iterator
-	 */
-	inline auto cbegin() const noexcept
-	{
-		return m_map.cbegin();
-	}
-
-	/**
-	 * Get a non-const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto end() noexcept
-	{
-		return m_map.end();
-	}
-
-	/**
-	 * Get a const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto end() const noexcept
-	{
-		return m_map.end();
-	}
-
-	/**
-	 * Get a const iterator to the end.
-	 *
-	 * @return the iterator
-	 */
-	inline auto cend() const noexcept
-	{
-		return m_map.cend();
-	}
 
 	/**
 	 * Get the value at the specified key or the defaultValue if key is absent.
@@ -869,14 +959,38 @@ public:
 	 * @param defaultValue the value replacement
 	 * @return the value or defaultValue
 	 */
-	template <typename V>
-	inline Value valueOr(const std::string &name, V &&defaultValue) const
+	template <typename DefaultValue>
+	Value valueOr(const std::string &name, DefaultValue &&defaultValue) const
 	{
-		auto it = m_map.find(name);
-
-		if (it == m_map.end()) {
+		if (m_type != Type::Object)
 			return defaultValue;
-		}
+
+		auto it = m_object.find(name);
+
+		if (it == m_object.end())
+			return defaultValue;
+
+		return it->second;
+	}
+
+	/**
+	 * Overloaded function with type check.
+	 *
+	 * @param name the name
+	 * @param type the requested type
+	 * @param defaultValue the value replacement
+	 * @return the value or defaultValue
+	 */
+	template <typename DefaultValue>
+	Value valueOr(const std::string &name, Type type, DefaultValue &&defaultValue) const
+	{
+		if (m_type != Type::Object)
+			return defaultValue;
+
+		auto it = m_object.find(name);
+
+		if (it == m_object.end() || it->second.typeOf() != type)
+			return defaultValue;
 
 		return it->second;
 	}
@@ -884,180 +998,139 @@ public:
 	/**
 	 * Get a value from the object.
 	 *
+	 * @pre must be an object
 	 * @param name the value key
 	 * @return the value
 	 * @throw std::out_of_range if not found
 	 */
 	inline const Value &at(const std::string &name) const
 	{
-		return m_map.at(name);
+		assert(isObject());
+
+		return m_object.at(name);
 	}
 
 	/**
 	 * Overloaded function.
 	 *
+	 * @pre must be an object
 	 * @param name the value key
 	 * @return the value
 	 * @throw std::out_of_range if not found
 	 */
 	inline Value &at(const std::string &name)
 	{
-		return m_map.at(name);
+		assert(isObject());
+
+		return m_object.at(name);
 	}
 
 	/**
 	 * Get a value from the object.
 	 *
+	 * @pre must be an object
 	 * @param name the value key
 	 * @return the value
 	 */
 	inline Value &operator[](const std::string &name)
 	{
-		return m_map.at(name);
+		assert(isObject());
+
+		return m_object[name];
+	}
+
+	/**
+	 * Find a value by key.
+	 *
+	 * @pre must be an object
+	 * @param key the property key
+	 * @return the iterator or past the end if not found
+	 */
+	inline iterator find(const std::string &key)
+	{
+		assert(isObject());
+
+		return iterator(this, m_object.find(key));
+	}
+
+	/**
+	 * Overloaded function.
+	 *
+	 * @pre must be an object
+	 * @param key the property key
+	 * @return the iterator or past the end if not found
+	 */
+	inline const_iterator find(const std::string &key) const
+	{
+		assert(isObject());
+
+		return const_iterator(this, m_object.find(key));
 	}
 
 	/**
 	 * Insert a new value.
 	 *
+	 * @pre must be an object
 	 * @param name the key
 	 * @param value the value
 	 */
-	inline void insert(std::string name, Value value)
+	inline void insert(std::string name, const Value &value)
 	{
-		m_map.insert({std::move(name), std::move(value)});
+		assert(isObject());
+
+		m_object.insert({std::move(name), value});
 	}
 
 	/**
-	 * Remove all the values from the object.
-	 */
-	inline void clear()
-	{
-		m_map.clear();
-	}
-
-	/**
-	 * Get the number of entries in the object.
+	 * Overloaded function.
 	 *
-	 * @return the size
+	 * @pre must be an object
+	 * @param name the key
+	 * @param value the value
 	 */
-	inline unsigned size() const noexcept
+	inline void insert(std::string name, Value &&value)
 	{
-		return m_map.size();
+		assert(isObject());
+
+		m_object.insert({std::move(name), std::move(value)});
 	}
 
 	/**
 	 * Check if a value exists.
 	 *
+	 * @pre must be an object
 	 * @param key the key value
 	 * @return true if exists
 	 */
 	inline bool contains(const std::string &key) const noexcept
 	{
-		return m_map.find(key) != m_map.end();
+		assert(isObject());
+
+		return m_object.find(key) != m_object.end();
 	}
 
 	/**
 	 * Remove a value of the specified key.
 	 *
+	 * @pre must be an object
 	 * @param key the value key
 	 */
 	inline void erase(const std::string &key)
 	{
-		m_map.erase(key);
-	}
-};
+		assert(isObject());
 
-/**
- * @class Buffer
- * @brief Open JSON document from text.
- */
-class Buffer {
-public:
-	std::string text;	//!< The JSON text
-};
-
-/**
- * @class File
- * @brief Open JSON document from a file.
- */
-class File {
-public:
-	std::string path;	//!< The path to the file
-};
-
-/**
- * @class Document
- * @brief Construct a JSON document from a source
- * @see Buffer
- * @see File
- */
-class Document {
-private:
-	Value m_value;
-
-public:
-	/**
-	 * Construct a document from a buffer.
-	 *
-	 * @param buffer the text
-	 * @throw Error on errors
-	 */
-	Document(Buffer buffer);
-
-	/**
-	 * Construct a document from a file.
-	 *
-	 * @param file the file
-	 * @throw Error on errors
-	 */
-	Document(File file);
-
-	/**
-	 * Check if the opened document is an object.
-	 *
-	 * @return true if object
-	 */
-	inline bool isObject() const noexcept
-	{
-		return m_value.typeOf() == Type::Object;
+		m_object.erase(key);
 	}
 
 	/**
-	 * Check if the opened document is an array.
+	 * Return this value as JSon representation.
 	 *
-	 * @return true if array
+	 * @param indent the indentation to use (0 == compact, < 0 == tabs, > 0 == number of spaces)
+	 * @return the string
 	 */
-	inline bool isArray() const noexcept
+	inline std::string toJson(int indent = 2) const
 	{
-		return m_value.typeOf() == Type::Array;
-	}
-
-	/**
-	 * Get the object.
-	 *
-	 * @return the object or empty object if not an object
-	 */
-	inline Object toObject() const noexcept
-	{
-		if (m_value.typeOf() != Type::Object) {
-			return Object{};
-		}
-
-		return Object(m_value);
-	}
-
-	/**
-	 * Get the array.
-	 *
-	 * @return the array or empty object if not an array
-	 */
-	inline Array toArray() const noexcept
-	{
-		if (m_value.typeOf() != Type::Array) {
-			return Array{};
-		}
-
-		return Array(m_value);
+		return toJson(indent, 0);
 	}
 };
 
@@ -1067,7 +1140,67 @@ public:
  * @param input the input
  * @return the escaped string
  */
-std::string escape(std::string input) noexcept;
+std::string escape(const std::string &input);
+
+/**
+ * Convenient function to create an empty array.
+ *
+ * @return an empty array
+ */
+inline Value array()
+{
+	return Value(Type::Array);
+}
+
+/**
+ * Convenient function for creating array from initializer list.
+ *
+ * @param values the values
+ * @return the array
+ */
+inline Value array(std::initializer_list<Value> values)
+{
+	return Value(std::vector<Value>(values.begin(), values.end()));
+}
+
+/**
+ * Convenient function to create an empty object.
+ *
+ * @return an empty object
+ */
+inline Value object()
+{
+	return Value(Type::Object);
+}
+
+/**
+ * Convenient function for creating object from initializer list.
+ *
+ * @param values the values
+ * @return the object
+ */
+inline Value object(std::initializer_list<std::pair<std::string, Value>> values)
+{
+	return Value(std::map<std::string, Value>(values.begin(), values.end()));
+}
+
+/**
+ * Construct a value from a buffer.
+ *
+ * @param data the JSON data
+ * @return the parsed value
+ * @throw Error on errors
+ */
+Value fromString(const std::string &data);
+
+/**
+ * Construct a value from a file.
+ *
+ * @param path the path to the file
+ * @return the parsed value
+ * @throw Error on errors
+ */
+Value fromFile(const std::string &path);
 
 } // !json
 

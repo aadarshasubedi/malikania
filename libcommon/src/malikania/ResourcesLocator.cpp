@@ -16,14 +16,39 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "Json.h"
-#include "Loader.h"
+#include <cerrno>
+#include <cstring>
+#include <fstream>
+#include <iterator>
+#include <stdexcept>
+
+#include "ResourcesLocator.h"
 
 namespace malikania {
 
-json::Document LoaderDirectory::metadata() const
+ResourcesLocatorDirectory::ResourcesLocatorDirectory(std::string path) noexcept
+	: m_path(std::move(path))
 {
-	return json::Document{json::File{m_path + "/game.json"}};
+}
+
+std::string ResourcesLocatorDirectory::read(const std::string &id)
+{
+	std::ifstream in(m_path + "/" + id);
+
+	if (!in)
+		throw std::runtime_error(std::strerror(errno));
+
+	return std::string(std::istreambuf_iterator<char>(in.rdbuf()), std::istreambuf_iterator<char>());
+}
+
+std::unique_ptr<std::istream> ResourcesLocatorDirectory::open(const std::string &id)
+{
+	auto ptr = std::make_unique<std::ifstream>(m_path + "/" + id);
+
+	if (!(*ptr))
+		throw std::runtime_error(std::strerror(errno));
+
+	return ptr;
 }
 
 } // !malikania

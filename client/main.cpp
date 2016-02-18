@@ -27,6 +27,8 @@
 #include <malikania/Image.h>
 #include <malikania/Point.h>
 
+#if 0
+
 using namespace std::literals::chrono_literals;
 
 // TODO delete this... just for fun
@@ -197,3 +199,7 @@ int main(void)
 
 	return 0;
 }
+
+#endif
+
+int main() { return 0; }

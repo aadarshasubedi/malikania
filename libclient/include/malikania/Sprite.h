@@ -24,7 +24,6 @@ private:
 	Size m_size;
 	Size m_space;
 	Size m_margin;
-	static void checkJSONFormat(const JsonObject& json);
 
 public:
 	Sprite(Image image, std::string alias, Size cell, Size size, Size space = {0, 0}, Size margin = {0, 0});
@@ -62,6 +61,7 @@ public:
 	inline Size &size()
 	{
 		m_size = m_size.height > 0 && m_size.width > 0 ? m_size : m_backend.size(*this);
+
 		return m_size;
 	}
 
@@ -75,14 +75,12 @@ public:
 		return m_margin;
 	}
 
-	static Sprite fromJson(Window &window, const JsonObject &jsonSprite);
-
-	void draw(Window &window, int index, const Rectangle &rectangle);
-
 	inline BackendSprite &backend() noexcept
 	{
 		return m_backend;
 	}
+
+	void draw(Window &window, int index, const Rectangle &rectangle);
 };
 
 }// !malikania

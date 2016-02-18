@@ -23,6 +23,8 @@
 #include <malikania/Window.h>
 #include <malikania/Sprite.h>
 
+#if 0
+
 using namespace malikania;
 
 TEST(Basic, createSpriteStandard)
@@ -247,6 +249,8 @@ TEST(Basic, createSpriteMarginValuesNot2)
 		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"margin\" must have 2 values", e.what());
 	}
 }
+
+#endif
 
 int main(int argc, char **argv)
 {

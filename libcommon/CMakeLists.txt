@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015 Malikania Authors
+# Copyright (c) 2013-2016 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -21,12 +21,12 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Application.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Directory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Game.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Hash.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Id.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Loader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLoader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLocator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Util.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sockets.h
 )
@@ -40,7 +40,8 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Hash.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Js.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Loader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ResourcesLoader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ResourcesLocator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sockets.cpp
 )

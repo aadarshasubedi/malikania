@@ -20,7 +20,7 @@
 #define _SERVER_APP_H_
 
 #include <malikania/Game.h>
-#include <malikania/Loader.h>
+#include <malikania/ResourcesLoader.h>
 
 namespace malikania {
 
@@ -28,14 +28,14 @@ namespace malikania {
  * @class ServerApp
  * @brief Create a server application
  */
-class ServerApp : public Game {
+class ServerApp {
 public:
 	/**
 	 * Create a server application.
 	 *
 	 * @param directory the directory
 	 */
-	ServerApp(const LoaderDirectory &directory);
+	ServerApp(const ResourcesLoader &directory);
 };
 
 } // !malikania

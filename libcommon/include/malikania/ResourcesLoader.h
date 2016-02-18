@@ -1,5 +1,5 @@
 /*
- * Loader.h -- wrapper to load directories
+ * ResourcesLoader.h --
  *
  * Copyright (c) 2013, 2014, 2015 Malikania Authors
  *
@@ -16,46 +16,46 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LOADER_H_
-#define _MALIKANIA_LOADER_H_
+#include <string>
 
 namespace malikania {
 
-namespace json {
-
-class Document;
-
-} // !json
+class Game;
+class ResourcesLocator;
 
 /**
- * @class LoaderDirectory
- * @brief Load a game from a directory.
+ * @class ResourcesLoader
+ * @brief Open resources files using a ResourcesLocator.
+ *
+ * This class is used to load resources files that are common to the server and the client.
+ *
+ * @see ResourcesLoaderClient
+ * @see ResourcesLoaderServer
  */
-class LoaderDirectory {
+class ResourcesLoader {
 private:
-	std::string m_path;
+	ResourcesLocator &m_locator;
 
 public:
 	/**
-	 * Load the game from the directory.
+	 * Construct the ResourcesLoader.
 	 *
-	 * @param path the base directory
+	 * @param locator the locator
 	 */
-	inline LoaderDirectory(std::string path) noexcept
-		: m_path{std::move(path)}
-	{
-	}
+	ResourcesLoader(ResourcesLocator &locator);
 
 	/**
-	 * Get the game metadata.
-	 *
-	 * @return the metadata
-	 * @throw any exception on failures
+	 * Virtual destructor defaulted.
 	 */
-	json::Document metadata() const;
+	virtual ~ResourcesLoader() = default;
+
+	/**
+	 * Load a game.
+	 *
+	 * @return the game
+	 * @throw std::runtime_error on errors
+	 */
+	virtual Game loadGame() const;
 };
 
 } // !malikania
-
-#endif // !_MALIKANIA_LOADER_H_
-

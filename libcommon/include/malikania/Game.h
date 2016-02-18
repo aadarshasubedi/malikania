@@ -19,6 +19,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -37,18 +38,35 @@ class Document;
 class Game {
 private:
 	std::string m_name;
-	std::vector<std::string> m_authors;
-	std::string m_license;
 	std::string m_version;
 	std::string m_requires;
+	std::string m_license;
+	std::string m_author;
 
 public:
 	/**
-	 * Load the game metadata.
+	 * Construct a game.
 	 *
-	 * @param document the game metadata
+	 * @pre name must not be empty
+	 * @pre version must not be empty
+	 * @pre requires must not be empty
+	 * @param name the game name
+	 * @param version the version
+	 * @param requires the engine version required
+	 * @param license the license (Optional)
+	 * @param authors the authors (Optional)
 	 */
-	Game(const json::Document &document);
+	inline Game(std::string name, std::string version, std::string requires, std::string license, std::string author)
+		: m_name(std::move(name))
+		, m_version(std::move(version))
+		, m_requires(std::move(requires))
+		, m_license(std::move(license))
+		, m_author(std::move(author))
+	{
+		assert(!m_name.empty());
+		assert(!m_version.empty());
+		assert(!m_requires.empty());
+	}
 
 	/**
 	 * Get the game name.
@@ -61,13 +79,13 @@ public:
 	}
 
 	/**
-	 * Get the authors.
+	 * Get the author.
 	 *
-	 * @return the authors
+	 * @return the author
 	 */
-	inline const std::vector<std::string> &authors() const noexcept
+	inline const std::string &author() const noexcept
 	{
-		return m_authors;
+		return m_author;
 	}
 
 	/**

@@ -18,6 +18,8 @@
 
 #include <gtest/gtest.h>
 
+#if 0
+
 #include <malikania/NetworkUtil.h>
 
 using namespace malikania;
@@ -63,6 +65,8 @@ TEST(Basic, empty)
 	ASSERT_EQ("how are you?", messages[2]);
 	ASSERT_TRUE(input.empty());
 }
+
+#endif
 
 int main(int argc, char **argv)
 {

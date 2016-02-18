@@ -3,7 +3,9 @@
 
 namespace malikania {
 
-void Sprite::checkJSONFormat(const JsonObject& json)
+#if 0
+
+void Sprite::checkJSONFormat(const json::Value& json)
 {
 	std::string prependErrorMessage = "Couldn't parse JSON Sprite object: ";
 
@@ -90,6 +92,8 @@ void Sprite::checkJSONFormat(const JsonObject& json)
 	}
 }
 
+#endif
+
 Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space, Size margin)
 	: m_image(std::move(image))
 	, m_name(std::move(alias))
@@ -100,7 +104,9 @@ Sprite::Sprite(Image image, std::string alias, Size cell, Size size, Size space,
 {
 }
 
-Sprite Sprite::fromJson(Window &window, const JsonObject &jsonSprite)
+#if 0
+
+Sprite Sprite::fromJson(Window &window, const json::Value &jsonSprite)
 {
 	Sprite::checkJSONFormat(jsonSprite);
 	Size cell({jsonSprite["cell"].toArray()[0].toInteger(), jsonSprite["cell"].toArray()[1].toInteger()});
@@ -139,6 +145,8 @@ Sprite Sprite::fromJson(Window &window, const JsonObject &jsonSprite)
 	return Sprite(std::move(image), jsonSprite["alias"].toString(), std::move(cell)
 			, Size({width, height}), std::move(space), std::move(margin));
 }
+
+#endif
 
 void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
 {
