@@ -18,4 +18,5 @@
 
 add_subdirectory(duktape)
 add_subdirectory(gtest)
+add_subdirectory(jansson)
 add_subdirectory(plantuml)
