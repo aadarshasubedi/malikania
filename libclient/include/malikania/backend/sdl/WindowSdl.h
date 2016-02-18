@@ -42,7 +42,7 @@ public:
 	void drawLines(const std::vector<Point> &points);
 	void drawPoint(const Point &point);
 	void drawPoints(const std::vector<Point> &points);
-	void drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor);
+	void drawRectangle(const Rectangle &rectangle, bool filled, const Color &fillColor);
 	void drawRectangles(const std::vector<Rectangle> &rectangles, bool filled, std::vector<Color> fillColors);
 	void drawText(const std::string &text, Font &font, const Rectangle &rectangle);
 	void drawText(const std::string &text, Font &font, const Point &point);

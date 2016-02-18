@@ -1,5 +1,5 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef _MALIKANIA_IMAGE_H_
+#define _MALIKANIA_IMAGE_H_
 
 #include <memory>
 #include <string>
@@ -46,4 +46,4 @@ public:
 
 }// !malikania
 
-#endif // IMAGE_H
+#endif // !_MALIKANIA_IMAGE_H_

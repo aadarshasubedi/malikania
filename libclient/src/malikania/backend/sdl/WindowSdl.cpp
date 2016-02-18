@@ -100,7 +100,7 @@ Size WindowSdl::resolution()
 
 void WindowSdl::setDrawingColor(const Color &color)
 {
-	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red, color.green, color.blue, color.alpha);
+	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red(), color.green(), color.blue(), color.alpha());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't set drawing color" + std::string(SDL_GetError()));
 	}
@@ -152,7 +152,7 @@ void WindowSdl::drawPoints(const std::vector<Point> &points)
 	}
 }
 
-void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor)
+void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, const malikania::Color &fillColor)
 {
 	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
 	int error = SDL_RenderDrawRect(m_renderer.get(), &rect);
