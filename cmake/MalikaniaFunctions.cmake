@@ -255,6 +255,7 @@ function(malikania_create_test)
 
 	add_executable(test-${TEST_NAME} ${TEST_SOURCES} ${outputs})
 	source_group(private\\Resources FILES ${outputs})
+	target_compile_definitions(test-${TEST_NAME} PRIVATE SOURCE_DIRECTORY=\"${CMAKE_BINARY_DIR}/test/${TEST_NAME}\")
 	set_target_properties(
 		test-${TEST_NAME}
 		PROPERTIES

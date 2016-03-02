@@ -17,11 +17,15 @@
  */
 
 #include <string>
+#include <unordered_map>
+
+#include "Json.h"
+#include "ResourcesLocator.h"
 
 namespace malikania {
 
 class Game;
-class ResourcesLocator;
+class Size;
 
 /**
  * @class ResourcesLoader
@@ -35,6 +39,67 @@ class ResourcesLocator;
 class ResourcesLoader {
 private:
 	ResourcesLocator &m_locator;
+
+protected:
+	inline ResourcesLocator &locator() noexcept
+	{
+		return m_locator;
+	}
+
+	/**
+	 * Check that an object has the specified properties of the given type.
+	 *
+	 * Throws an error when any of the property is missing or not the correct type.
+	 *
+	 * You can use this function when you have lot of properties to extract, otherwise, you can use one of the
+	 * require* or get* functions to avoid performances overhead.
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param props the properties
+	 * @throw std::runtime_error when a property is missing / invalid
+	 */
+	void requires(const std::string &id,
+		      const json::Value &object,
+		      const std::unordered_map<std::string, json::Type> props) const;
+
+	/**
+	 * Require a string.
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param property the property
+	 * @return the string
+	 * @throw std::runtime_error if the property is not a string or missing
+	 */
+	std::string requireString(const std::string &id, const json::Value &object, const std::string &property) const;
+
+	/**
+	 * Require a size object from an object property.
+	 *
+	 * The size is an array of two integers (e.g. [ 1, 2 ]).
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param property the property
+	 * @return the size
+	 * @throw std::runtime_error if the property is not a size
+	 */
+	Size requireSize(const std::string &id, const json::Value &object, const std::string &property) const;
+
+	/**
+	 * Get a size object or a default one if not present or invalid.
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param property the property
+	 * @return the size or default one
+	 */
+	Size getSize(const std::string &id, const json::Value &object, const std::string &property) const noexcept;
 
 public:
 	/**

@@ -8,23 +8,24 @@ using namespace std::string_literals;
 
 namespace malikania {
 
-ImageSdl::ImageSdl(Image &image, Window &window, const std::string &path)
+ImageSdl::ImageSdl(Image &, Window &window, const std::string &data)
 	: m_texture(nullptr, nullptr)
 {
-	// Create Texture
-	m_texture = TextureHandle(
-		IMG_LoadTexture(window.backend().renderer(), path.c_str()),
-		SDL_DestroyTexture
-	);
+	auto rw = SDL_RWFromMem(const_cast<char *>(data.c_str()), data.length());
+
+	if (rw == nullptr) {
+		throw std::runtime_error(SDL_GetError());
+	}
+
+	m_texture = TextureHandle(IMG_LoadTexture_RW(window.backend().renderer(), rw, true), SDL_DestroyTexture);
 
 	if (m_texture == nullptr) {
-		throw std::runtime_error("failed to load texture: " + std::string(SDL_GetError()));
+		throw std::runtime_error(SDL_GetError());
 	}
 }
 
-void ImageSdl::draw(Window &window, const Point &position)
+void ImageSdl::draw(Window &, const Point &)
 {
-
 }
 
 } // !malikania

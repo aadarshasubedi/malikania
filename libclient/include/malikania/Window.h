@@ -12,7 +12,8 @@
 #  include "backend/sdl/WindowSdl.h"
 #endif
 
-#include "Size.h"
+#include <malikania/Size.h>
+
 #include "Line.h"
 #include "Color.h"
 #include "Point.h"

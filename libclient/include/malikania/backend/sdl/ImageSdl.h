@@ -18,7 +18,7 @@ private:
 	TextureHandle m_texture;
 
 public:
-	ImageSdl(Image &image, Window &window, const std::string &path);
+	ImageSdl(Image &image, Window &window, const std::string &data);
 
 	inline SDL_Texture *texture() noexcept
 	{

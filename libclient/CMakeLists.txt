@@ -18,10 +18,10 @@
 
 set(
 	HEADERS
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ClientResourcesLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Window.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Image.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Rectangle.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sprite.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Line.h
@@ -31,6 +31,7 @@ set(
 
 set(
 	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ClientResourcesLoader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp

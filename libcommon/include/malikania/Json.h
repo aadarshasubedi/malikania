@@ -159,28 +159,30 @@ class Iterator : public std::iterator<std::forward_iterator_tag, ValueType> {
 private:
 	friend class Value;
 
-	ValueType *m_value{nullptr};
+	ValueType *m_parent{nullptr};
 	ArrayIteratorType m_ita;
 	ObjectIteratorType m_itm;
 
 	inline void increment()
 	{
-		if (m_value->isObject())
+		if (m_parent->isObject())
 			m_itm++;
 		else
 			m_ita++;
 	}
 
-	inline Iterator(ValueType *value, ObjectIteratorType it)
-		: m_value(value)
+	inline Iterator(ValueType *parent, ObjectIteratorType it)
+		: m_parent(parent)
 		, m_itm(it)
 	{
+		assert(parent);
 	}
 
-	inline Iterator(ValueType *value, ArrayIteratorType it)
-		: m_value(value)
+	inline Iterator(ValueType *parent, ArrayIteratorType it)
+		: m_parent(parent)
 		, m_ita(it)
 	{
+		assert(parent);
 	}
 
 public:
@@ -198,9 +200,8 @@ public:
 	 */
 	inline const std::string &key() const noexcept
 	{
-		assert(m_value);
-		assert(m_value->isObject());
-		assert(m_itm != m_value->m_object.end());
+		assert(m_parent && m_parent->isObject());
+		assert(m_itm != m_parent->m_object.end());
 
 		return m_itm->first;
 	}
@@ -214,11 +215,10 @@ public:
 	 */
 	inline unsigned index() const noexcept
 	{
-		assert(m_value);
-		assert(m_value->isArray());
-		assert(m_ita != m_value->m_array.end());
+		assert(m_parent && m_parent->isArray());
+		assert(m_ita != m_parent->m_array.end());
 
-		return std::distance(m_value->m_array.begin(), m_ita);
+		return std::distance(m_parent->m_array.begin(), m_ita);
 	}
 
 	/**
@@ -229,11 +229,11 @@ public:
 	 */
 	inline ValueType &operator*() noexcept
 	{
-		assert(m_value);
-		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
-		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+		assert(m_parent);
+		assert((m_parent->isArray()  && m_ita != m_parent->m_array.end()) ||
+		       (m_parent->isObject() && m_itm != m_parent->m_object.end()));
 
-		return (m_value->m_type == Type::Object) ? m_itm->second : *m_ita;
+		return (m_parent->m_type == Type::Object) ? m_itm->second : *m_ita;
 	}
 
 	/**
@@ -244,45 +244,45 @@ public:
 	 */
 	inline ValueType *operator->() noexcept
 	{
-		assert(m_value);
-		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
-		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+		assert(m_parent);
+		assert((m_parent->isArray()  && m_ita != m_parent->m_array.end()) ||
+		       (m_parent->isObject() && m_itm != m_parent->m_object.end()));
 
-		return (m_value->m_type == Type::Object) ? &m_itm->second : &(*m_ita);
+		return (m_parent->m_type == Type::Object) ? &m_itm->second : &(*m_ita);
 	}
 
 	/**
 	 * Increment the iterator. (Prefix version).
 	 *
 	 * @pre iterator must be dereferenceable
-	 * @return this;
+	 * @return *this;
 	 */
 	inline Iterator &operator++() noexcept
 	{
-		assert(m_value);
-		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
-		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+		assert(m_parent);
+		assert((m_parent->isArray()  && m_ita != m_parent->m_array.end()) ||
+		       (m_parent->isObject() && m_itm != m_parent->m_object.end()));
 
 		increment();
 
-		return this;
+		return *this;
 	}
 
 	/**
 	 * Increment the iterator. (Postfix version).
 	 *
 	 * @pre iterator must be dereferenceable
-	 * @return this;
+	 * @return *this;
 	 */
 	inline Iterator &operator++(int) noexcept
 	{
-		assert(m_value);
-		assert((m_value->isArray()  && m_ita != m_value->m_array.end()) ||
-		       (m_value->isObject() && m_itm != m_value->m_object.end()));
+		assert(m_parent);
+		assert((m_parent->isArray()  && m_ita != m_parent->m_array.end()) ||
+		       (m_parent->isObject() && m_itm != m_parent->m_object.end()));
 
 		increment();
 
-		return this;
+		return *this;
 	}
 
 	/**
@@ -294,16 +294,7 @@ public:
 	 */
 	bool operator==(const Iterator &it) const noexcept
 	{
-		if (m_value == it.m_value)
-			return true;
-		if (m_value == nullptr || it.m_value == nullptr)
-			return false;
-		if (m_value->isObject() && it.m_value->isObject())
-			return m_itm == it.m_itm;
-		if (m_value->isArray() && it.m_value->isArray())
-			return m_ita == it.m_ita;
-
-		return false;
+		return m_parent == it.m_parent && m_itm == it.m_itm && m_ita == it.m_ita;
 	}
 
 	/**
@@ -314,7 +305,7 @@ public:
 	 */
 	inline bool operator!=(const Iterator &it) const noexcept
 	{
-		return !(this == it);
+		return !(*this == it);
 	}
 };
 
@@ -340,7 +331,7 @@ private:
 	std::string toJson(int indent, int current) const;
 
 	friend class Iterator<Value, typename std::vector<Value>::iterator, typename std::map<std::string, Value>::iterator>;
-	friend class Iterator<const Value, typename std::vector<Value>::const_iterator, typename std::map<std::string, Value>::const_iterator>;;
+	friend class Iterator<const Value, typename std::vector<Value>::const_iterator, typename std::map<std::string, Value>::const_iterator>;
 
 public:
 	/**
@@ -483,7 +474,7 @@ public:
 	 * Copy operator.
 	 *
 	 * @param other the value to copy from
-	 * @return this
+	 * @return *this
 	 */
 	inline Value &operator=(const Value &other)
 	{
@@ -558,7 +549,7 @@ public:
 	{
 		assert(isArray() || isObject());
 
-		return m_type == Type::Object ? iterator(nullptr, m_object.end()) : iterator(this, m_array.end());
+		return m_type == Type::Object ? iterator(this, m_object.end()) : iterator(this, m_array.end());
 	}
 
 	/**
@@ -571,7 +562,7 @@ public:
 	{
 		assert(isArray() || isObject());
 
-		return m_type == Type::Object ? const_iterator(nullptr, m_object.end()) : const_iterator(this, m_array.end());
+		return m_type == Type::Object ? const_iterator(this, m_object.end()) : const_iterator(this, m_array.end());
 	}
 
 	/**
@@ -584,7 +575,7 @@ public:
 	{
 		assert(isArray() || isObject());
 
-		return m_type == Type::Object ? const_iterator(nullptr, m_object.cend()) : const_iterator(this, m_array.cend());
+		return m_type == Type::Object ? const_iterator(this, m_object.cend()) : const_iterator(this, m_array.cend());
 	}
 
 	/**

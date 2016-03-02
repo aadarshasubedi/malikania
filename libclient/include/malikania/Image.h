@@ -10,8 +10,9 @@
 #  include "backend/sdl/ImageSdl.h"
 #endif
 
+#include <malikania/Size.h>
+
 #include "Point.h"
-#include "Size.h"
 
 namespace malikania {
 
@@ -23,8 +24,8 @@ private:
 	Size m_size;
 
 public:
-	inline Image(Window &window, std::string path)
-		: m_backend(*this, window, path)
+	inline Image(Window &window, const std::string &data)
+		: m_backend(*this, window, data)
 	{
 	}
 

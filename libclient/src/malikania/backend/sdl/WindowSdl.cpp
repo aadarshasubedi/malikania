@@ -210,7 +210,7 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &r
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
 	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);
@@ -229,7 +229,7 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Point &point
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{point.x, point.y, message->w, message->h};
 	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);
