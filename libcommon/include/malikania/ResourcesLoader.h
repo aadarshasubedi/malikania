@@ -1,7 +1,7 @@
 /*
- * ResourcesLoader.h --
+ * ResourcesLoader.h -- load shared resources files
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +15,9 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+#ifndef _MALIKANIA_RESOURCES_LOADER_H_
+#define _MALIKANIA_RESOURCES_LOADER_H_
 
 #include <string>
 #include <unordered_map>
@@ -41,11 +44,6 @@ private:
 	ResourcesLocator &m_locator;
 
 protected:
-	inline ResourcesLocator &locator() noexcept
-	{
-		return m_locator;
-	}
-
 	/**
 	 * Check that an object has the specified properties of the given type.
 	 *
@@ -115,6 +113,16 @@ public:
 	virtual ~ResourcesLoader() = default;
 
 	/**
+	 * Get the underlying locator.
+	 *
+	 * @return the locator
+	 */
+	inline ResourcesLocator &locator() noexcept
+	{
+		return m_locator;
+	}
+
+	/**
 	 * Load a game.
 	 *
 	 * @return the game
@@ -124,3 +132,5 @@ public:
 };
 
 } // !malikania
+
+#endif // !_MALIKANIA_RESOURCES_LOADER_H_

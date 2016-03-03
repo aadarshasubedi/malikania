@@ -1,7 +1,7 @@
 /*
- * LoaderDirectory.cpp -- wrapper to load directories
+ * ResourcesLocator.cpp -- file and stream loader
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -35,8 +35,9 @@ std::string ResourcesLocatorDirectory::read(const std::string &id)
 {
 	std::ifstream in(m_path + "/" + id);
 
-	if (!in)
+	if (!in) {
 		throw std::runtime_error(std::strerror(errno));
+	}
 
 	return std::string(std::istreambuf_iterator<char>(in.rdbuf()), std::istreambuf_iterator<char>());
 }
@@ -45,8 +46,9 @@ std::unique_ptr<std::istream> ResourcesLocatorDirectory::open(const std::string 
 {
 	auto ptr = std::make_unique<std::ifstream>(m_path + "/" + id);
 
-	if (!(*ptr))
+	if (!(*ptr)) {
 		throw std::runtime_error(std::strerror(errno));
+	}
 
 	return ptr;
 }

@@ -1,7 +1,7 @@
 /*
- * ResourcesLoader.cpp --
+ * ResourcesLoader.cpp -- load shared resources files
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,8 +17,6 @@
  */
 
 #include <cassert>
-
-#include <Json.h>
 
 #include "Game.h"
 #include "ResourcesLoader.h"
