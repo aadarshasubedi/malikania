@@ -16,7 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(duktape)
-add_subdirectory(gtest)
-add_subdirectory(jansson)
-add_subdirectory(plantuml)
+malikania_create_test(
+	NAME color
+	LIBRARIES libclient
+	SOURCES main.cpp
+)

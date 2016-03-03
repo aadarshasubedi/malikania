@@ -1,5 +1,5 @@
-#ifndef POINT
-#define POINT
+#ifndef _MALIKANIA_POINT_H_
+#define _MALIKANIA_POINT_H_
 
 namespace malikania {
 
@@ -11,5 +11,5 @@ public:
 
 }// !malikania
 
-#endif // POINT
+#endif // !_MALIKANIA_POINT_H_
 

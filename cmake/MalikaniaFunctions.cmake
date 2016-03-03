@@ -47,7 +47,6 @@ include(CMakeParseArguments)
 # ---------------------------
 #
 # malikania_define_executable(
-#	PROJECT			The project name
 #	TARGET			The target name
 #	SOURCES			The list of sources
 #	FLAGS			(Optional) List of flags
@@ -62,7 +61,6 @@ include(CMakeParseArguments)
 # ------------------------
 #
 # malikania_create_library(
-#	PROJECT			The project name
 #	TARGET			The target name
 #	SOURCES			The sources
 #	FLAGS			(Optional) List of flags
@@ -139,23 +137,14 @@ function(check_args prefix list)
 	endforeach ()
 endfunction()
 
-function(set_label target name)
-	set_target_properties(
-		${target}
-		PROPERTIES
-		PROJECT_LABEL ${name}
-	)
-endfunction()
-
 function(malikania_define_executable)
-	set(singleArgs PROJECT TARGET)
+	set(singleArgs TARGET)
 	set(multiArgs SOURCES FLAGS INCLUDES LIBRARIES)
-	set(mandatory PROJECT TARGET SOURCES)
+	set(mandatory TARGET SOURCES)
 
 	cmake_parse_arguments(EXE "" "${singleArgs}" "${multiArgs}" ${ARGN})
 	check_args(EXE ${mandatory})
 
-	project(${EXE_PROJECT})
 	add_executable(${EXE_TARGET} ${EXE_SOURCES})
 
 	apply_libraries(${EXE_TARGET} EXE_LIBRARIES)
@@ -164,16 +153,14 @@ function(malikania_define_executable)
 endfunction()
 
 function(malikania_create_library)
-	set(singleArgs PROJECT TARGET)
+	set(singleArgs TARGET)
 	set(multiArgs SOURCES FLAGS PRIVATE_INCLUDES PUBLIC_INCLUDES LIBRARIES)
-	set(mandatory PROJECT TARGET SOURCES)
+	set(mandatory TARGET SOURCES)
 
 	cmake_parse_arguments(LIB "" "${singleArgs}" "${multiArgs}" ${ARGN})
 	check_args(LIB ${mandatory})
 
-	project(${LIB_PROJECT})
 	add_library(${LIB_TARGET} SHARED ${LIB_SOURCES})
-	set_label(${LIB_TARGET} ${LIB_PROJECT})
 
 	# Remove lib suffix to avoid conflict with client and libclient targets
 	set_target_properties(

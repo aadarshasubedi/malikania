@@ -1,10 +1,9 @@
-#ifndef LINE_H
-#define LINE_H
+#ifndef _MALIKANIA_LINE_H_
+#define _MALIKANIA_LINE_H_
 
 namespace malikania {
 
-class Line
-{
+class Line {
 public:
 	int startX{0};
 	int startY{0};
@@ -14,4 +13,4 @@ public:
 
 }// !malikania
 
-#endif // LINE_H
+#endif // !_MALIKANIA_LINE_H_

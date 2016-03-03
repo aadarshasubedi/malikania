@@ -18,24 +18,31 @@
 
 set(
 	HEADERS
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Animation.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Animator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ClientResourcesLoader.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Window.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Image.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Rectangle.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sprite.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Color.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Image.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Label.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Line.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Point.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Font.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Rectangle.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sprite.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Window.h
 )
 
 set(
 	SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ClientResourcesLoader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Label.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 )
 
 # TODO: move to a Sdl.cmake
@@ -47,6 +54,7 @@ if (WITH_BACKEND_SDL)
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/FontSdl.h
+			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/LabelSdl.h
 	)
 	list(
 		APPEND
@@ -55,6 +63,7 @@ if (WITH_BACKEND_SDL)
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/SpriteSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/FontSdl.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/LabelSdl.cpp
 	)
 endif ()
 

@@ -22,6 +22,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Directory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Game.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Game.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Hash.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Id.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
@@ -64,6 +65,7 @@ malikania_create_library(
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}
 	LIBRARIES
+		extern-jansson
 		${LIBRARIES}
 		${Jansson_LIBRARIES}
 		${ZIP_LIBRARIES}

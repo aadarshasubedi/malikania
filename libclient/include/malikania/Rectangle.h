@@ -1,5 +1,5 @@
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#ifndef _MALIKANIA_RECTANGLE_H_
+#define _MALIKANIA_RECTANGLE_H_
 
 #include <utility>
 #include <SDL.h>
@@ -16,4 +16,4 @@ public:
 
 }// !malikania
 
-#endif // RECTANGLE_H
+#endif // !_MALIKANIA_RECTANGLE_H_

@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef _MALIKANIA_WINDOW_H_
+#define _MALIKANIA_WINDOW_H_
 
 #include <functional>
 #include <vector>
@@ -165,4 +165,4 @@ public:
 
 }// !malikania
 
-#endif // WINDOW_H
+#endif // !_MALIKANIA_WINDOW_H_
