@@ -25,7 +25,7 @@ namespace malikania {
 
 namespace {
 
-constexpr unsigned rgb(uint8_t r, uint8_t g, uint8_t b) noexcept
+constexpr unsigned rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b) noexcept
 {
 	return (0xff000000 | (r << 16) | (g << 8) | b);
 }
@@ -33,7 +33,7 @@ constexpr unsigned rgb(uint8_t r, uint8_t g, uint8_t b) noexcept
 /*
  * Convert hexadecimal value to the correct number.
  */
-uint8_t value(char digit)
+std::uint8_t value(char digit)
 {
 	if (std::isdigit(digit)) {
 		return digit - '0';
@@ -45,12 +45,12 @@ uint8_t value(char digit)
 	return digit - 55;
 }
 
-inline uint8_t value(char digit1, char digit2)
+inline std::uint8_t value(char digit1, char digit2)
 {
 	return ((value(digit1) << 4) & 0xf0) | value(digit2);
 }
 
-const std::unordered_map<std::string, uint32_t> colors{
+const std::unordered_map<std::string, std::uint32_t> colors{
 	{ "aliceblue",		rgb(240, 248, 255)	},
 	{ "antiquewhite",	rgb(250, 235, 215)	},
 	{ "aqua",		rgb( 0, 255, 255)	},

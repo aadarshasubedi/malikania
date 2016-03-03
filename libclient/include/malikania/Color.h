@@ -30,10 +30,10 @@ namespace malikania {
  */
 class Color {
 private:
-	uint8_t m_red{0};
-	uint8_t m_green{0};
-	uint8_t m_blue{0};
-	uint8_t m_alpha{255};
+	std::uint8_t m_red{0};
+	std::uint8_t m_green{0};
+	std::uint8_t m_blue{0};
+	std::uint8_t m_alpha{255};
 
 public:
 	/**
@@ -49,7 +49,7 @@ public:
 	 * @param blue the blue value
 	 * @param alpha the alpha value
 	 */
-	Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) noexcept
+	inline Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t alpha) noexcept
 		: m_red{red}
 		, m_green{green}
 		, m_blue{blue}
@@ -62,7 +62,7 @@ public:
 	 *
 	 * @param hex the color
 	 */
-	inline Color(uint32_t hex) noexcept
+	inline Color(std::uint32_t hex) noexcept
 		: m_red((hex >> 16) & 0xff)
 		, m_green((hex >> 8) & 0xff)
 		, m_blue(hex & 0xff)
@@ -85,7 +85,7 @@ public:
 	 *
 	 * @return the value
 	 */
-	inline uint8_t red() const noexcept
+	inline std::uint8_t red() const noexcept
 	{
 		return m_red;
 	}
@@ -95,7 +95,7 @@ public:
 	 *
 	 * @return the value
 	 */
-	inline uint8_t green() const noexcept
+	inline std::uint8_t green() const noexcept
 	{
 		return m_green;
 	}
@@ -105,7 +105,7 @@ public:
 	 *
 	 * @return the value
 	 */
-	inline uint8_t blue() const noexcept
+	inline std::uint8_t blue() const noexcept
 	{
 		return m_blue;
 	}
@@ -115,7 +115,7 @@ public:
 	 *
 	 * @return the value
 	 */
-	inline uint8_t alpha() const noexcept
+	inline std::uint8_t alpha() const noexcept
 	{
 		return m_alpha;
 	}
