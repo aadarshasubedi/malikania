@@ -12,7 +12,7 @@ Sprite::Sprite(Image image, Size cell, Size size, Size space, Size margin) noexc
 {
 }
 
-void Sprite::draw(Window &window, int index, const Rectangle &rectangle)
+void Sprite::draw(Window &, int, const Rectangle &)
 {
 #if 0
 	std::string prependErrorMessage = "Couldn't draw image from Sprite " + m_name + ": ";
