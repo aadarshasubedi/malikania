@@ -29,13 +29,14 @@ namespace malikania {
 
 class Image;
 class Point;
+class Rectangle;
 class Window;
-
-using TextureHandle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
 
 class ImageSdl {
 private:
-	TextureHandle m_texture;
+	using Handle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
+
+	Handle m_texture;
 	Size m_size;
 
 public:
@@ -52,6 +53,8 @@ public:
 	}
 
 	void draw(Window &window, const Point &position);
+
+	void draw(Window &window, const Rectangle &source, const Rectangle &target);
 };
 
 /*

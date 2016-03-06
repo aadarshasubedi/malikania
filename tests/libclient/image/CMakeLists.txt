@@ -24,4 +24,5 @@ malikania_create_test(
 		resources/images/100x10.png
 		resources/images/10x100.png
 		resources/images/16x16.png
+		resources/images/smiley.png
 )

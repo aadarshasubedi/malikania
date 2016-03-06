@@ -1,23 +1,42 @@
+/*
+ * Animator.cpp -- animation drawing object
+ *
+ * Copyright (c) 2013-2016 Malikania Authors
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#include <cassert>
+
+#include "Animation.h"
 #include "Animator.h"
-#include "Window.h"
 
 namespace malikania {
 
-void Animator::draw(Window &, const Rectangle &)
+Animator::Animator(std::shared_ptr<Animation> animation) noexcept
+	: m_animation(std::move(animation))
 {
-#if 0
-	std::map<std::string, int> frame = m_animation->frames().at(m_currentFrame);
-
-	m_animation->sprite().draw(window, frame["cell"], rectangle);
-	if (m_timer.elapsed() > frame["delay"]) {
-		m_currentFrame++;
-		m_timer.reset();
-		// loop the animation
-		if (m_currentFrame > (m_animation->frames().size() - 1)) {
-			m_currentFrame = 0;
-		}
-	}
-#endif
+	assert(m_animation);
 }
 
-}// !malikania
+void Animator::update() noexcept
+{
+	//if (m_current < m_animation->)
+}
+
+void Animator::draw(Window &, const Point &)
+{
+
+}
+
+} // !malikania

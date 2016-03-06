@@ -16,6 +16,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <chrono>
+#include <thread>
 #include <exception>
 
 #include <gtest/gtest.h>
@@ -26,6 +28,8 @@
 #include <malikania/Window.h>
 
 using namespace malikania;
+
+using namespace std::chrono_literals;
 
 namespace {
 
@@ -121,7 +125,6 @@ TEST_F(TestSprite, imageNotFound)
 	}
 }
 
-
 TEST_F(TestSprite, notObject)
 {
 	try {
@@ -144,6 +147,37 @@ TEST_F(TestSprite, standard)
 
 		ASSERT_EQ(300U, sprite.cell().width());
 		ASSERT_EQ(300U, sprite.cell().height());
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
+	}
+}
+
+TEST_F(TestSprite, margins)
+{
+	try {
+		Sprite sprite = m_loader.loadSprite("sprites/margins.json");
+
+		ASSERT_EQ(3U, sprite.rows());
+		ASSERT_EQ(4U, sprite.columns());
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
+	}
+}
+
+TEST_F(TestSprite, draw)
+{
+	try {
+		Sprite sprite = m_loader.loadSprite("sprites/margins.json");
+
+		unsigned total = sprite.rows() * sprite.columns();
+
+		for (unsigned c = 0; c < total; ++c) {
+			window.clear();
+			sprite.draw(window, c, Point(10, 10));
+			window.present();
+
+			std::this_thread::sleep_for(1s);
+		}
 	} catch (const std::exception &ex) {
 		FAIL() << ex.what();
 	}

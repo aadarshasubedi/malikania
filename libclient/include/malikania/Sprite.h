@@ -28,14 +28,11 @@
 
 #include <Config.h>
 
-#if defined(WITH_BACKEND_SDL)
-#  include "backend/sdl/SpriteSdl.h"
-#endif
-
 #include "Image.h"
 
 namespace malikania {
 
+class Point;
 class Window;
 
 /**
@@ -44,24 +41,26 @@ class Window;
  */
 class Sprite {
 private:
-	BackendSprite m_backend;
 	Image m_image;
 	Size m_cell;
-	Size m_size;
-	Size m_space;
 	Size m_margin;
+	Size m_space;
+	Size m_size;
+	unsigned m_rows;
+	unsigned m_columns;
 
 public:
 	/**
 	 * Construct a sprite.
 	 *
+	 * @pre cell must not have height or width null
 	 * @param image the image to use
 	 * @param cell size of cell in the image
-	 * @param size the sprite size (if 0, taken from the image)
-	 * @param space the optional space between cells
 	 * @param margin the optional space from borders
+	 * @param space the optional space between cells
+	 * @param size the sprite size (if 0, taken from the image)
 	 */
-	Sprite(Image image, Size cell, Size size = { 0, 0 }, Size space = { 0, 0 }, Size margin = { 0, 0 }) noexcept;
+	Sprite(Image image, Size cell, Size margin = { 0, 0 }, Size space = { 0, 0 }, Size size = { 0, 0 }) noexcept;
 
 	/**
 	 * Get the underlying image.
@@ -83,27 +82,65 @@ public:
 		return m_image;
 	}
 
+	/**
+	 * Get the cell size.
+	 *
+	 * @return the cell size
+	 */
 	inline const Size &cell() const noexcept
 	{
 		return m_cell;
 	}
 
-	inline const Size &space() const noexcept
-	{
-		return m_space;
-	}
-
+	/**
+	 * Get the margin size.
+	 *
+	 * @return the margin size
+	 */
 	inline const Size &margin() noexcept
 	{
 		return m_margin;
 	}
 
-	inline BackendSprite &backend() noexcept
+	/**
+	 * Get the space size.
+	 *
+	 * @return the space size
+	 */
+	inline const Size &space() const noexcept
 	{
-		return m_backend;
+		return m_space;
 	}
 
-	void draw(Window &window, int index, const Rectangle &rectangle);
+	/**
+	 * Get the number of rows in the grid.
+	 *
+	 * @return the number of rows
+	 */
+	inline unsigned rows() const noexcept
+	{
+		return m_rows;
+	}
+
+	/**
+	 * Get the number of columns in the grid.
+	 *
+	 * @return the number of columns
+	 */
+	inline unsigned columns() const noexcept
+	{
+		return m_columns;
+	}
+
+	/**
+	 * Draw the sprite into the window at the specified position.
+	 *
+	 * @pre cell < rows() * columns()
+	 * @param window the window
+	 * @param cell the cell index
+	 * @param position the position in the window
+	 */
+	void draw(Window &window, unsigned cell, const Point &position);
 };
 
 } // !malikania

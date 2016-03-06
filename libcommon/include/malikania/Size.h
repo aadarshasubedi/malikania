@@ -62,6 +62,16 @@ public:
 	{
 		return m_height;
 	}
+
+	/**
+	 * Check if the size is 0, 0.
+	 *
+	 * @return true if height and width are 0
+	 */
+	inline bool isNull() const noexcept
+	{
+		return m_height == 0 && m_width == 0;
+	}
 };
 
 inline bool operator==(const Size &lhs, const Size &rhs) noexcept

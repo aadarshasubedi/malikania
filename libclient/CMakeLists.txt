@@ -45,25 +45,20 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 )
 
-# TODO: move to a Sdl.cmake
 if (WITH_BACKEND_SDL)
 	list(
 		APPEND
 		HEADERS
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/ImageSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/WindowSdl.h
-			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/SpriteSdl.h
 			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/FontSdl.h
-			${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/LabelSdl.h
 	)
 	list(
 		APPEND
 		SOURCES
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/ImageSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/SpriteSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/FontSdl.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/LabelSdl.cpp
 	)
 endif ()
 

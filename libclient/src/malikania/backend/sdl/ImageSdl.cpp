@@ -36,7 +36,7 @@ ImageSdl::ImageSdl(Image &, Window &window, const std::string &data)
 		throw std::runtime_error(SDL_GetError());
 	}
 
-	m_texture = TextureHandle(IMG_LoadTexture_RW(window.backend().renderer(), rw, true), SDL_DestroyTexture);
+	m_texture = Handle(IMG_LoadTexture_RW(window.backend().renderer(), rw, true), SDL_DestroyTexture);
 
 	if (m_texture == nullptr) {
 		throw std::runtime_error(SDL_GetError());
@@ -52,8 +52,47 @@ ImageSdl::ImageSdl(Image &, Window &window, const std::string &data)
 	m_size = Size((unsigned)width, (unsigned)height);
 }
 
-void ImageSdl::draw(Window &, const Point &)
+void ImageSdl::draw(Window &window, const Point &point)
 {
+	SDL_Rect target;
+
+	target.x = (int)point.x();
+	target.y = (int)point.y();
+	target.w = (int)m_size.width();
+	target.h = (int)m_size.height();
+
+	if (SDL_RenderCopy(window.backend().renderer(), m_texture.get(), nullptr, &target) < 0) {
+		throw std::runtime_error(SDL_GetError());
+	}
+}
+
+void ImageSdl::draw(Window &window, const Rectangle &source, const Rectangle &target)
+{
+	SDL_Rect sr, st;
+
+	sr.x = source.x();
+	sr.y = source.y();
+	sr.w = (int)source.width();
+	sr.h = (int)source.height();
+
+	st.x = target.x();
+	st.y = target.y();
+	st.w = (int)target.width();
+	st.h = (int)target.height();
+
+	/* Readjust .w, .h if null */
+	if (source.isNull()) {
+		sr.w = (int)m_size.width();
+		sr.h = (int)m_size.height();
+	}
+	if (target.isNull()) {
+		st.w = (int)m_size.width();
+		st.h = (int)m_size.height();
+	}
+
+	if (SDL_RenderCopy(window.backend().renderer(), m_texture.get(), &sr, &st) < 0) {
+		throw std::runtime_error(SDL_GetError());
+	}
 }
 
 } // !malikania

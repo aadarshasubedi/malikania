@@ -29,6 +29,7 @@
 #endif
 
 #include <malikania/Size.h>
+#include <malikania/Rectangle.h>
 
 #include "Point.h"
 
@@ -86,6 +87,11 @@ public:
 	inline void draw(Window &window, const Point &position = {0, 0})
 	{
 		m_backend.draw(window, position);
+	}
+
+	inline void draw(Window &window, const Rectangle &source, const Rectangle &target)
+	{
+		m_backend.draw(window, source, target);
 	}
 };
 

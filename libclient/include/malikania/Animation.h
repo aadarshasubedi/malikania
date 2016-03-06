@@ -19,8 +19,13 @@
 #ifndef _MALIKANIA_ANIMATION_H_
 #define _MALIKANIA_ANIMATION_H_
 
+/**
+ * @file Animation.h
+ * @brief Describe an animation.
+ */
+
 #include <cstdint>
-#include <string>
+#include <memory>
 #include <vector>
 
 #include "Sprite.h"
@@ -32,17 +37,30 @@ class Window;
 /**
  * @class AnimationFrame
  * @brief Animation frame description.
+ *
+ * A frame is a duration before switching to the next sprite cell. It is currently implemented as a class for future
+ * usage.
  */
 class AnimationFrame {
 private:
 	std::uint8_t m_delay;
 
 public:
-	inline AnimationFrame(std::uint8_t delay = 0) noexcept
+	/**
+	 * Construct a frame.
+	 *
+	 * @param delay the optional delay
+	 */
+	inline AnimationFrame(std::uint8_t delay = 100) noexcept
 		: m_delay(delay)
 	{
 	}
 
+	/**
+	 * Get the the delay.
+	 *
+	 * @return the delay
+	 */
 	inline std::uint8_t delay() const noexcept
 	{
 		return m_delay;
@@ -50,20 +68,22 @@ public:
 };
 
 /**
- * @brief List of frames.
- */
-using AnimationFrames = std::vector<AnimationFrame>;
-
-/**
  * @class Animation
  * @brief Animation description.
  *
- * An animation is a sprite with a set of frames containing a delay.
+ * An animation is a sprite with a set of frames containing a delay for showing all sprites in a specific amount of
+ * time.
+ *
+ * Because an animation contains an image, a state (time, current cell) it must be constructed with an Animator object
+ * so the user is able to use the same animation on different parts of the screen without having to duplicate
+ * resources.
+ *
+ * @see Animator
  */
 class Animation {
 private:
-	Sprite m_sprite;
-	AnimationFrames m_frames;
+	std::shared_ptr<Sprite> m_sprite;
+	std::vector<AnimationFrame> m_frames;
 
 public:
 	/**
@@ -73,14 +93,14 @@ public:
 	 * @param sprite the sprite image
 	 * @param frames the frames to show
 	 */
-	Animation(Sprite sprite, AnimationFrames frames) noexcept;
+	Animation(std::shared_ptr<Sprite> sprite, std::vector<AnimationFrame> frames) noexcept;
 
 	/**
 	 * Get the underlying sprite.
 	 *
 	 * @return the sprite
 	 */
-	inline const Sprite &sprite() const noexcept
+	inline const std::shared_ptr<Sprite> &sprite() const noexcept
 	{
 		return m_sprite;
 	}

@@ -16,6 +16,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <chrono>
+#include <thread>
+
 #include <gtest/gtest.h>
 
 #include <malikania/ClientResourcesLoader.h>
@@ -25,9 +28,11 @@
 
 using namespace malikania;
 
+using namespace std::chrono_literals;
+
 namespace {
 
-Window window;
+Window window(52, 52);
 
 } // !namespace
 
@@ -87,6 +92,26 @@ TEST_F(TestImage, notfound)
 
 		FAIL() << "exception expected";
 	} catch (const std::exception &) {
+	}
+}
+
+/*
+ * Draw
+ * ------------------------------------------------------------------
+ */
+
+TEST_F(TestImage, draw)
+{
+	try {
+		Image image = m_loader.loadImage("images/smiley.png");
+
+		window.clear();
+		image.draw(window, Point(10, 10));
+		window.present();
+
+		std::this_thread::sleep_for(3s);
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
 	}
 }
 

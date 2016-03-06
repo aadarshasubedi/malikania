@@ -49,6 +49,11 @@ private:
 	}
 
 public:
+	inline Window(unsigned width = 640, unsigned height = 480)
+		: m_backend(width, height)
+	{
+	}
+
 	inline BackendWindow &backend() noexcept
 	{
 		return m_backend;
