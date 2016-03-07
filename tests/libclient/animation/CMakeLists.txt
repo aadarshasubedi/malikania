@@ -16,7 +16,12 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(animation)
-add_subdirectory(color)
-add_subdirectory(image)
-add_subdirectory(sprite)
+malikania_create_test(
+	NAME animation
+	LIBRARIES libclient
+	SOURCES main.cpp
+	RESOURCES
+		resources/animations/margins.json
+		resources/images/margins.png
+		resources/sprites/margins.json
+)

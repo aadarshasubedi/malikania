@@ -1,0 +1,17 @@
+{
+  "sprite": "sprites/margins.json",
+  "frames": [
+    { "delay": 500 },
+    { "delay": 501 },
+    { "delay": 502 },
+    { "delay": 503 },
+    { "delay": 504 },
+    { "delay": 505 },
+    { "delay": 506 },
+    { "delay": 507 },
+    { "delay": 508 },
+    { "delay": 509 },
+    { "delay": 510 },
+    { "delay": 511 }
+  ]
+}

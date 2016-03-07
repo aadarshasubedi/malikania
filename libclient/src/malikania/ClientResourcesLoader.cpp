@@ -18,6 +18,7 @@
 
 #include <cassert>
 
+#include <malikania/Animation.h>
 #include <malikania/Size.h>
 #include <malikania/Sprite.h>
 
@@ -34,8 +35,9 @@ Sprite ClientResourcesLoader::loadSprite(const std::string &id)
 {
 	json::Value value = json::fromString(locator().read(id));
 
-	if (!value.isObject())
+	if (!value.isObject()) {
 		throw std::runtime_error(id + ": not a JSON object");
+	}
 
 	return Sprite(
 		loadImage(requireString(id, value, "image")),
@@ -44,6 +46,44 @@ Sprite ClientResourcesLoader::loadSprite(const std::string &id)
 		getSize(id, value, "space"),
 		getSize(id, value, "margin")
 	);
+}
+
+Animation ClientResourcesLoader::loadAnimation(const std::string &id)
+{
+	json::Value value = json::fromString(locator().read(id));
+
+	if (!value.isObject()) {
+		throw std::runtime_error(id + ": not a JSON object");
+	}
+
+	// TODO: return all resources as shared_ptr or make a cache for sprites.
+	std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>(loadSprite(requireString(id, value, "sprite")));
+
+	/* Load all frames */
+	json::Value property = value["frames"];
+
+	if (!property.isArray()) {
+		throw std::runtime_error(id + ": missing 'frames' property (array expected)");
+	}
+
+	std::vector<AnimationFrame> frames;
+
+	for (auto it = property.begin(); it != property.end(); ++it) {
+		if (!it->isObject()) {
+			throw std::runtime_error(id + ": frame " + std::to_string(it.index()) + ": not a JSON object");
+		}
+
+		auto delay = it->find("delay");
+
+		if (delay == it->end() || !delay->isInt()) {
+			throw std::runtime_error(id + ": frame " + std::to_string(it.index()) +
+			     ": missing 'delay' property (int expected)");
+		}
+
+		frames.emplace_back(delay->toInt());
+	}
+
+	return Animation(std::move(sprite), std::move(frames));
 }
 
 } // !malikania

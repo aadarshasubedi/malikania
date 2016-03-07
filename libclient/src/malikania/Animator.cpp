@@ -31,12 +31,26 @@ Animator::Animator(std::shared_ptr<Animation> animation) noexcept
 
 void Animator::update() noexcept
 {
-	//if (m_current < m_animation->)
+	unsigned total = m_animation->sprite()->rows() * m_animation->sprite()->columns();
+
+	if (m_current >= total) {
+		return;
+	}
+
+	if (m_timer.elapsed() >= (*m_animation)[m_current].delay()) {
+		m_current ++;
+		m_timer.reset();
+	}
 }
 
-void Animator::draw(Window &, const Point &)
+void Animator::draw(Window &window, const Point &point)
 {
+	// TODO: assert ?
+	if (m_current >= m_animation->sprite()->rows() * m_animation->sprite()->columns()) {
+		return;
+	}
 
+	m_animation->sprite()->draw(window, m_current, point);
 }
 
 } // !malikania

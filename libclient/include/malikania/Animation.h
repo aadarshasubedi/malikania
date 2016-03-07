@@ -24,6 +24,7 @@
  * @brief Describe an animation.
  */
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -43,7 +44,7 @@ class Window;
  */
 class AnimationFrame {
 private:
-	std::uint8_t m_delay;
+	std::uint16_t m_delay;
 
 public:
 	/**
@@ -51,7 +52,7 @@ public:
 	 *
 	 * @param delay the optional delay
 	 */
-	inline AnimationFrame(std::uint8_t delay = 100) noexcept
+	inline AnimationFrame(std::uint16_t delay = 100) noexcept
 		: m_delay(delay)
 	{
 	}
@@ -61,7 +62,7 @@ public:
 	 *
 	 * @return the delay
 	 */
-	inline std::uint8_t delay() const noexcept
+	inline std::uint16_t delay() const noexcept
 	{
 		return m_delay;
 	}
@@ -103,6 +104,30 @@ public:
 	inline const std::shared_ptr<Sprite> &sprite() const noexcept
 	{
 		return m_sprite;
+	}
+
+	/**
+	 * Get the frames.
+	 *
+	 * @return the frames
+	 */
+	inline const std::vector<AnimationFrame> &frames() const noexcept
+	{
+		return m_frames;
+	}
+
+	/**
+	 * Access a frame.
+	 *
+	 * @pre index < number of frames
+	 * @param index the index
+	 * @return the frame
+	 */
+	inline const AnimationFrame &operator[](unsigned index) const noexcept
+	{
+		assert(index < m_frames.size());
+
+		return m_frames[index];
 	}
 };
 

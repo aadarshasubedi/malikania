@@ -23,6 +23,7 @@
 
 namespace malikania {
 
+class Animation;
 class Image;
 class Sprite;
 class Window;
@@ -67,6 +68,15 @@ public:
 	 * @throw std::runtime_error on errors
 	 */
 	virtual Sprite loadSprite(const std::string &id);
+
+	/**
+	 * Load an animation.
+	 *
+	 * @param id the resource id
+	 * @return the animation
+	 * @throw std::runtime_error on errors
+	 */
+	virtual Animation loadAnimation(const std::string &id);
 };
 
 } // !malikania
