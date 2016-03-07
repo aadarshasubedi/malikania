@@ -30,7 +30,6 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLocator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Util.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sockets.h
 )
 

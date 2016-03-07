@@ -19,6 +19,11 @@
 #ifndef _MALIKANIA_FONT_H_
 #define _MALIKANIA_FONT_H_
 
+/**
+ * @file Font.h
+ * @brief Fonts.
+ */
+
 #include <string>
 
 #include <Config.h>

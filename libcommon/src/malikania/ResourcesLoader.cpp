@@ -21,7 +21,6 @@
 #include "Game.h"
 #include "ResourcesLoader.h"
 #include "ResourcesLocator.h"
-#include "Size.h"
 
 namespace malikania {
 
@@ -80,38 +79,6 @@ std::string ResourcesLoader::requireString(const std::string &id,
 	}
 
 	return it->toString();
-}
-
-Size ResourcesLoader::requireSize(const std::string &id, const json::Value &object, const std::string &property) const
-{
-	assert(object.isObject());
-
-	auto it = object.find(property);
-
-	if (it == object.end() || !it->isArray()) {
-		throw std::runtime_error(id + ": missing '" + property + "' property (array expected)");
-	}
-	if (it->size() != 2) {
-		throw std::runtime_error(id + ": property '" + property + "' must have two values");
-	}
-	if (!(*it)[0].isInt() || !(*it)[1].isInt()) {
-		throw std::runtime_error(id + ": property '" + property + "' must have to integer values");
-	}
-
-	return Size((*it)[0].toInt(), (*it)[1].toInt());
-}
-
-Size ResourcesLoader::getSize(const std::string &, const json::Value &object, const std::string &key) const noexcept
-{
-	assert(object.isObject());
-
-	auto it = object.find(key);
-
-	if (it == object.end() || !it->isArray() || it->size() != 2 || !(*it)[0].isInt() || !(*it)[1].isInt()) {
-		return Size();
-	}
-
-	return Size((*it)[0].toInt(), (*it)[1].toInt());
 }
 
 ResourcesLoader::ResourcesLoader(ResourcesLocator &locator)

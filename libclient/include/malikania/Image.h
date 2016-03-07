@@ -19,6 +19,11 @@
 #ifndef _MALIKANIA_IMAGE_H_
 #define _MALIKANIA_IMAGE_H_
 
+/**
+ * @file Image.h
+ * @brief Images.
+ */
+
 #include <memory>
 #include <string>
 
@@ -89,6 +94,13 @@ public:
 		m_backend.draw(window, position);
 	}
 
+	/**
+	 * Overloaded function.
+	 *
+	 * @param window the window
+	 * @param source the source to clip
+	 * @param target the target destination
+	 */
 	inline void draw(Window &window, const Rectangle &source, const Rectangle &target)
 	{
 		m_backend.draw(window, source, target);

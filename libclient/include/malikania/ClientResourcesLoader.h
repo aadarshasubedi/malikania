@@ -25,6 +25,7 @@ namespace malikania {
 
 class Animation;
 class Image;
+class Size;
 class Sprite;
 class Window;
 
@@ -35,6 +36,32 @@ class Window;
 class ClientResourcesLoader : public ResourcesLoader {
 private:
 	Window &m_window;
+
+protected:
+	/**
+	 * Require a size object from an object property.
+	 *
+	 * The size is an array of two integers (e.g. [ 1, 2 ]).
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param property the property
+	 * @return the size
+	 * @throw std::runtime_error if the property is not a size
+	 */
+	Size requireSize(const std::string &id, const json::Value &object, const std::string &property) const;
+
+	/**
+	 * Get a size object or a default one if not present or invalid.
+	 *
+	 * @pre object.isObject()
+	 * @param id the resource id
+	 * @param object the object
+	 * @param property the property
+	 * @return the size or default one
+	 */
+	Size getSize(const std::string &id, const json::Value &object, const std::string &property) const noexcept;
 
 public:
 	/**

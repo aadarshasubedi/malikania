@@ -74,14 +74,28 @@ public:
 	}
 };
 
-inline bool operator==(const Size &lhs, const Size &rhs) noexcept
+/**
+ * Compare equality.
+ *
+ * @param s1 the first size
+ * @param s2 the second size
+ * @return true if they equal
+ */
+inline bool operator==(const Size &s1, const Size &s2) noexcept
 {
-	return lhs.width() == rhs.width() && lhs.height() == rhs.height();
+	return s1.width() == s2.width() && s1.height() == s2.height();
 }
 
-inline bool operator!=(const Size &lhs, const Size &rhs) noexcept
+/**
+ * Compare equality.
+ *
+ * @param s1 the first size
+ * @param s2 the second size
+ * @return false if they equal
+ */
+inline bool operator!=(const Size &s1, const Size &s2) noexcept
 {
-	return !(lhs == rhs);
+	return !(s1 == s2);
 }
 
 } // !malikania

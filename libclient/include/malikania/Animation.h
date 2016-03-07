@@ -94,7 +94,12 @@ public:
 	 * @param sprite the sprite image
 	 * @param frames the frames to show
 	 */
-	Animation(std::shared_ptr<Sprite> sprite, std::vector<AnimationFrame> frames) noexcept;
+	Animation(std::shared_ptr<Sprite> sprite, std::vector<AnimationFrame> frames) noexcept
+		: m_sprite(std::move(sprite))
+		, m_frames(std::move(frames))
+	{
+		assert(m_sprite);
+	}
 
 	/**
 	 * Get the underlying sprite.

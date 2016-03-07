@@ -1,7 +1,7 @@
 /*
  * Color.h -- color description
  *
- * Copyright (c) 2013-2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -50,10 +50,10 @@ public:
 	 * @param alpha the alpha value
 	 */
 	inline Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t alpha) noexcept
-		: m_red{red}
-		, m_green{green}
-		, m_blue{blue}
-		, m_alpha{alpha}
+		: m_red(red)
+		, m_green(green)
+		, m_blue(blue)
+		, m_alpha(alpha)
 	{
 	}
 

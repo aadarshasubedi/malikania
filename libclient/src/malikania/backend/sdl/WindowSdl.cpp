@@ -112,7 +112,7 @@ Size WindowSdl::resolution()
 		}
 	}
 
-	return Size({width, height});
+	return Size((unsigned)width, (unsigned)height);
 }
 
 void WindowSdl::setDrawingColor(const Color &color)
@@ -125,7 +125,7 @@ void WindowSdl::setDrawingColor(const Color &color)
 
 void WindowSdl::drawLine(const Line &line)
 {
-	int error = SDL_RenderDrawLine(m_renderer.get(), line.startX, line.startY, line.endX, line.endY);
+	int error = SDL_RenderDrawLine(m_renderer.get(), line.x1(), line.y1(), line.x2(), line.y2());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't draw line" + std::string(SDL_GetError()));
 	}
@@ -226,8 +226,10 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &r
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
+#if 0
 	Size screenSize = resolution();
 	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
+#endif
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);
@@ -245,8 +247,10 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Point &point
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{point.x(), point.y(), message->w, message->h};
+#if 0
 	Size screenSize = resolution();
 	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
+#endif
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);

@@ -34,13 +34,13 @@ set(
 
 set(
 	SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animation.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Animator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ClientResourcesLoader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Color.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Font.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Image.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Label.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sprite.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Window.cpp
 )

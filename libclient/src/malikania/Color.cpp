@@ -1,7 +1,7 @@
 /*
  * Color.cpp -- color description
  *
- * Copyright (c) 2013-2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -39,7 +39,7 @@ std::uint8_t value(char digit)
 		return digit - '0';
 	}
 	if ((digit = std::toupper(digit)) < 'A' || digit > 'F') {
-		throw std::invalid_argument{"invalid hexadecimal value: " + digit};
+		throw std::invalid_argument("invalid hexadecimal value: " + digit);
 	}
 
 	return digit - 55;
