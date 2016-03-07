@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015 Malikania Authors
+# Copyright (c) 2013-2016 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,8 +16,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(animation)
-add_subdirectory(color)
-add_subdirectory(image)
-add_subdirectory(line)
-add_subdirectory(sprite)
+malikania_create_test(
+	NAME line
+	LIBRARIES libclient
+	SOURCES main.cpp
+)
