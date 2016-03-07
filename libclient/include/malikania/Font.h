@@ -41,6 +41,7 @@ namespace malikania {
 class Font {
 private:
 	BackendFont m_backend;
+	unsigned m_size;
 
 public:
 	/**
@@ -51,7 +52,18 @@ public:
 	 */
 	inline Font(std::string path, unsigned size)
 		: m_backend(path, size)
+		, m_size(size)
 	{
+	}
+
+	/**
+	 * Get the font size.
+	 *
+	 * @return the font size
+	 */
+	inline unsigned size() const noexcept
+	{
+		return m_size;
 	}
 
 	/**
