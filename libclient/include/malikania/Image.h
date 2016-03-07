@@ -49,7 +49,6 @@ class Window;
 class Image {
 private:
 	BackendImage m_backend;
-	Size m_size;
 
 public:
 	/**
