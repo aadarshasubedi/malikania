@@ -33,7 +33,7 @@ ResourcesLocatorDirectory::ResourcesLocatorDirectory(std::string path) noexcept
 
 std::string ResourcesLocatorDirectory::read(const std::string &id)
 {
-	std::ifstream in(m_path + "/" + id);
+	std::ifstream in(m_path + "/" + id, std::ifstream::in | std::ifstream::binary);
 
 	if (!in) {
 		throw std::runtime_error(std::strerror(errno));

@@ -58,6 +58,7 @@ if (WITH_BACKEND_SDL)
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/WindowSdl.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/FontSdl.cpp
 	)
+	list(APPEND DEFINITIONS SDL_MAIN_HANDLED)
 endif ()
 
 find_package(SDL2 REQUIRED)
@@ -81,3 +82,5 @@ malikania_create_library(
 		${SDL2_IMAGE_LIBRARIES}
 		${SDL2_TTF_LIBRARIES}
 )
+
+target_compile_definitions(libclient PUBLIC ${DEFINITIONS})
