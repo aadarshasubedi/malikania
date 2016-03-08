@@ -252,8 +252,8 @@ function(malikania_create_test)
 			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
 	)
 	add_test(
-		${TEST_NAME}
-		test-${TEST_NAME}
+		NAME ${TEST_NAME}
+		COMMAND $<TARGET_FILE:test-${TEST_NAME}>
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/${TEST_NAME}
 	)
 
