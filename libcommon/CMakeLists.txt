@@ -62,6 +62,7 @@ malikania_create_library(
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}
 	LIBRARIES
+		extern-jansson
 		${LIBRARIES}
 		${Jansson_LIBRARIES}
 		${ZIP_LIBRARIES}
