@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015 Malikania Authors
+# Copyright (c) 2013-2016 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -24,9 +24,10 @@ add_custom_target(
 	COMMENT "Generating documentation"
 )
 
-# ---------------------------------------------------------
-# Doxygen generation
-# ---------------------------------------------------------
+#
+# Doxygen generation.
+# -------------------------------------------------------------------
+#
 
 find_package(Doxygen)
 
@@ -45,9 +46,10 @@ if (WITH_DOCS_DOXYGEN)
 	add_subdirectory(doxygen)
 endif ()
 
-# ---------------------------------------------------------
-# UML generation with plantuml
-# ---------------------------------------------------------
+#
+# UML generation with plantuml.
+# -------------------------------------------------------------------
+#
 
 find_package(Java COMPONENTS Runtime)
 
@@ -69,9 +71,10 @@ if (WITH_DOCS_UML)
 	add_subdirectory(UML)
 endif ()
 
-# ---------------------------------------------------------
-# Books, specifications, docs generation
-# ---------------------------------------------------------
+#
+# Books, specifications, docs generation.
+# -------------------------------------------------------------------
+#
 
 find_package(Pandoc)
 find_package(LATEX)

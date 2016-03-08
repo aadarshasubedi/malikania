@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015 Malikania Authors
+# Copyright (c) 2013-2016 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,25 +16,27 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-# ---------------------------------------------------------
-# Backend options
+#
+# Backend selection.
+# -------------------------------------------------------------------
 #
 # The following options are available:
 #    WITH_BACKEND		- Type of backend to use. (Default: SDL)
-# ---------------------------------------------------------
+#
 
 set(WITH_BACKEND "SDL"
-	CACHE STRING "Where to install backends")
+	CACHE STRING "Which backend to use")
 
-# ---------------------------------------------------------
+#
 # Documentation and technical references
+# -------------------------------------------------------------------
 #
 # The following options are available:
 #    WITH_DOCS			- Disable or enable all docs, if set to Off, disable all documentation.
 #    WITH_DOCS_UML		- Enable UML diagram generation.
 #    WITH_DOCS_DOXYGEN		- Enable doxygen
 #    WITH_DOCS_BOOKS		- Enable build of books
-# ---------------------------------------------------------
+#
 
 option(WITH_DOCS "Build all documentation" On)
 option(WITH_DOCS_UML "Enable UML diagrams generation" On)
@@ -47,13 +49,14 @@ if (NOT WITH_DOCS)
 	set(WITH_DOCS_BOOKS Off)
 endif ()
 
-# ---------------------------------------------------------
+#
 # Targets to build
+# -------------------------------------------------------------------
 #
 # The following options are available:
 #    WITH_LIBCLIENT	- Build the client library.
 #    WITH_LIBSERVER	- Build the server library.
-# ---------------------------------------------------------
+#
 
 option(WITH_LIBCLIENT "Build libclient" On)
 option(WITH_LIBSERVER "Build libserver" On)

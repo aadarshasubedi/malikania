@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt -- CMake build system for malikania
 #
-# Copyright (c) 2013, 2014, 2015 Malikania Authors
+# Copyright (c) 2013-2016 Malikania Authors
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -48,6 +48,6 @@ else ()
 	message(WARNING "Unsupported ${CMAKE_CXX_COMPILER_ID}, may not build correctly.")
 endif ()
 
-if (WIN32)
+if (MINGW)
 	set(CMAKE_CXX_FLAGS "-D_WIN32_WINNT=0x0600 ${CMAKE_CXX_FLAGS}")
 endif ()
