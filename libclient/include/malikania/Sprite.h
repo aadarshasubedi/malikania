@@ -1,90 +1,148 @@
-#ifndef SPRITE_H
-#define SPRITE_H
+/*
+ * Sprite.h -- image sprite
+ *
+ * Copyright (c) 2013-2016 Malikania Authors
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#ifndef _MALIKANIA_SPRITE_H_
+#define _MALIKANIA_SPRITE_H_
+
+/**
+ * @file Sprite.h
+ * @brief Sprite description.
+ */
 
 #include <malikania/Json.h>
 
 #include <Config.h>
 
-#if defined(WITH_BACKEND_SDL)
-#  include "backend/sdl/SpriteSdl.h"
-#endif
-
 #include "Image.h"
 
 namespace malikania {
 
+class Point;
 class Window;
 
+/**
+ * @class Sprite
+ * @brief A Sprite is an image divided into cells.
+ */
 class Sprite {
 private:
-	BackendSprite m_backend;
 	Image m_image;
-	std::string m_name;
 	Size m_cell;
-	Size m_size;
-	Size m_space;
 	Size m_margin;
-	static void checkJSONFormat(const JsonObject& json);
+	Size m_space;
+	Size m_size;
+	unsigned m_rows;
+	unsigned m_columns;
 
 public:
-	Sprite(Image image, std::string alias, Size cell, Size size, Size space = {0, 0}, Size margin = {0, 0});
+	/**
+	 * Construct a sprite.
+	 *
+	 * @pre cell must not have height or width null
+	 * @param image the image to use
+	 * @param cell size of cell in the image
+	 * @param margin the optional space from borders
+	 * @param space the optional space between cells
+	 * @param size the sprite size (if 0, taken from the image)
+	 */
+	Sprite(Image image, Size cell, Size margin = { 0, 0 }, Size space = { 0, 0 }, Size size = { 0, 0 }) noexcept;
 
+	/**
+	 * Get the underlying image.
+	 *
+	 * @return the image
+	 */
 	inline const Image &image() const noexcept
 	{
 		return m_image;
 	}
 
+	/**
+	 * Overloaded function.
+	 *
+	 * @return the image
+	 */
 	inline Image &image() noexcept
 	{
 		return m_image;
 	}
 
-	inline Size &cell() noexcept
-	{
-		return m_cell;
-	}
-
+	/**
+	 * Get the cell size.
+	 *
+	 * @return the cell size
+	 */
 	inline const Size &cell() const noexcept
 	{
 		return m_cell;
 	}
 
-	inline Size &space() noexcept
+	/**
+	 * Get the margin size.
+	 *
+	 * @return the margin size
+	 */
+	inline const Size &margin() noexcept
 	{
-		return m_space;
+		return m_margin;
 	}
 
+	/**
+	 * Get the space size.
+	 *
+	 * @return the space size
+	 */
 	inline const Size &space() const noexcept
 	{
 		return m_space;
 	}
 
-	inline Size &size()
+	/**
+	 * Get the number of rows in the grid.
+	 *
+	 * @return the number of rows
+	 */
+	inline unsigned rows() const noexcept
 	{
-		m_size = m_size.height > 0 && m_size.width > 0 ? m_size : m_backend.size(*this);
-		return m_size;
+		return m_rows;
 	}
 
-	inline void setSize(Size size)
+	/**
+	 * Get the number of columns in the grid.
+	 *
+	 * @return the number of columns
+	 */
+	inline unsigned columns() const noexcept
 	{
-		m_size = std::move(size);
+		return m_columns;
 	}
 
-	inline Size margin() noexcept
-	{
-		return m_margin;
-	}
-
-	static Sprite fromJson(Window &window, const JsonObject &jsonSprite);
-
-	void draw(Window &window, int index, const Rectangle &rectangle);
-
-	inline BackendSprite &backend() noexcept
-	{
-		return m_backend;
-	}
+	/**
+	 * Draw the sprite into the window at the specified position.
+	 *
+	 * @pre cell < rows() * columns()
+	 * @param window the window
+	 * @param cell the cell index
+	 * @param position the position in the window
+	 */
+	void draw(Window &window, unsigned cell, const Point &position);
 };
 
-}// !malikania
+} // !malikania
 
-#endif // SPRITE_H
+#endif // !_MALIKANIA_SPRITE_H_

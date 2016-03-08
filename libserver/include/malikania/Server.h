@@ -19,8 +19,12 @@ private:
 
 	StreamServer m_server;
 
+#if 0
+
 	net::address::Ip buildIp() const noexcept;
 	net::protocol::Tls buildTls() const noexcept;
+
+#endif
 
 public:
 	/**
@@ -28,7 +32,7 @@ public:
 	 *
 	 * @param st the settings
 	 */
-	Server(const ServerSettings &st);
+	//Server(const ServerSettings &st);
 
 	/**
 	 * Poll the next events.

@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef _MALIKANIA_WINDOW_H_
+#define _MALIKANIA_WINDOW_H_
 
 #include <functional>
 #include <vector>
@@ -12,7 +12,8 @@
 #  include "backend/sdl/WindowSdl.h"
 #endif
 
-#include "Size.h"
+#include <malikania/Size.h>
+
 #include "Line.h"
 #include "Color.h"
 #include "Point.h"
@@ -48,6 +49,11 @@ private:
 	}
 
 public:
+	inline Window(unsigned width = 640, unsigned height = 480)
+		: m_backend(width, height)
+	{
+	}
+
 	inline BackendWindow &backend() noexcept
 	{
 		return m_backend;
@@ -164,4 +170,4 @@ public:
 
 }// !malikania
 
-#endif // WINDOW_H
+#endif // !_MALIKANIA_WINDOW_H_

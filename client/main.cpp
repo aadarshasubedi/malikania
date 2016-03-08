@@ -26,6 +26,11 @@
 #include <malikania/Sprite.h>
 #include <malikania/Image.h>
 #include <malikania/Point.h>
+#include <malikania/Label.h>
+#include <malikania/Animation.h>
+#include <malikania/Animator.h>
+
+#if 0
 
 using namespace std::literals::chrono_literals;
 
@@ -137,6 +142,35 @@ int main(void)
 		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
 	).toObject());
 
+	std::shared_ptr<malikania::Font> font = std::make_shared<malikania::Font>("resources/fonts/DejaVuSans.ttf", 48);
+	malikania::Label testLabel("Malikania !!! Youpi !", font, {0, 0, 100, 50});
+
+	std::shared_ptr<malikania::Animation> testAnimation = std::make_shared<malikania::Animation>(malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
+		std::string("{\"sprite\": \"no-working-yet.json\", \"alias\": \"testAnimation\", \"frames\": [")
+		+ "{ \"delay\": 200, \"cell\": 0 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 10, \"cell\": 2 }, { \"delay\": 200, \"cell\": 3 },"
+		+ "{ \"delay\": 10, \"cell\": 1 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 200, \"cell\": 4 }, { \"delay\": 10, \"cell\": 5 },"
+		+ "{ \"delay\": 10, \"cell\": 6 }, { \"delay\": 200, \"cell\": 7 },"
+		+ "{ \"delay\": 10, \"cell\": 6 }, { \"delay\": 10, \"cell\": 5 },"
+		+ "{ \"delay\": 200, \"cell\": 8 }, { \"delay\": 10, \"cell\": 9 },"
+		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 200, \"cell\": 11 },"
+		+ "{ \"delay\": 10, \"cell\": 10 }, { \"delay\": 10, \"cell\": 9 }"
+		+ "]}"
+	).toObject()));
+
+	std::shared_ptr<malikania::Animation> testAnimation2 =  std::make_shared<malikania::Animation>(malikania::Animation::fromJson(mainWindow, malikania::JsonDocument(
+		std::string("{\"sprite\": \"no-working-yet.json\", \"alias\": \"testAnimation\", \"frames\": [")
+		+ "{ \"delay\": 2000, \"cell\": 0 }, { \"delay\": 10, \"cell\": 1 },"
+		+ "{ \"delay\": 10, \"cell\": 2 }, { \"delay\": 2000, \"cell\": 3 },"
+		+ "{ \"delay\": 10, \"cell\": 1 }, { \"delay\": 10, \"cell\": 1 }"
+		+ "]}"
+	).toObject()));
+
+	malikania::Animator testAnimator1 = malikania::Animator(testAnimation);
+	malikania::Animator testAnimator2 = malikania::Animator(std::move(testAnimation));
+	malikania::Animator testAnimator3 = malikania::Animator(std::move(testAnimation2));
+
 	while (mainWindow.isOpen()) {
 
 		// TODO delete this, just for fun...
@@ -154,7 +188,7 @@ int main(void)
 		testSprite.draw(mainWindow, 2, {400, 400, 300, 300});
 		testSprite.draw(mainWindow, 11, {600, 400, 300, 300});
 
-		Color c{255, 50, 40, 255};
+		malikania::Color c{255, 50, 40, 255};
 		mainWindow.setDrawingColor(c);
 		mainWindow.drawLine({0, 0, 300, 300});
 
@@ -185,8 +219,11 @@ int main(void)
 			{{255,0,0,255},{0,255,0,255},{0,0,255,255}}
 		);
 
-		malikania::Font font("resources/fonts/DejaVuSans.ttf", 42);
-		mainWindow.drawText("Malikania FTW!", font, malikania::Point{400, 100});
+		testLabel.draw(mainWindow, {300, 300, 200, 50});
+
+		testAnimator1.draw(mainWindow, {1000, 0, 300, 300});
+		testAnimator2.draw(mainWindow, {100, 600, 300, 300});
+		testAnimator3.draw(mainWindow, {400, 600, 300, 300});
 
 		mainWindow.present();
 
@@ -197,3 +234,7 @@ int main(void)
 
 	return 0;
 }
+
+#endif
+
+int main() { return 0; }

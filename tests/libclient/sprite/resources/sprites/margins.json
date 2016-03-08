@@ -1,0 +1,6 @@
+{
+  "image": "images/margins.png",
+  "cell": [ 32, 32 ],
+  "margin": [ 4, 6 ],
+  "space": [ 2, 3 ]
+}

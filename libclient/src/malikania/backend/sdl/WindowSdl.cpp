@@ -1,10 +1,28 @@
+/*
+ * WindowSdl.cpp -- window object (SDL2 implementation)
+ *
+ * Copyright (c) 2013-2016 Malikania Authors
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #include <stdexcept>
 
 #include "Window.h"
 
 namespace malikania {
 
-WindowSdl::WindowSdl()
+WindowSdl::WindowSdl(unsigned width, unsigned height)
 	: m_window(nullptr, nullptr)
 	, m_renderer(nullptr, nullptr)
 {
@@ -12,13 +30,12 @@ WindowSdl::WindowSdl()
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
 	m_window = WindowHandle(
-		SDL_CreateWindow("Malikania", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP),
+		SDL_CreateWindow("Malikania", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL),
 		SDL_DestroyWindow
 	);
 
-	// In the event that the window could not be made...
 	if (m_window == nullptr) {
-		throw std::runtime_error("Couldn't create create window");
+		throw std::runtime_error(SDL_GetError());
 	}
 
 	// Create renderer
@@ -28,11 +45,11 @@ WindowSdl::WindowSdl()
 	);
 
 	if (m_renderer == nullptr) {
-		throw std::runtime_error("Couldn't create a renderer");
+		throw std::runtime_error(SDL_GetError());
 	}
 
 	if (TTF_Init() == -1) {
-		throw std::runtime_error(std::string("Couldn't initialize TTF library: ") + TTF_GetError());
+		throw std::runtime_error(TTF_GetError());
 	}
 }
 
@@ -95,12 +112,12 @@ Size WindowSdl::resolution()
 		}
 	}
 
-	return Size({width, height});
+	return Size((unsigned)width, (unsigned)height);
 }
 
 void WindowSdl::setDrawingColor(const Color &color)
 {
-	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red, color.green, color.blue, color.alpha);
+	int error = SDL_SetRenderDrawColor(m_renderer.get(), color.red(), color.green(), color.blue(), color.alpha());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't set drawing color" + std::string(SDL_GetError()));
 	}
@@ -108,7 +125,7 @@ void WindowSdl::setDrawingColor(const Color &color)
 
 void WindowSdl::drawLine(const Line &line)
 {
-	int error = SDL_RenderDrawLine(m_renderer.get(), line.startX, line.startY, line.endX, line.endY);
+	int error = SDL_RenderDrawLine(m_renderer.get(), line.x1(), line.y1(), line.x2(), line.y2());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't draw line" + std::string(SDL_GetError()));
 	}
@@ -120,7 +137,7 @@ void WindowSdl::drawLines(const std::vector<Point> &points)
 
 	int i = 0;
 	for (const Point &point : points) {
-		sdlPoints[i++] = {point.x, point.y};
+		sdlPoints[i++] = {(int)point.x(), (int)point.y()};
 	}
 
 	int error = SDL_RenderDrawLines(m_renderer.get(), sdlPoints, points.size());
@@ -131,7 +148,7 @@ void WindowSdl::drawLines(const std::vector<Point> &points)
 
 void WindowSdl::drawPoint(const Point &point)
 {
-	int error = SDL_RenderDrawPoint(m_renderer.get(), point.x, point.y);
+	int error = SDL_RenderDrawPoint(m_renderer.get(), point.x(), point.y());
 	if (error != 0) {
 		throw std::runtime_error("Couldn't draw point" + std::string(SDL_GetError()));
 	}
@@ -143,7 +160,7 @@ void WindowSdl::drawPoints(const std::vector<Point> &points)
 
 	int i = 0;
 	for (const Point &point : points) {
-		sdlPoints[i++] = {point.x, point.y};
+		sdlPoints[i++] = {point.x(), point.y()};
 	}
 
 	int error = SDL_RenderDrawPoints(m_renderer.get(), sdlPoints, points.size());
@@ -152,9 +169,9 @@ void WindowSdl::drawPoints(const std::vector<Point> &points)
 	}
 }
 
-void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, Color fillColor)
+void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, const malikania::Color &fillColor)
 {
-	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
 	int error = SDL_RenderDrawRect(m_renderer.get(), &rect);
 	if (error != 0) {
 		throw std::runtime_error("Couldn't draw rectangle" + std::string(SDL_GetError()));
@@ -174,7 +191,7 @@ void WindowSdl::drawRectangles(const std::vector<Rectangle> &rectangles, bool fi
 
 	int i = 0;
 	for (const Rectangle &rectangle : rectangles) {
-		sdlRects[i++] = {rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+		sdlRects[i++] = {rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
 	}
 
 	int error = SDL_RenderDrawRects(m_renderer.get(), sdlRects, rectangles.size());
@@ -208,9 +225,11 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &r
 	SDL_Color textColor = {0, 0, 0, 255};
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
-	SDL_Rect rect{rectangle.x, rectangle.y, rectangle.width, rectangle.height};
+	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
+#if 0
 	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
+#endif
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);
@@ -227,9 +246,11 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Point &point
 	SDL_Color textColor = {0, 0, 0, 255};
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
-	SDL_Rect rect{point.x, point.y, message->w, message->h};
+	SDL_Rect rect{point.x(), point.y(), message->w, message->h};
+#if 0
 	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, screenSize.width, screenSize.height};
+	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
+#endif
 	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
 	SDL_FreeSurface(message);

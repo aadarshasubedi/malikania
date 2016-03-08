@@ -16,235 +16,170 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <chrono>
+#include <thread>
 #include <exception>
 
 #include <gtest/gtest.h>
 
-#include <malikania/Window.h>
+#include <malikania/ClientResourcesLoader.h>
+#include <malikania/ResourcesLocator.h>
 #include <malikania/Sprite.h>
+#include <malikania/Window.h>
 
 using namespace malikania;
 
-TEST(Basic, createSpriteStandard)
-{
-	malikania::Window mainWindow;
+using namespace std::chrono_literals;
 
-	malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-		"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
-	).toObject());
-}
+namespace {
 
-TEST(Basic, createSpriteResourceNotFound)
+Window window;
+
+} // !namespace
+
+class TestSprite : public testing::Test {
+protected:
+	ResourcesLocatorDirectory m_locator;
+	ClientResourcesLoader m_loader;
+
+public:
+	TestSprite()
+		: m_locator(SOURCE_DIRECTORY "/resources")
+		, m_loader(window, m_locator)
+	{
+	}
+};
+
+/*
+ * Missing properties
+ * ------------------------------------------------------------------
+ */
+
+TEST_F(TestSprite, missingPropertyImage)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/notfound.png\", \"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("failed to load texture: Couldn't open resources/images/notfound.png", e.what());
+		m_loader.loadSprite("sprites/no-property-image.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteJSONNotObject)
+TEST_F(TestSprite, missingPropertyCell)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"[\"It's\", \"not\", \"an\", \"object\"]"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: passed JSON is not an object", e.what());
+		m_loader.loadSprite("sprites/no-property-cell.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteMissingSize)
+/*
+ * Invalid properties
+ * ------------------------------------------------------------------
+ */
+
+TEST_F(TestSprite, imageNotString)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"cell\": [300, 300]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Error \"size\" of Sprite must be present, it's marked non required but for now Sprite need it", e.what());
+		m_loader.loadSprite("sprites/property-image-not-string.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteMissingImage)
+TEST_F(TestSprite, cellNotArray)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"alias\": \"testSprite\", \"cell\": [300, 300], \"size\": [1200, 900]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: it doesn't contains the \"image\" required key", e.what());
+		m_loader.loadSprite("sprites/property-cell-not-array.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteMissingAlias)
+TEST_F(TestSprite, cellNotArray2)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"cell\": [300, 300], \"size\": [1200, 900]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: it doesn't contains \"alias\" required key", e.what());
+		m_loader.loadSprite("sprites/property-cell-not-array2.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteMissingCell)
+/*
+ * Other errors
+ * ------------------------------------------------------------------
+ */
+
+TEST_F(TestSprite, imageNotFound)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"size\": [1200, 900]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: it doesn't contains \"cell\" required key", e.what());
+		m_loader.loadSprite("sprites/image-not-found.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteImageNotString)
+TEST_F(TestSprite, notObject)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": 42, \"alias\": \"testSprite\", \"size\": [1200, 900], \"cell\": [300, 300]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"image\" must be a valid String", e.what());
+		m_loader.loadSprite("sprites/not-object.json");
+
+		FAIL() << "exception expected";
+	} catch (const std::exception &) {
 	}
 }
 
-TEST(Basic, createSpriteAliasNotString)
+/*
+ * Valid sprites
+ * ------------------------------------------------------------------
+ */
+
+TEST_F(TestSprite, standard)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"alias\": 42, \"size\": [1200, 900], \"cell\": [300, 300]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"alias\" must be a valid String", e.what());
+		Sprite sprite = m_loader.loadSprite("sprites/simple.json");
+
+		ASSERT_EQ(300U, sprite.cell().width());
+		ASSERT_EQ(300U, sprite.cell().height());
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
 	}
 }
 
-TEST(Basic, createSpriteCellNotArray)
+TEST_F(TestSprite, margins)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"size\": [1200, 900], \"cell\": \"not an array\"}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"cell\" must be a valid Array", e.what());
+		Sprite sprite = m_loader.loadSprite("sprites/margins.json");
+
+		ASSERT_EQ(3U, sprite.rows());
+		ASSERT_EQ(4U, sprite.columns());
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
 	}
 }
 
-TEST(Basic, createSpriteCellValuesNotInteger)
+TEST_F(TestSprite, draw)
 {
-	malikania::Window mainWindow;
 	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			"{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\", \"size\": [1200, 900], \"cell\": [\"Hello\", 300]}"
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"cell\" values have to be valid Integer", e.what());
-	}
-}
+		Sprite sprite = m_loader.loadSprite("sprites/margins.json");
 
-TEST(Basic, createSpriteSpaceNotArray)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"space\": \"not an array\"}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"space\" must be a valid Array", e.what());
-	}
-}
+		unsigned total = sprite.rows() * sprite.columns();
 
-TEST(Basic, createSpriteSpaceValuesNotInteger)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"space\": [120, \"Hello\"]}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"space\" values have to be valid Integer", e.what());
-	}
-}
+		for (unsigned c = 0; c < total; ++c) {
+			window.clear();
+			sprite.draw(window, c, Point(10, 10));
+			window.present();
 
-TEST(Basic, createSpriteSpaceValuesNot2)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"space\": [120, 120, 120]}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"space\" must have 2 values", e.what());
-	}
-}
-
-TEST(Basic, createSpriteMarginNotArray)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"margin\": \"not an array\"}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"margin\" must be a valid Array", e.what());
-	}
-}
-
-TEST(Basic, createSpriteMarginValuesNotInteger)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"margin\": [10, \"Hello\"]}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"margin\" values have to be valid Integer", e.what());
-	}
-}
-
-TEST(Basic, createSpriteMarginValuesNot2)
-{
-	malikania::Window mainWindow;
-	try {
-		malikania::Sprite testSprite = malikania::Sprite::fromJson(mainWindow, malikania::JsonDocument(
-			std::string("{\"image\": \"resources/images/mokodemo.png\", \"alias\": \"testSprite\"")
-			+ std::string(", \"size\": [1200, 900], \"cell\": [300, 300], \"margin\": [10, 10, 10]}")
-		).toObject());
-		FAIL() << "Expected exception";
-	} catch(std::runtime_error e) {
-		ASSERT_STREQ("Couldn't parse JSON Sprite object: \"margin\" must have 2 values", e.what());
+			std::this_thread::sleep_for(1s);
+		}
+	} catch (const std::exception &ex) {
+		FAIL() << ex.what();
 	}
 }
 

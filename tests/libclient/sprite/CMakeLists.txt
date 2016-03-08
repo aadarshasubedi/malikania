@@ -22,5 +22,15 @@ malikania_create_test(
 	SOURCES main.cpp
 	RESOURCES
 		resources/images/mokodemo.png
+		resources/images/margins.png
+		resources/sprites/no-property-cell.json
+		resources/sprites/no-property-image.json
+		resources/sprites/image-not-found.json
+		resources/sprites/not-object.json
+		resources/sprites/property-image-not-string.json
+		resources/sprites/property-cell-not-array.json
+		resources/sprites/property-cell-not-array2.json
+		resources/sprites/simple.json
+		resources/sprites/margins.json
 )
 

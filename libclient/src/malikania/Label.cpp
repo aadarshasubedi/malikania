@@ -1,7 +1,7 @@
 /*
- * Loader.h -- wrapper to load directories
+ * Label.cpp -- GUI label
  *
- * Copyright (c) 2013, 2014, 2015 Malikania Authors
+ * Copyright (c) 2013-2016 Malikania Authors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,46 +16,27 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MALIKANIA_LOADER_H_
-#define _MALIKANIA_LOADER_H_
+#include "Label.h"
 
 namespace malikania {
 
-namespace json {
+Label::Label(std::string text, std::shared_ptr<Font> font, Rectangle frame, Color textColor, Color backgroundColor)
+	: m_text(std::move(text))
+	, m_font(std::move(font))
+	, m_frame(std::move(frame))
+	, m_textColor(std::move(textColor))
+	, m_backgroundColor(std::move(backgroundColor))
+{
+}
 
-class Document;
+int Label::fontSize() const noexcept
+{
+	// TODO
+	return 12;
+}
 
-} // !json
+void Label::draw(Window &, const Rectangle &)
+{
+}
 
-/**
- * @class LoaderDirectory
- * @brief Load a game from a directory.
- */
-class LoaderDirectory {
-private:
-	std::string m_path;
-
-public:
-	/**
-	 * Load the game from the directory.
-	 *
-	 * @param path the base directory
-	 */
-	inline LoaderDirectory(std::string path) noexcept
-		: m_path{std::move(path)}
-	{
-	}
-
-	/**
-	 * Get the game metadata.
-	 *
-	 * @return the metadata
-	 * @throw any exception on failures
-	 */
-	json::Document metadata() const;
-};
-
-} // !malikania
-
-#endif // !_MALIKANIA_LOADER_H_
-
+}// !malikania

@@ -23,8 +23,8 @@
 
 namespace malikania {
 
-ServerApp::ServerApp(const LoaderDirectory &directory)
-	: Game{directory.metadata()}
+ServerApp::ServerApp(const ResourcesLoader &)
+	//: Game{directory.metadata()}
 {
 }
 

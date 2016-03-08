@@ -18,19 +18,17 @@
 
 #include <iostream>
 
-#include <malikania/ServerApp.h>
+#include <malikania/Game.h>
+#include <malikania/ResourcesLocator.h>
+#include <malikania/ResourcesLoader.h>
 
 using namespace malikania;
 
 int main(int, char **)
 {
-	try {
-		ServerApp application{LoaderDirectory{"kingdom"}};
-
-		std::cout << "game name: " << application.name() << std::endl;
-	} catch (const std::exception &ex) {
-		std::cerr << ex.what() << std::endl;
-	}
+	ResourcesLocatorDirectory locator("/home/markand/mygame");
+	ResourcesLoader loader(locator);
+	Game game = loader.loadGame();
 
 	return 0;
 }
