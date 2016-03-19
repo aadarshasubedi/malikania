@@ -39,7 +39,7 @@ std::uint8_t value(char digit)
 		return digit - '0';
 	}
 	if ((digit = std::toupper(digit)) < 'A' || digit > 'F') {
-		throw std::invalid_argument("invalid hexadecimal value: " + digit);
+		throw std::invalid_argument("invalid hexadecimal value: " + std::to_string(digit));
 	}
 
 	return digit - 55;

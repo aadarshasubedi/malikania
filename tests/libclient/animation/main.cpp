@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 namespace {
 
-Window window;
+Window window(400, 400);
 
 } // !namespace
 
@@ -79,11 +79,15 @@ TEST_F(TestAnimation, draw)
 	ElapsedTimer timer;
 
 	try {
-		Animator animator(std::make_shared<Animation>(m_loader.loadAnimation("animations/margins.json")));
+		Animation animation = m_loader.loadAnimation("animations/margins.json");
+		Animator animator(std::make_shared<Animation>(animation));
+
+		auto x = (400 / 2) - (animation.sprite()->cell().width() / 2);
+		auto y = (400 / 2) - (animation.sprite()->cell().height() / 2);
 
 		while (timer.elapsed() < 8000) {
 			window.clear();
-			animator.draw(window, Point(10, 10));
+			animator.draw(window, Point(x, y));
 			animator.update();
 			window.present();
 		}

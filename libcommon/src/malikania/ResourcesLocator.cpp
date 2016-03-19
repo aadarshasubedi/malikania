@@ -44,7 +44,7 @@ std::string ResourcesLocatorDirectory::read(const std::string &id)
 
 std::unique_ptr<std::istream> ResourcesLocatorDirectory::open(const std::string &id)
 {
-	auto ptr = std::make_unique<std::ifstream>(m_path + "/" + id);
+	std::unique_ptr<std::istream> ptr = std::make_unique<std::ifstream>(m_path + "/" + id);
 
 	if (!(*ptr)) {
 		throw std::runtime_error(std::strerror(errno));

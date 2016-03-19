@@ -33,7 +33,7 @@ using namespace std::chrono_literals;
 
 namespace {
 
-Window window;
+Window window(400, 400);
 
 } // !namespace
 
@@ -171,9 +171,12 @@ TEST_F(TestSprite, draw)
 
 		unsigned total = sprite.rows() * sprite.columns();
 
+		auto x = (400 / 2) - (sprite.cell().width() / 2);
+		auto y = (400 / 2) - (sprite.cell().height() / 2);
+
 		for (unsigned c = 0; c < total; ++c) {
 			window.clear();
-			sprite.draw(window, c, Point(10, 10));
+			sprite.draw(window, c, Point(x, y));
 			window.present();
 
 			std::this_thread::sleep_for(1s);

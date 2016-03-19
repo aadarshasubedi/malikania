@@ -32,7 +32,7 @@ using namespace std::chrono_literals;
 
 namespace {
 
-Window window(52, 52);
+Window window(400, 400);
 
 } // !namespace
 
@@ -103,10 +103,12 @@ TEST_F(TestImage, notfound)
 TEST_F(TestImage, draw)
 {
 	try {
-		Image image = m_loader.loadImage("images/smiley.png");
+		auto image = m_loader.loadImage("images/smiley.png");
+		auto x = (400 / 2) - (image.size().width() / 2);
+		auto y = (400 / 2) - (image.size().height() / 2);
 
 		window.clear();
-		image.draw(window, Point(10, 10));
+		image.draw(window, Point(x, y));
 		window.present();
 
 		std::this_thread::sleep_for(3s);
