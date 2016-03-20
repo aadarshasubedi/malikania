@@ -32,6 +32,8 @@
 #  include "backend/sdl/FontSdl.h"
 #endif
 
+#include <malikania/Size.h>
+
 namespace malikania {
 
 /**
@@ -50,8 +52,8 @@ public:
 	 * @param data the raw data
 	 * @param size the size
 	 */
-	inline Font(std::string path, unsigned size)
-		: m_backend(path, size)
+	inline Font(std::string data, unsigned size)
+		: m_backend(std::move(data), size)
 		, m_size(size)
 	{
 	}
@@ -84,6 +86,17 @@ public:
 	inline const BackendFont &backend() const noexcept
 	{
 		return m_backend;
+	}
+
+	/**
+	 * Get the clipping size required to draw the given text.
+	 *
+	 * @param text the text to clip
+	 * @return the required size
+	 */
+	inline Size clip(const std::string &text) const
+	{
+		return m_backend.clip(*this, text);
 	}
 };
 

@@ -16,12 +16,10 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-add_subdirectory(animation)
-add_subdirectory(color)
-add_subdirectory(font)
-add_subdirectory(image)
-add_subdirectory(line)
-add_subdirectory(point)
-add_subdirectory(rectangle)
-add_subdirectory(size)
-add_subdirectory(sprite)
+malikania_create_test(
+	NAME font
+	LIBRARIES libclient
+	SOURCES main.cpp
+	RESOURCES
+		resources/DejaVuSans.ttf
+)

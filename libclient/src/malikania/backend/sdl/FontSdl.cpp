@@ -16,28 +16,44 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <malikania/Size.h>
+
 #include <malikania/backend/sdl/FontSdl.h>
 
 using namespace std::string_literals;
 
 namespace malikania {
 
-FontSdl::FontSdl(const std::string &data, unsigned size)
-	: m_font(nullptr, nullptr)
-	, m_size(size)
+FontSdl::FontSdl(std::string data, unsigned size)
+	: m_data(std::move(data))
+	, m_buffer(nullptr, nullptr)
+	, m_font(nullptr, nullptr)
 {
 	/* Initialize the texture */
-	auto rw = SDL_RWFromMem(const_cast<char *>(data.c_str()), data.length());
+	m_buffer = Buffer(SDL_RWFromConstMem(const_cast<char *>(m_data.c_str()), m_data.length()), [] (SDL_RWops *ops) {
+		SDL_RWclose(ops);
+	});
 
-	if (rw == nullptr) {
+	if (m_buffer == nullptr) {
 		throw std::runtime_error(SDL_GetError());
 	}
 
-	m_font = Handle(TTF_OpenFontRW(rw, true, m_size), TTF_CloseFont);
+	m_font = Handle(TTF_OpenFontRW(m_buffer.get(), false, size), TTF_CloseFont);
 
 	if (m_font == NULL) {
 		throw std::runtime_error(TTF_GetError());
 	}
+}
+
+Size FontSdl::clip(const Font &, const std::string &text) const
+{
+	int width, height;
+
+	if (TTF_SizeUTF8(m_font.get(), text.c_str(), &width, &height) != 0) {
+		throw std::runtime_error(SDL_GetError());
+	}
+
+	return Size((unsigned)width, (unsigned)height);
 }
 
 } // !malikania

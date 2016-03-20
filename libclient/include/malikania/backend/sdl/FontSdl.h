@@ -27,20 +27,29 @@
 
 namespace malikania {
 
+class Font;
+class Size;
+
 class FontSdl {
 private:
 	using Handle = std::unique_ptr<TTF_Font, void (*)(TTF_Font*)>;
+	using Buffer = std::unique_ptr<SDL_RWops, void (*)(SDL_RWops *)>;
 
+	/* Freetype does not make a copy of the binary data so we need to store it until the font is destroyed */
+	std::string m_data;
+
+	Buffer m_buffer;
 	Handle m_font;
-	unsigned m_size;
 
 public:
-	FontSdl(const std::string &data, unsigned size);
+	FontSdl(std::string data, unsigned size);
 
 	inline TTF_Font *font() noexcept
 	{
 		return m_font.get();
 	}
+
+	Size clip(const Font &self, const std::string &text) const;
 };
 
 /*

@@ -223,6 +223,7 @@ void WindowSdl::drawRectangles(const std::vector<Rectangle> &rectangles, bool fi
 void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &rectangle)
 {
 	SDL_Color textColor = {0, 0, 0, 255};
+	printf("LOL: %s\n", text.c_str());
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
@@ -243,8 +244,9 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &r
  */
 void WindowSdl::drawText(const std::string &text, Font &font, const Point &point)
 {
-	SDL_Color textColor = {0, 0, 0, 255};
-	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
+	SDL_Color color = {0, 0, 0, 0};
+	SDL_GetRenderDrawColor(m_renderer.get(), &color.r, &color.g, &color.b, &color.a);
+	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), color);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{point.x(), point.y(), message->w, message->h};
 #if 0
