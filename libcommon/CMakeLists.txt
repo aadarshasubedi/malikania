@@ -18,40 +18,40 @@
 
 set(
 	HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Application.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Directory.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Game.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ElapsedTimer.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Game.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Hash.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Id.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Js.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Json.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLoader.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ResourcesLocator.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Util.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Sockets.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Application.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Directory.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Game.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ElapsedTimer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Game.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Hash.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Id.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Js.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Json.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLoader.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLocator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Util.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Sockets.h
 )
 
 set(
 	SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Application.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Directory.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ElapsedTimer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Hash.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Js.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Json.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ResourcesLoader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ResourcesLocator.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Util.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sockets.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Application.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Directory.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ElapsedTimer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Hash.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Js.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Json.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLoader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLocator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Util.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Sockets.cpp
 )
 
 if (WITH_BACKEND_SDL)
 	find_package(SDL2 REQUIRED)
 
-	list(APPEND HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/CommonSdl.h)
-	list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/CommonSdl.cpp)
+	list(APPEND HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/malikania/backend/sdl/CommonSdl.h)
+	list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/malikania/backend/sdl/CommonSdl.cpp)
 	list(APPEND INCLUDES ${SDL2_INCLUDE_DIRS})
 	list(APPEND LIBRARIES ${SDL2_LIBRARIES})
 endif ()
@@ -65,10 +65,8 @@ malikania_create_library(
 	TARGET libcommon
 	SOURCES ${HEADERS} ${SOURCES}
 	FLAGS "MALIKANIA_COMMON_BUILD"
-	PRIVATE_INCLUDES
-		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania
 	PUBLIC_INCLUDES
-		${CMAKE_CURRENT_SOURCE_DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}
 		${Jansson_INCLUDE_DIRS}
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}

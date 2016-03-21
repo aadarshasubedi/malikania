@@ -18,9 +18,8 @@
 
 #include <SDL_image.h>
 
-#include <Window.h>
-
 #include <malikania/backend/sdl/ImageSdl.h>
+#include <malikania/Window.h>
 
 using namespace std::string_literals;
 

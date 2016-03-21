@@ -59,7 +59,7 @@ Sint64 size(SDL_RWops *ops)
 Sint64 seek(SDL_RWops *ops, Sint64 offset, int whence)
 {
 	Buffer *data = reinterpret_cast<Buffer *>(ops->hidden.unknown.data1);
-	Sint64 position;
+	Sint64 position = data->m_position;
 
 	switch (whence) {
 	case RW_SEEK_SET:
@@ -133,7 +133,7 @@ SDL_RWops *RWFromBinary(std::string data) noexcept
 	ops->hidden.unknown.data1 = new (std::nothrow) Buffer(std::move(data));
 
 	if (ops->hidden.unknown.data1 == nullptr) {
-		SDL_SetError(std::strerror(errno));
+		SDL_SetError("%s", std::strerror(errno));
 		SDL_FreeRW(ops);
 		return nullptr;
 	}

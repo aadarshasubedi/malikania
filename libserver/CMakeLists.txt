@@ -18,24 +18,22 @@
 
 set(
 	HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/Server.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/ServerApp.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Server.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ServerApp.h
 )
 
 set(
 	SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Server.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/ServerApp.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Server.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ServerApp.cpp
 )
 
 malikania_create_library(
 	PROJECT libserver
 	TARGET libserver
 	SOURCES ${HEADERS} ${SOURCES}
-	PRIVATE_INCLUDES
-		${CMAKE_CURRENT_SOURCE_DIR}/include/malikania
 	PUBLIC_INCLUDES
-		${CMAKE_CURRENT_SOURCE_DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}
 	LIBRARIES
 		libcommon
 )

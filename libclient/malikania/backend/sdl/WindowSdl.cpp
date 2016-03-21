@@ -18,7 +18,7 @@
 
 #include <stdexcept>
 
-#include "Window.h"
+#include <malikania/Window.h>
 
 namespace malikania {
 
