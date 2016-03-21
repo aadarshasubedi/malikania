@@ -47,6 +47,15 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/Sockets.cpp
 )
 
+if (WITH_BACKEND_SDL)
+	find_package(SDL2 REQUIRED)
+
+	list(APPEND HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/malikania/backend/sdl/CommonSdl.h)
+	list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/malikania/backend/sdl/CommonSdl.cpp)
+	list(APPEND INCLUDES ${SDL2_INCLUDE_DIRS})
+	list(APPEND LIBRARIES ${SDL2_LIBRARIES})
+endif ()
+
 if (WIN32)
 	list(APPEND LIBRARIES ws2_32)
 endif ()
@@ -63,6 +72,7 @@ malikania_create_library(
 		${Jansson_INCLUDE_DIRS}
 		${ZIP_INCLUDE_DIRS}
 		${OPENSSL_INCLUDE_DIR}
+		${INCLUDES}
 	LIBRARIES
 		extern-jansson
 		${LIBRARIES}

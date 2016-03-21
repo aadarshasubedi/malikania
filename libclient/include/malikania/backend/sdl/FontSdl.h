@@ -33,12 +33,7 @@ class Size;
 class FontSdl {
 private:
 	using Handle = std::unique_ptr<TTF_Font, void (*)(TTF_Font*)>;
-	using Buffer = std::unique_ptr<SDL_RWops, void (*)(SDL_RWops *)>;
 
-	/* Freetype does not make a copy of the binary data so we need to store it until the font is destroyed */
-	std::string m_data;
-
-	Buffer m_buffer;
 	Handle m_font;
 
 public:

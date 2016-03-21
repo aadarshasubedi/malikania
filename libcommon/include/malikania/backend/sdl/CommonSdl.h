@@ -1,5 +1,5 @@
 /*
- * FontSdl.cpp -- font object (SDL2 implementation)
+ * CommonSdl.h -- common SDL2 related code
  *
  * Copyright (c) 2013-2016 Malikania Authors
  *
@@ -16,40 +16,34 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <malikania/Size.h>
+#ifndef _COMMON_SDL_H_
+#define _COMMON_SDL_H_
 
-#include <malikania/backend/sdl/CommonSdl.h>
-#include <malikania/backend/sdl/FontSdl.h>
+#include <SDL.h>
 
-using namespace std::string_literals;
+#include <string>
 
 namespace malikania {
 
-FontSdl::FontSdl(std::string data, unsigned size)
-	: m_font(nullptr, nullptr)
-{
-	auto rw = sdl::RWFromBinary(std::move(data));
+namespace sdl {
 
-	if (rw == nullptr) {
-		throw std::runtime_error(SDL_GetError());
-	}
+/**
+ * Create a SDL_RWops that owns the binary data.
+ *
+ * This is a safe alternative to SDL_RWFromMem because it owns the memory pointed by data until it is closed. The
+ * data is moved so there are no copies.
+ *
+ * The stream has read-only support and can not write.
+ *
+ * Seeking past-the-end or past-the-begin readjust the position to the end or begin respectively.
+ *
+ * @param data the data
+ * @return the object or nullptr on errors
+ */
+SDL_RWops *RWFromBinary(std::string data) noexcept;
 
-	m_font = Handle(TTF_OpenFontRW(rw, true, size), TTF_CloseFont);
-
-	if (m_font == NULL) {
-		throw std::runtime_error(TTF_GetError());
-	}
-}
-
-Size FontSdl::clip(const Font &, const std::string &text) const
-{
-	int width, height;
-
-	if (TTF_SizeUTF8(m_font.get(), text.c_str(), &width, &height) != 0) {
-		throw std::runtime_error(SDL_GetError());
-	}
-
-	return Size((unsigned)width, (unsigned)height);
-}
+} // !sdl
 
 } // !malikania
+
+#endif // !_COMMON_SDL_H_
