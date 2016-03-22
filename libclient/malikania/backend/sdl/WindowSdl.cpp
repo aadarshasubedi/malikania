@@ -125,123 +125,102 @@ void WindowSdl::setDrawingColor(const Color &color)
 
 void WindowSdl::drawLine(const Line &line)
 {
-	int error = SDL_RenderDrawLine(m_renderer.get(), line.x1(), line.y1(), line.x2(), line.y2());
-	if (error != 0) {
-		throw std::runtime_error("Couldn't draw line" + std::string(SDL_GetError()));
+	if (SDL_RenderDrawLine(m_renderer.get(), line.x1(), line.y1(), line.x2(), line.y2()) != 0) {
+		throw std::runtime_error(SDL_GetError());
 	}
 }
 
 void WindowSdl::drawLines(const std::vector<Point> &points)
 {
-	SDL_Point sdlPoints[points.size()];
+	std::vector<SDL_Point> sdlPoints(points.size());
 
-	int i = 0;
-	for (const Point &point : points) {
-		sdlPoints[i++] = {(int)point.x(), (int)point.y()};
+	for (unsigned i = 0; i < points.size(); ++i) {
+		sdlPoints[i] = SDL_Point{points[i].x(), points[i].y()};
 	}
 
-	int error = SDL_RenderDrawLines(m_renderer.get(), sdlPoints, points.size());
-	if (error != 0) {
-		throw std::runtime_error("Couldn't draw lines" + std::string(SDL_GetError()));
+	if (SDL_RenderDrawLines(m_renderer.get(), sdlPoints.data(), sdlPoints.size()) != 0) {
+		throw std::runtime_error(SDL_GetError());
 	}
 }
 
 void WindowSdl::drawPoint(const Point &point)
 {
-	int error = SDL_RenderDrawPoint(m_renderer.get(), point.x(), point.y());
-	if (error != 0) {
-		throw std::runtime_error("Couldn't draw point" + std::string(SDL_GetError()));
+	if (SDL_RenderDrawPoint(m_renderer.get(), point.x(), point.y()) != 0) {
+		throw std::runtime_error(SDL_GetError());
 	}
 }
 
 void WindowSdl::drawPoints(const std::vector<Point> &points)
 {
-	SDL_Point sdlPoints[points.size()];
+	std::vector<SDL_Point> sdlPoints(points.size());
 
-	int i = 0;
-	for (const Point &point : points) {
-		sdlPoints[i++] = {point.x(), point.y()};
+	for (unsigned i = 0; i < points.size(); ++i) {
+		sdlPoints[i] = SDL_Point{points[i].x(), points[i].y()};
 	}
 
-	int error = SDL_RenderDrawPoints(m_renderer.get(), sdlPoints, points.size());
-	if (error != 0) {
-		throw std::runtime_error("Couldn't draw points" + std::string(SDL_GetError()));
+	if (SDL_RenderDrawPoints(m_renderer.get(), sdlPoints.data(), sdlPoints.size()) != 0) {
+		throw std::runtime_error(SDL_GetError());
 	}
 }
 
+// TODO: not sure to keep this signature (add fillRect probably)
 void WindowSdl::drawRectangle(const Rectangle &rectangle, bool filled, const malikania::Color &fillColor)
 {
 	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
 	int error = SDL_RenderDrawRect(m_renderer.get(), &rect);
 	if (error != 0) {
-		throw std::runtime_error("Couldn't draw rectangle" + std::string(SDL_GetError()));
+		throw std::runtime_error(SDL_GetError());
 	}
 	if (filled) {
 		this->setDrawingColor(fillColor);
 		error = SDL_RenderFillRect(m_renderer.get(), &rect);
 		if (error != 0) {
-			throw std::runtime_error("Couldn't fill rectangle" + std::string(SDL_GetError()));
+			throw std::runtime_error(SDL_GetError());
 		}
 	}
 }
 
+// TODO: same as above
 void WindowSdl::drawRectangles(const std::vector<Rectangle> &rectangles, bool filled, std::vector<Color> fillColors)
 {
-	SDL_Rect sdlRects[rectangles.size()];
+	std::vector<SDL_Rect> sdlRects(rectangles.size());
 
-	int i = 0;
-	for (const Rectangle &rectangle : rectangles) {
-		sdlRects[i++] = {rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
+	for (unsigned i = 0; i < rectangles.size(); ++i) {
+		sdlRects[i] = SDL_Rect{rectangles[i].x(), rectangles[i].y(), (int)rectangles[i].width(), (int)rectangles[i].height()};
 	}
 
-	int error = SDL_RenderDrawRects(m_renderer.get(), sdlRects, rectangles.size());
-	if (error != 0) {
-		throw std::runtime_error("Couldn't draw rectangles" + std::string(SDL_GetError()));
+	if (SDL_RenderDrawRects(m_renderer.get(), sdlRects.data(), sdlRects.size()) != 0) {
+		throw std::runtime_error(SDL_GetError());
 	}
 
 	if (filled) {
 		if (rectangles.size() != fillColors.size()) {
 			throw std::runtime_error("Couldn't fill rectangles, rectangles size and fillColors size are not the same");
 		}
+
 		int j = 0;
 		for (Color fillColor : fillColors) {
 			this->setDrawingColor(fillColor);
-			error = SDL_RenderFillRect(m_renderer.get(), &sdlRects[j++]);
-			if (error != 0) {
+
+			if (SDL_RenderFillRect(m_renderer.get(), &sdlRects[j++]) != 0) {
 				throw std::runtime_error("Couldn't fill rectangle" + std::string(SDL_GetError()));
 			}
 		}
 	}
 }
 
-/**
- * TODO Add color in parameters
- * @brief WindowSdl::drawText
- * @param text
- * @param size
- */
+// TODO: merge this into only one function and test results.
 void WindowSdl::drawText(const std::string &text, Font &font, const Rectangle &rectangle)
 {
-	SDL_Color textColor = {0, 0, 0, 255};
-	printf("LOL: %s\n", text.c_str());
-	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), textColor);
-	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
+	SDL_Color color = {0, 0, 0, 255};
+	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), color);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{rectangle.x(), rectangle.y(), (int)rectangle.width(), (int)rectangle.height()};
-#if 0
-	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
-#endif
-	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
+	SDL_RenderCopy(m_renderer.get(), texture, nullptr, &rect);
 	SDL_FreeSurface(message);
 }
 
-/**
- * TODO Add color in parameters
- * @brief WindowSdl::drawText
- * @param text
- * @param size
- */
 void WindowSdl::drawText(const std::string &text, Font &font, const Point &point)
 {
 	SDL_Color color = {0, 0, 0, 0};
@@ -249,12 +228,8 @@ void WindowSdl::drawText(const std::string &text, Font &font, const Point &point
 	SDL_Surface* message = TTF_RenderUTF8_Blended(font.backend().font(), text.c_str(), color);
 	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer.get(), message);
 	SDL_Rect rect{point.x(), point.y(), message->w, message->h};
-#if 0
-	Size screenSize = resolution();
-	SDL_Rect screen{0, 0, (int)screenSize.width(), (int)screenSize.height()};
-#endif
-	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 
+	SDL_RenderCopy(m_renderer.get(), textTexture, nullptr, &rect);
 	SDL_FreeSurface(message);
 }
 
