@@ -22,6 +22,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "Common.h"
 #include "Json.h"
 #include "ResourcesLocator.h"
 
@@ -38,7 +39,7 @@ class Game;
  * @see ResourcesLoaderClient
  * @see ResourcesLoaderServer
  */
-class ResourcesLoader {
+class MALIKANIA_COMMON_EXPORT ResourcesLoader {
 private:
 	ResourcesLocator &m_locator;
 

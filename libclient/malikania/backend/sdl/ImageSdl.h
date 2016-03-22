@@ -23,6 +23,7 @@
 
 #include <SDL.h>
 
+#include <malikania/CommonClient.h>
 #include <malikania/Size.h>
 
 namespace malikania {
@@ -32,7 +33,7 @@ class Point;
 class Rectangle;
 class Window;
 
-class ImageSdl {
+class MALIKANIA_CLIENT_EXPORT ImageSdl {
 private:
 	using Handle = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>;
 

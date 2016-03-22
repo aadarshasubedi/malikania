@@ -34,13 +34,15 @@
 
 #include <malikania/Size.h>
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 /**
  * @class Font
  * @brief Font object.
  */
-class Font {
+class MALIKANIA_CLIENT_EXPORT Font {
 private:
 	BackendFont m_backend;
 	unsigned m_size;

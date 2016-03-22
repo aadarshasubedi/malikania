@@ -19,13 +19,15 @@
 #ifndef _MALIKANIA_SIZE_H_
 #define _MALIKANIA_SIZE_H_
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 /**
  * @class Size
  * @brief Size description.
  */
-class Size {
+class MALIKANIA_CLIENT_EXPORT Size {
 private:
 	unsigned m_width;
 	unsigned m_height;

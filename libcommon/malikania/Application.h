@@ -24,13 +24,15 @@
  * @brief Main class for the client or server
  */
 
+#include "Common.h"
+
 namespace malikania {
 
 /**
  * @class Application
  * @brief Main class for argument parsing and executable path retrievement
  */
-class Application {
+class MALIKANIA_COMMON_EXPORT Application {
 public:
 	/**
 	 * Construct the application.

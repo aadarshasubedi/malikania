@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include "Common.h"
+
 namespace malikania {
 
 namespace util {

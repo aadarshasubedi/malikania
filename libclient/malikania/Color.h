@@ -22,13 +22,15 @@
 #include <cstdint>
 #include <string>
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 /**
  * @class Color
  * @brief Color description
  */
-class Color {
+class MALIKANIA_CLIENT_EXPORT Color {
 private:
 	std::uint8_t m_red{0};
 	std::uint8_t m_green{0};

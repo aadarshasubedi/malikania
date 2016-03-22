@@ -26,6 +26,8 @@
 
 #include <malikania/ElapsedTimer.h>
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 class Animation;
@@ -38,7 +40,7 @@ class Window;
  *
  * The animator contains an animation and a state.
  */
-class Animator {
+class MALIKANIA_CLIENT_EXPORT Animator {
 private:
 	std::shared_ptr<Animation> m_animation;
 	ElapsedTimer m_timer;

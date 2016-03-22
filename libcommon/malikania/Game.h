@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 
+#include "Common.h"
+
 namespace malikania {
 
 namespace json {
@@ -35,7 +37,7 @@ class Document;
  * @class Game
  * @brief Basic game class.
  */
-class Game {
+class MALIKANIA_COMMON_EXPORT Game {
 private:
 	std::string m_name;
 	std::string m_version;

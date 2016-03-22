@@ -95,13 +95,8 @@ include(CMakeParseArguments)
 # ---------------------------------------------------------
 
 function(apply_flags target flags)
-	# Add MALIKANIA_BUILD to enable declspec(dllexport) on Windows
 	if (${flags})
-		target_compile_definitions(
-			${target}
-			PRIVATE ${flags}
-			PRIVATE "MALIKANIA_BUILD"
-		)
+		target_compile_definitions(${target} PRIVATE ${flags})
 	endif ()
 endfunction()
 

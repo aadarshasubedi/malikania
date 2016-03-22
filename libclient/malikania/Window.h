@@ -16,11 +16,12 @@
 
 #include "Line.h"
 #include "Color.h"
+#include "CommonClient.h"
 #include "Point.h"
 
 namespace malikania {
 
-class Window {
+class MALIKANIA_CLIENT_EXPORT Window {
 public:
 	using KeyUp = std::function<void (int)>;
 	using KeyDown = std::function<void (int)>;

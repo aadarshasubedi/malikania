@@ -21,6 +21,8 @@
 
 #include <malikania/ResourcesLoader.h>
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 class Animation;
@@ -33,7 +35,7 @@ class Window;
  * @class ClientResourcesLoader
  * @brief Load client resources.
  */
-class ClientResourcesLoader : public ResourcesLoader {
+class MALIKANIA_CLIENT_EXPORT ClientResourcesLoader : public ResourcesLoader {
 private:
 	Window &m_window;
 

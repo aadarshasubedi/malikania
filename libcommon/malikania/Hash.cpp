@@ -21,6 +21,8 @@
 #include <openssl/sha.h>
 #include <openssl/md5.h>
 
+namespace malikania {
+
 std::string Hash::md5(const std::string &input)
 {
 	return convert<MD5_CTX, MD5_DIGEST_LENGTH>(input, MD5_Init, MD5_Update, MD5_Final);
@@ -40,3 +42,5 @@ std::string Hash::sha512(const std::string &input)
 {
 	return convert<SHA512_CTX, SHA512_DIGEST_LENGTH>(input, SHA512_Init, SHA512_Update, SHA512_Final);
 }
+
+} // !malikania

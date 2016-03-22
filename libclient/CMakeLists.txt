@@ -22,6 +22,7 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Animator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ClientResourcesLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Color.h
+	${CMAKE_CURRENT_SOURCE_DIR}/malikania/CommonClient.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Font.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Image.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Label.h
@@ -69,6 +70,7 @@ malikania_create_library(
 	PROJECT libclient
 	TARGET libclient
 	SOURCES ${HEADERS} ${SOURCES}
+	FLAGS ${DEFINITIONS} MALIKANIA_CLIENT_BUILD
 	PUBLIC_INCLUDES
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${SDL2_INCLUDE_DIRS}

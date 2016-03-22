@@ -23,13 +23,15 @@
 #include <memory>
 #include <istream>
 
+#include "Common.h"
+
 namespace malikania {
 
 /**
  * @class ResourcesLocator
  * @brief Load files from directories and zip.
  */
-class ResourcesLocator {
+class MALIKANIA_COMMON_EXPORT ResourcesLocator {
 public:
 	/**
 	 * Read a whole resource as a string.

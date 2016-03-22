@@ -26,6 +26,8 @@
 
 #include <chrono>
 
+#include "Common.h"
+
 namespace malikania {
 
 /**
@@ -38,7 +40,7 @@ namespace malikania {
  * It uses std::chrono::high_resolution_clock for more precision and uses
  * milliseconds only.
  */
-class ElapsedTimer {
+class MALIKANIA_COMMON_EXPORT ElapsedTimer {
 public:
 	using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 

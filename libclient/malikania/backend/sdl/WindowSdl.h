@@ -26,6 +26,7 @@
 
 #include <malikania/Size.h>
 #include <malikania/Color.h>
+#include <malikania/Common.h>
 #include <malikania/Line.h>
 #include <malikania/Point.h>
 #include <malikania/Rectangle.h>
@@ -35,7 +36,7 @@ namespace malikania {
 
 class Window;
 
-class WindowSdl {
+class MALIKANIA_CLIENT_EXPORT WindowSdl {
 private:
 	using WindowHandle = std::unique_ptr<SDL_Window, void (*)(SDL_Window *)>;
 	using RendererHandle = std::unique_ptr<SDL_Renderer, void (*)(SDL_Renderer *)>;

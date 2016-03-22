@@ -32,6 +32,8 @@
 #include <utility>
 #include <vector>
 
+#include "Common.h"
+
 namespace malikania {
 
 /**
@@ -57,7 +59,7 @@ enum class Type {
  * @class Error
  * @brief Error description.
  */
-class Error : public std::exception {
+class MALIKANIA_COMMON_EXPORT Error : public std::exception {
 private:
 	std::string m_text;
 	std::string m_source;
@@ -155,7 +157,7 @@ public:
  * When iterator comes from an object, you can use key() otherwise you can use index().
  */
 template <typename ValueType, typename ArrayIteratorType, typename ObjectIteratorType>
-class Iterator : public std::iterator<std::forward_iterator_tag, ValueType> {
+class MALIKANIA_COMMON_EXPORT Iterator : public std::iterator<std::forward_iterator_tag, ValueType> {
 private:
 	friend class Value;
 
@@ -313,7 +315,7 @@ public:
  * @class Value
  * @brief Generic JSON value wrapper.
  */
-class Value {
+class MALIKANIA_COMMON_EXPORT Value {
 private:
 	Type m_type{Type::Null};
 
@@ -1182,7 +1184,7 @@ inline Value object(std::initializer_list<std::pair<std::string, Value>> values)
  * @return the parsed value
  * @throw Error on errors
  */
-Value fromString(const std::string &data);
+MALIKANIA_COMMON_EXPORT Value fromString(const std::string &data);
 
 /**
  * Construct a value from a file.
@@ -1191,7 +1193,7 @@ Value fromString(const std::string &data);
  * @return the parsed value
  * @throw Error on errors
  */
-Value fromFile(const std::string &path);
+MALIKANIA_COMMON_EXPORT Value fromFile(const std::string &path);
 
 } // !json
 

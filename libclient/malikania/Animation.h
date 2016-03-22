@@ -29,6 +29,7 @@
 #include <memory>
 #include <vector>
 
+#include "CommonClient.h"
 #include "Sprite.h"
 
 namespace malikania {
@@ -42,7 +43,7 @@ class Window;
  * A frame is a duration before switching to the next sprite cell. It is currently implemented as a class for future
  * usage.
  */
-class AnimationFrame {
+class MALIKANIA_CLIENT_EXPORT AnimationFrame {
 private:
 	std::uint16_t m_delay;
 
@@ -81,7 +82,7 @@ public:
  *
  * @see Animator
  */
-class Animation {
+class MALIKANIA_CLIENT_EXPORT Animation {
 private:
 	std::shared_ptr<Sprite> m_sprite;
 	std::vector<AnimationFrame> m_frames;

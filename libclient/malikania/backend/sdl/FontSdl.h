@@ -22,15 +22,16 @@
 #include <memory>
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
-#include "SDL_ttf.h"
+#include <malikania/CommonClient.h>
 
 namespace malikania {
 
 class Font;
 class Size;
 
-class FontSdl {
+class MALIKANIA_CLIENT_EXPORT FontSdl {
 private:
 	using Handle = std::unique_ptr<TTF_Font, void (*)(TTF_Font*)>;
 

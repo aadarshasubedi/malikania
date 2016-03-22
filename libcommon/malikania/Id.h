@@ -28,6 +28,8 @@
 #include <queue>
 #include <stdexcept>
 
+#include "Common.h"
+
 namespace malikania {
 
 /**
@@ -42,7 +44,7 @@ namespace malikania {
  * The maximum number of id is equal to std::numeric_limits<T>::max - 1.
  */
 template <typename T>
-class IdGen {
+class MALIKANIA_COMMON_EXPORT IdGen {
 private:
 	static_assert(std::numeric_limits<T>::is_integer, "IdGen requires integral types");
 

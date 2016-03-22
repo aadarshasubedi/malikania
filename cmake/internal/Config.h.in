@@ -19,19 +19,6 @@
 #ifndef _MALIKANIA_CONFIG_H_
 #define _MALIKANIA_CONFIG_H_
 
-/*
- * Export attributes.
- */
-#if defined(_WIN32)
-#  if defined(MALIKANIA_BUILD)
-#    define MALIKANIA_EXPORT __declspec(dllexport)
-#  else
-#    define MALIKANIA_EXPORT __declspec(dllimport)
-#  endif
-#else
-#  define MALIKANIA_EXPORT
-#endif
-
 #cmakedefine WITH_BACKEND_SDL
 
 #endif // !_MALIKANIA_CONFIG_H_

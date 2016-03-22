@@ -23,16 +23,17 @@
 
 #include <Config.h>
 
-#include "Image.h"
 #include "Color.h"
+#include "CommonClient.h"
 #include "Font.h"
+#include "Image.h"
 #include "Rectangle.h"
 
 namespace malikania {
 
 class Window;
 
-class Label {
+class MALIKANIA_CLIENT_EXPORT Label {
 private:
 	std::string m_text;
 	std::shared_ptr<Font> m_font;

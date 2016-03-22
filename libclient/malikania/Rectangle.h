@@ -24,6 +24,8 @@
  * @brief Rectangle description.
  */
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 /**
@@ -34,7 +36,7 @@ namespace malikania {
  *
  * They are commonly used for clipping images into the window.
  */
-class Rectangle {
+class MALIKANIA_CLIENT_EXPORT Rectangle {
 private:
 	int m_x;
 	int m_y;

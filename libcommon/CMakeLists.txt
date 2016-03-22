@@ -19,8 +19,6 @@
 set(
 	HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Application.h
-	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Directory.h
-	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Game.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ElapsedTimer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Game.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Hash.h
@@ -30,13 +28,11 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLoader.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLocator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Util.h
-	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Sockets.h
 )
 
 set(
 	SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Application.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Directory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ElapsedTimer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Hash.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Js.cpp
@@ -44,7 +40,6 @@ set(
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLoader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/ResourcesLocator.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Util.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/malikania/Sockets.cpp
 )
 
 if (WITH_BACKEND_SDL)
@@ -64,7 +59,7 @@ malikania_create_library(
 	PROJECT libcommon
 	TARGET libcommon
 	SOURCES ${HEADERS} ${SOURCES}
-	FLAGS "MALIKANIA_COMMON_BUILD"
+	FLAGS MALIKANIA_COMMON_BUILD
 	PUBLIC_INCLUDES
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${Jansson_INCLUDE_DIRS}

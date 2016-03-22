@@ -24,6 +24,8 @@
  * @brief Line description.
  */
 
+#include "CommonClient.h"
+
 namespace malikania {
 
 /**
@@ -32,7 +34,7 @@ namespace malikania {
  *
  * A line has an origin (x, y) and a destination (x, y).
  */
-class Line {
+class MALIKANIA_CLIENT_EXPORT Line {
 private:
 	int m_x1;
 	int m_y1;

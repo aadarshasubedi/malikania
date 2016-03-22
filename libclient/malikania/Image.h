@@ -36,6 +36,7 @@
 #include <malikania/Size.h>
 #include <malikania/Rectangle.h>
 
+#include "CommonClient.h"
 #include "Point.h"
 
 namespace malikania {
@@ -46,7 +47,7 @@ class Window;
  * @class Image
  * @brief Image object.
  */
-class Image {
+class MALIKANIA_CLIENT_EXPORT Image {
 private:
 	BackendImage m_backend;
 

@@ -26,13 +26,17 @@
 
 #include <string>
 
+#include "Common.h"
+
+namespace malikania {
+
 /**
  * @class Hash
  * @brief Hash functions
  *
  * Provide support for MD5, SHA1, SHA256 and SHA512.
  */
-class Hash {
+class MALIKANIA_COMMON_EXPORT Hash {
 private:
 	template <typename Context>
 	using Init	= int (*)(Context *);
@@ -96,5 +100,7 @@ public:
 	 */
 	static std::string sha512(const std::string &input);
 };
+
+} // !malikania
 
 #endif // !_HASH_H_

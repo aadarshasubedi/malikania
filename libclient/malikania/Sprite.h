@@ -28,6 +28,7 @@
 
 #include <Config.h>
 
+#include "CommonClient.h"
 #include "Image.h"
 
 namespace malikania {
@@ -39,7 +40,7 @@ class Window;
  * @class Sprite
  * @brief A Sprite is an image divided into cells.
  */
-class Sprite {
+class MALIKANIA_CLIENT_EXPORT Sprite {
 private:
 	Image m_image;
 	Size m_cell;
